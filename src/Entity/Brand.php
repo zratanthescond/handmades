@@ -16,6 +16,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Core\Annotation\ApiFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\ExistsFilter;
 
 /**
  * @ApiResource(
@@ -35,6 +36,11 @@ use ApiPlatform\Core\Annotation\ApiFilter;
  * SearchFilter::class,
  * properties={"country"}
  * )
+ * @ApiFilter(
+ * ExistsFilter::class,
+ * properties={"image"}
+ * )
+ * 
  * @ORM\Entity(repositoryClass=BrandRepository::class)
  * @UniqueEntity("name")
  * @Vich\Uploadable()
