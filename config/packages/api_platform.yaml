@@ -1,0 +1,14 @@
+api_platform:
+    defaults:
+       pagination_client_items_per_page: true
+       allow_plain_identifiers: true
+    collection:
+        pagination:
+            page_parameter_name: _page
+            items_per_page_parameter_name: itemsPerPage
+    mapping:
+        paths: ['%kernel.project_dir%/src/Entity']
+    patch_formats:
+        json: ['application/merge-patch+json']
+    swagger:
+        versions: [3]
