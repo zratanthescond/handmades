@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Controller\Admin\Crud\AdminCrudController;
+use App\Controller\Admin\Crud\OutOfStockProductCrudController;
 use App\Controller\Admin\Crud\ProductCrudController;
 use App\Core\Security\Permission\UserRoles;
 use App\Entity\Blog;
@@ -83,6 +84,8 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::section("Stock Epuisé");
 
         yield MenuItem::linkToCrud('Notifications', 'fas fa-spinner', ProductStockSubscription::class);
+
+        yield MenuItem::linkToCrud('Produits', 'fa fa-sort-amount-asc', Product::class)->setController(OutOfStockProductCrudController::class);
 
         yield MenuItem::section("Commandes")->setPermission(UserRoles::SUPER_ADMIN);
 
