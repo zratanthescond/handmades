@@ -1,0 +1,108 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+           {{ parent()}}
+
+<style>
+
+body {
+
+     background: #eee
+}
+
+</style>
+
+{% endblock %}
+
+
+{% block title %}Avis produits{% endblock %}
+
+{% block body %}
+
+<div class="container mt-5 mb-5">
+
+<div class="row">
+
+<div class="col-md-8 offset-md-2">
+
+<div class="card">
+
+<div class="card-body">
+
+<div class="text-center pe-md-5 ps-md-5">
+
+<img src="{{ asset("/upload/img/rating.png") }}" class="img-fluid mt-3" style="height: 80px; width: 80px">
+
+ <h1 class="fw-bold text-primary mb-2 mt-2 text-uppercase fs-2">Avis produits</h1>
+                    <p class="mb-0 fw-bold">
+                      Partagez vos expériences avec les autres visiteurs et vous
+                      les aidez dans leurs achats.
+                    </p>
+                    <p>
+                      Les marques vous écoutent ! Elles consultent Beauté-test
+                      pour identifier les tendances, évaluer les retours, se
+                      comparer aux autres marques... Vous participez ainsi à la
+                      mise sur le marché de produits qui répondent plus à nos
+                      besoins.
+                    </p>
+
+
+</div> <!-- TEXT-CENTER -->
+
+
+{{ form_start(form) }}
+
+<ul class="list-group list-group-flush">
+    
+    {% for key, review in form.productReviews  %}
+
+  <li class="list-group-item">
+
+
+  <div class="d-flex align-items-center mb-2 mt-2">
+
+  {% set product = products[key].product  %}
+
+  <div class="me-2"><img src="{{ asset("/upload/img/" ~ product.thumbnail ) }}" class="img-fluid" style="height: 60px; width: 60px"> </div>
+
+  <div><h5 class="mb-0">{{ product.title }}</h5></div>
+
+  </div>
+    
+    {{ form_errors(review) }}
+
+    {{ form_widget(review) }}
+
+     {{ form_help(review) }}
+  
+  </li>
+
+  {% endfor %}
+
+  {% if form.orderReview is defined %}
+
+   <li class="list-group-item">
+
+   <h5 class="mt-3 mb-3">Évaluation de commande</h5>
+
+{{ form_row(form.orderReview)}}
+
+</li>
+
+{% endif %}
+ 
+</ul>
+
+{{ form_row(form.submit, {attr: {"class": "btn-primary d-flex mx-auto text-white ps-5 pe-5"}})}}
+
+{{ form_end(form, {render_rest: true}) }}
+
+</div> <!-- CARD  BODY -->
+
+
+</div> <!-- CARD -->
+</div> <!-- COL -->
+</div>  <!-- ROW -->
+</div>  <!-- CONTAINER -->
+
+{% endblock %}

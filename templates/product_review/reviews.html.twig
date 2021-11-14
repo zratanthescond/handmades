@@ -1,0 +1,111 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+           {{ parent()}}
+
+<style>
+
+body {
+
+     background: #eee
+}
+
+</style>
+
+{% endblock %}
+
+{% block title %}Vos avis sur nos produits{% endblock %}
+
+
+{% block body %}
+
+
+
+<div class="container mt-5 mb-5">
+
+<div class="row">
+
+<div class="col-md-8 offset-md-2">
+
+<div class="card">
+
+<div class="card-body">
+
+
+<div class="text-center pe-md-5 ps-md-5">
+
+<img src="{{ asset("/upload/img/rating.png") }}" class="img-fluid mt-3" style="height: 80px; width: 80px">
+
+ <h1 class="fw-bold text-primary mb-2 mt-2 text-uppercase fs-2">Vos avis sur nos produits</h1>
+
+ </div>
+
+ <div class="alert alert-info text-center mt-2 mb-4">
+
+ Nous avons bien reçu vos commentaires, Merci d'avoir évalué nos produits.
+
+ </div>
+
+
+ <ul class="list-group list-group-flush">
+
+ {% for review in reviews %}
+
+ <li class="list-group-item">
+
+ <div class="d-flex align-items-center">
+
+  <div class="me-3"><img src="{{ asset("/upload/img/" ~ review.product.thumbnail ) }}" class="img-fluid" style="height: 60px; width: 60px"> </div>
+
+  <div class="d-flex flex-column">
+
+  <div class="d-flex flex-row mb-2">
+
+  {% for i in 1..review.note %}
+
+  <span class="me-2"><img src="{{ asset("/img/star.png") }}" class="img-fluid" style="height: 20px; width: 20px"></span>
+
+  {% endfor %}
+
+  </div>
+
+  <div><h5 class="mb-0">{{ review.product.title }}</h5></div>
+
+  {% if review.comment %}<div class="small mt-2"> {{ review.comment }}</div> {% endif %}
+
+
+  </div>
+
+
+ </div> 
+
+ </li>
+
+ {% endfor %}
+
+
+ </ul>
+
+
+ <a href="https://paramall.tn/" class="btn btn-primary pe-5 ps-5 d-table mx-auto text-white mt-4">Revenir à la boutique</a>
+
+
+</div> <!-- CARD  BODY -->
+
+<div class="card-footer mt-5 d-flex justify-content-between text-muted small">
+
+{% set review = reviews | first %}
+
+<div> Client : {{ review.uOrder.user.fullName | capitalize }} </div>
+
+<div> Date: {{ review.createdAt | date("d/m/Y")}}</div>
+
+</div>
+
+
+</div> <!-- CARD -->
+</div> <!-- COL -->
+</div>  <!-- ROW -->
+</div>  <!-- CONTAINER -->
+
+{% endblock %}

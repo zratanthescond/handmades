@@ -1,0 +1,73 @@
+{% extends '@!EasyAdmin/layout.html.twig' %}
+
+ {% block content_title %}Commande numéro {{ order.id }}{% endblock %}
+
+{% block main %}
+
+<div class="row mb-4">
+
+<div class="col-md-6">
+
+<ul class="list-group">
+
+<li class="list-group-item"><span class="bold fw-bold">Date de création :</span> {{ order.createdAt | date("d/m/Y")}} </li>
+
+<li class="list-group-item">
+
+<span class="bold fw-bold">Méthode de livraison :</span> 
+
+<span>{{ order.delivery.name }}</span>
+
+<span class="badge badge-primary ms-1"> {{ order.delivery.price | format_currency('TND', {fraction_digit: 3}) }} </span>
+
+</li>
+
+<li class="list-group-item"><span class="bold fw-bold">Paiement :</span> Par carte bancaire</li>
+
+</ul>
+
+</div>
+
+<div class="col-md-6">
+
+<ul class="list-group">
+
+<li class="list-group-item"><span class="bold fw-bold">Client :</span> {{ order.user | capitalize }} </li>
+
+<li class="list-group-item"><span class="bold fw-bold">Addresse de livraison :</span> {{ order.user.defaultAddress }}</li>
+
+<li class="list-group-item"><span class="bold fw-bold">Paiement :</span> Par carte bancaire</li>
+
+</ul>
+
+</div>
+</div>
+
+<table class="table table-bordered">
+
+ <thead>
+    <tr>
+      <th scope="col">Produit</th>
+      <th scope="col">Prix</th>
+      <th scope="col">Quantité</th>
+    </tr>
+  </thead>
+  <tbody>
+     
+     {% for productOrder in order.products %}
+
+    <tr>
+      <td>{{ productOrder.product.title }}</td>
+      <td>{{ productOrder.product.price | format_currency('TND', {fraction_digit: 3})}}</td>
+      <td>{{ productOrder.qty }}</td>
+    </tr>
+
+    {% endfor %}
+   
+  </tbody>
+
+
+
+</table>
+
+{% endblock %}
