@@ -70,7 +70,7 @@ class DashboardController extends AbstractDashboardController
     {
         yield MenuItem::linktoDashboard('Dashboard', 'fa fa-home')->setPermission(UserRoles::SUPER_ADMIN);
         yield MenuItem::linkToCrud('Pages', 'fa fa-files-o', Page::class);
-        yield MenuItem::linkToCrud('Homepage', 'fas fa-bookmark', Home::class)->setPermission(UserRoles::SUPER_ADMIN);
+        yield MenuItem::linkToCrud('Homepage', 'fas fa-bookmark', Home::class)->setPermission(UserRoles::SUPER_ADMIN)->setEntityId(1)->setAction(Action::EDIT);
 
         yield MenuItem::section("Boutique");
         yield MenuItem::linkToCrud('Produits', 'fas fa-list', Product::class);
