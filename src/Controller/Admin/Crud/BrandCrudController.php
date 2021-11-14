@@ -6,6 +6,7 @@ use App\Entity\Brand;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\CountryField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Vich\UploaderBundle\Form\Type\VichImageType;
 
@@ -24,8 +25,9 @@ class BrandCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         return [
-
-            TextField::new("name"),
+         
+            ImageField::new("image")->setBasePath("upload/img")->onlyOnIndex(),
+            TextField::new("name", "Nom"),
             CountryField::new("country", "Pays d'origine"),
             TextField::new("imageFile")->setFormType(VichImageType::class)->onlyOnForms()
         ];
