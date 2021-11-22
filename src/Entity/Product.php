@@ -27,16 +27,13 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\ExistsFilter;
  * 
  * @ApiFilter(
  * SearchFilter::class,
- * properties={"category", "title": "partial", "originCountry"}
- * )
- * 
- * @ApiFilter(
- * SearchFilter::class,
- * properties={"type.slug"}
- * )
- * @ApiFilter(
- * SearchFilter::class,
- * properties={"users"}
+ * properties={
+ * "category.id": "exact", 
+ * "title": "partial", 
+ * "type.slug": "exact",
+ * "brand.country": "exact",
+ * "users"
+ * }
  * )
  * 
  * @ApiFilter(
@@ -51,14 +48,9 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\ExistsFilter;
  * 
  * @ApiFilter(
  * ExistsFilter::class,
- * properties={"discount"}
- * )
+ * properties={"discount"},
  * 
- * @ApiFilter(
- * SearchFilter::class,
- * properties={"brand.country"}
  * )
- * 
  * 
  * @ORM\Entity(repositoryClass=ProductRepository::class)
  */
