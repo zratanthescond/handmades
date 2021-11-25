@@ -78,7 +78,6 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Types', 'fas fa-paperclip', ProductType::class);
         yield MenuItem::linkToCrud('Catégories', 'fa fa-folder-open', ProductCategory::class);
         yield MenuItem::linkToCrud('Marques', 'fas fa-cube', Brand::class);
-        yield MenuItem::linkToCrud('Livraison', 'fas fa-truck', DeliveryType::class)->setPermission(UserRoles::SUPER_ADMIN);
         yield MenuItem::linkToCrud('Clients', 'fas fa-users', User::class)->setPermission(UserRoles::SUPER_ADMIN);
 
         yield MenuItem::section("Stock Epuisé");
@@ -117,6 +116,10 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Sections', 'fas fa-list', Help::class)->setPermission(UserRoles::SUPER_ADMIN);
 
         yield MenuItem::section("Paramétres")->setPermission(UserRoles::SUPER_ADMIN);
+
+        yield MenuItem::linkToCrud('Livraison', 'fas fa-truck', DeliveryType::class)->setPermission(UserRoles::SUPER_ADMIN);
+
+        yield MenuItem::linkToRoute("Menu", "fa fa-sort-amount-asc", "menu_builder")->setPermission(UserRoles::SUPER_ADMIN);
 
         /// this is for handle user with amdin role
 

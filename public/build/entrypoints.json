@@ -9,6 +9,12 @@
         "/build/app.c00527fd.css"
       ]
     },
+    "menu_builder": {
+      "js": [
+        "/build/runtime.6b2c1811.js",
+        "/build/menu_builder.9fa67809.js"
+      ]
+    },
     "front": {
       "js": [
         "/build/runtime.6b2c1811.js",

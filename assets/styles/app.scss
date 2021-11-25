@@ -1,0 +1,85 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap");
+
+body {
+  font-family: "Roboto", sans-serif;
+  font-weight: 400;
+}
+
+$primary-color: #03cecb;
+
+.sidebar {
+  background-color: #22282e;
+  @media (min-width: 1281px) {
+    position: fixed;
+    height: 100vh;
+    width: 300px;
+    float: left;
+    left: 0;
+
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      box-shadow: inset 0 0 5px grey;
+      border-radius: 10px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: $primary-color;
+      border-radius: 10px;
+    }
+    &::-webkit-scrollbar-thumb:hover {
+      background: $primary-color;
+    }
+  }
+
+  .main-header {
+    #header-logo {
+      a {
+        color: #fff;
+        font-size: 30px;
+        text-align: center;
+        margin: 25px 0 10px;
+      }
+    }
+  }
+
+  #main-menu {
+    .menu {
+      .menu-header {
+        font-weight: 500;
+        color: #fff;
+      }
+
+      .menu-item {
+        margin-bottom: 6px;
+        font-weight: 300;
+
+        a {
+          color: #fff;
+
+          &:hover {
+            color: $primary-color;
+            i {
+              color: $primary-color;
+            }
+          }
+        }
+
+        &.active {
+          a {
+            span {
+              text-decoration: none !important;
+              color: $primary-color;
+            }
+
+            i {
+              color: $primary-color !important;
+            }
+          }
+        }
+      }
+    }
+  }
+}

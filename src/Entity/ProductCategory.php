@@ -13,7 +13,7 @@ use App\Controller\ApiOperation\ProductCategory\NavigationController;
 
 /**
  * @ApiResource(
- * normalizationContext= {"groups" = {"category:read"}},
+ * normalizationContext= {"groups" = {"category:read", "product:read"}},
  * collectionOperations={
  * "get",
  * "navigation"={
