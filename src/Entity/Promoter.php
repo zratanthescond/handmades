@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=PromoterRepository::class)
@@ -23,13 +24,19 @@ class Promoter
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"discountCode:read"})
      */
     private $firstName;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"discountCode:read"})
      */
     private $lastName;
+
+    /**
+     * @Groups({"discountCode:read"})
+     */
 
     private $fullName;
 
@@ -50,11 +57,13 @@ class Promoter
 
     /**
      * @ORM\Column(type="boolean")
+     * @Groups({"discountCode:read"})
      */
     private $isActif;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"discountCode:read"})
      */
     private $alias;
 

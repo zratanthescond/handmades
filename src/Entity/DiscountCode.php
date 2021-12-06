@@ -9,9 +9,11 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use Symfony\Component\Validator\Constraints as Assert;
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ApiResource(
+ * normalizationContext= {"groups" = {"discountCode:read"}},
  * collectionOperations={"get"},
  * itemOperations={"get"}
  * )
@@ -28,6 +30,7 @@ class DiscountCode
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups({"discountCode:read"})
      */
     private $id;
 
@@ -41,21 +44,25 @@ class DiscountCode
      * @Assert\Length(
      *  min = 4
      * )
+     * @Groups({"discountCode:read"})
      */
     private $code;
 
     /**
      * @ORM\Column(type="boolean")
+     * @Groups({"discountCode:read"})
      */
     private $isValid;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Groups({"discountCode:read"})
      */
     private $expirationDate;
 
     /**
      * @ORM\ManyToOne(targetEntity=Promoter::class, inversedBy="discountCodes")
+     * @Groups({"discountCode:read"})
      */
     private $promoter;
 
@@ -63,6 +70,7 @@ class DiscountCode
      * @ORM\Column(type="integer")
      * @Assert\LessThanOrEqual(100)
      * @Assert\GreaterThan(0)
+     * @Groups({"discountCode:read"})
      */
     private $percentage;
 

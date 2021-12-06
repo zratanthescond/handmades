@@ -40,10 +40,17 @@ class Home
      */
     private $featuredProducts;
 
+    /**
+     * @ORM\OneToMany(targetEntity=HomeSmallBanner::class, mappedBy="home", orphanRemoval=true, cascade={"persist", "remove"})
+     * @Groups({"home:read"})
+     */
+    private $smallBanners;
+
     public function __construct()
     {
         $this->sliders = new ArrayCollection();
         $this->featuredProducts = new ArrayCollection();
+        $this->smallBanners = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -105,6 +112,36 @@ class Home
             // set the owning side to null (unless already changed)
             if ($featuredProduct->getHome() === $this) {
                 $featuredProduct->setHome(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|HomeSmallBanner[]
+     */
+    public function getSmallBanners(): Collection
+    {
+        return $this->smallBanners;
+    }
+
+    public function addSmallBanner(HomeSmallBanner $smallBanner): self
+    {
+        if (!$this->smallBanners->contains($smallBanner)) {
+            $this->smallBanners[] = $smallBanner;
+            $smallBanner->setHome($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSmallBanner(HomeSmallBanner $smallBanner): self
+    {
+        if ($this->smallBanners->removeElement($smallBanner)) {
+            // set the owning side to null (unless already changed)
+            if ($smallBanner->getHome() === $this) {
+                $smallBanner->setHome(null);
             }
         }
 

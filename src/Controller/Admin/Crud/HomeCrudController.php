@@ -4,6 +4,7 @@ namespace App\Controller\Admin\Crud;
 
 use App\Entity\Home;
 use App\Form\HomeSliderType;
+use App\Form\SmallBannerType;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
@@ -29,6 +30,7 @@ class HomeCrudController extends AbstractCrudController
 
             FormField::addPanel("Sliders"),
             CollectionField::new("sliders", "Images")->setEntryType(HomeSliderType::class),
+            CollectionField::new("smallBanners", "Banniéres")->setEntryType(SmallBannerType::class),
             FormField::addPanel("Produits en vedettes"),
             AssociationField::new("featuredProducts", "Selectionner des produits")
             ->autocomplete()->setFormTypeOptions(["by_reference" => false])
