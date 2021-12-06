@@ -116,6 +116,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     private $wishList;
 
+    /**
+     * @ORM\OneToOne(targetEntity=ResetPassword::class, mappedBy="user", cascade={"persist", "remove"})
+     */
+    private $resetPassword;
+
     public function __construct()
     {
         $this->createdAt = new DateTimeImmutable();
@@ -413,6 +418,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      public function removeWishList(Product $wishList): self
      {
          $this->wishList->removeElement($wishList);
+
+         return $this;
+     }
+
+     public function getResetPassword(): ?ResetPassword
+     {
+         return $this->resetPassword;
+     }
+
+     public function setResetPassword(ResetPassword $resetPassword): self
+     {
+         // set the owning side of the relation if necessary
+         if ($resetPassword->getUser() !== $this) {
+             $resetPassword->setUser($this);
+         }
+
+         $this->resetPassword = $resetPassword;
 
          return $this;
      }
