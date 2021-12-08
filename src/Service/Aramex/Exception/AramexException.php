@@ -7,7 +7,6 @@ class AramexException extends \LogicException
 
     public function getError(): string
     {
-
         return "Une erreur est survenue";
     }
 }

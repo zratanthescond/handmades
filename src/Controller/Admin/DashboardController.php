@@ -6,6 +6,8 @@ use App\Controller\Admin\Crud\AdminCrudController;
 use App\Controller\Admin\Crud\OutOfStockProductCrudController;
 use App\Controller\Admin\Crud\ProductCrudController;
 use App\Core\Security\Permission\UserRoles;
+use App\Entity\AramexPickUp;
+use App\Entity\AramexShipement;
 use App\Entity\Blog;
 use App\Entity\BlogCategory;
 use App\Entity\Brand;
@@ -89,6 +91,13 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::section("Commandes")->setPermission(UserRoles::SUPER_ADMIN);
 
         yield MenuItem::linkToCrud('Commandes', 'fas fa-shopping-cart', Order::class)->setPermission(UserRoles::SUPER_ADMIN);
+
+
+        yield MenuItem::section("Aramex");
+
+        yield MenuItem::linkToCrud('Shipements', 'fas fa-truck', AramexShipement::class);
+
+        yield MenuItem::linkToCrud('Pick Up', 'fas fa-cart-arrow-down', AramexPickUp::class);
 
         
         yield MenuItem::section("Promotion")->setPermission(UserRoles::SUPER_ADMIN);

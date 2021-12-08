@@ -42,11 +42,23 @@ class AramexShipement
      */
     private $status;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=AramexPickUp::class, inversedBy="shippements")
+     */
+    private $aramexPickUp;
+
+    private $isPickedUp;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
 
         $this->status = "in progress";
+    }
+
+    public function __toString()
+    {
+        return $this->trackingId;
     }
 
     public function getId(): ?int
@@ -113,4 +125,22 @@ class AramexShipement
 
         return $this;
     }
+
+
+    public function getIsPickedUp(): bool
+    {
+        return !!$this->getAramexPickUp();
+    }
+
+   public function getAramexPickUp(): ?AramexPickUp
+   {
+       return $this->aramexPickUp;
+   }
+
+   public function setAramexPickUp(?AramexPickUp $aramexPickUp): self
+   {
+       $this->aramexPickUp = $aramexPickUp;
+
+       return $this;
+   }
 }

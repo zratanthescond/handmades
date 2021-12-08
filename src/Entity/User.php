@@ -351,7 +351,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     
-    public function getDefaultAddress()
+    public function getDefaultAddress($str = true)
     {
         $addresses = $this->getAddresses();
 

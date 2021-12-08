@@ -3,10 +3,14 @@
 
 namespace App\Service\Aramex;
 
+use App\Service\Aramex\Exception\AramexException;
+
 class AramexPickUp extends Aramex
 {
 
-    public function createPickUp()
+    use AramexHelper;
+
+    public function createPickUp(\DateTime $readyTime, \DateTime $lastPickupTime): ProcessedPickup
     {
 
         $params = array(
@@ -16,7 +20,7 @@ class AramexPickUp extends Aramex
                 'PickupContact' => array(
                     'PersonName' => $this->compagnyName . " , "  . $this->compagnyAddress, // buyer name (how we will picked from him the shippment)
                     'CompanyName' => $this->compagnyName . " , "  . $this->compagnyAddress, // buyer name (how we will picked from him the shippment)
-                    'PhoneNumber1' => $this->compagny, // phone  number  of buyer
+                    'PhoneNumber1' => $this->compagnyPhone, // phone  number  of buyer
                     'PhoneNumber1Ext' => '',
                     'CellPhone' => $this->compagnyPhone, //phone  number  of buyer
                     'EmailAddress' => $this->compagnyEmail, // buyer mail addres
@@ -30,9 +34,9 @@ class AramexPickUp extends Aramex
                 ),
                 'PickupLocation' => 'reciption ', // keep it static lik "reciption"
                 'PickupDate' => time(), // date requested for the pickup  avant 11 am le mm jour  apres 11 am j +1 2021-12-0T08:00:00.000Z
-                'ReadyTime' => time(), // time requested for the pickup ready time ouvert 9 am a 7 pm 
-                'LastPickupTime' => time(), // time requested for the pickup last time  last tim 7pm
-                'ClosingTime' => time(), // time requested for the pickup last time
+                'ReadyTime' => $readyTime->getTimestamp(), // time requested for the pickup ready time ouvert 9 am a 7 pm 
+                'LastPickupTime' => $lastPickupTime->getTimestamp(), // time requested for the pickup last time  last tim 7pm
+                'ClosingTime' => $lastPickupTime->getTimestamp(), // time requested for the pickup last time
                 'Comments' => 'test', //optionel
                 'Reference1' => 'test', //optionel
                 'Reference2' => '', //optionel
@@ -123,15 +127,25 @@ class AramexPickUp extends Aramex
             'Reference'        => ''
         );
 
-        print_r($params);
-
         try {
 
             $soapClient = $this->client();
 
-            $authCall = $soapClient->CreatePickup($params);
+            $res = $soapClient->CreatePickup($params);
 
-            dd($authCall);
+            $data = $this->normalize($res);
+
+            ///dd($data);
+
+            if ($data["HasErrors"] === true) {
+
+                
+                $errorMessage = AramexErrorHandler::getErrorMessage($data);
+
+                throw new AramexException($errorMessage);
+            }
+
+            return new ProcessedPickup($data["ProcessedPickup"]);
 
             $soap_request = $soapClient->__getLastRequest();
         } catch (\SoapFault $fault) {

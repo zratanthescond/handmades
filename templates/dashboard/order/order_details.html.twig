@@ -22,7 +22,29 @@
 
 </li>
 
-<li class="list-group-item"><span class="bold fw-bold">Paiement :</span> Par carte bancaire</li>
+
+{% if order.aramexShipement %}
+
+<li class="list-group-item">
+
+<span class="fw-bold">TrackingID :</span>
+
+<span>{{ order.aramexShipement.trackingId }}</span>
+
+</li>
+
+
+<li class="list-group-item">
+
+<span class="fw-bold">bordereau : </span>
+
+<span><a href="{{ asset("upload/aramex/" ~ order.aramexShipement.attachement ) }}" download>Bordereau livraison</a></span> 
+
+</li>
+
+
+{% endif %}
+
 
 </ul>
 

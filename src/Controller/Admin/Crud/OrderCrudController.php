@@ -13,6 +13,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\MoneyField;
 
 class OrderCrudController extends AbstractCrudController
 {
@@ -56,7 +57,8 @@ class OrderCrudController extends AbstractCrudController
             IntegerField::new("id")->onlyOnIndex(),
             DateTimeField::new("createdAt", "Date"),
             AssociationField::new("user", "Client")->onlyOnIndex(),
-            CollectionField::new("products")->onlyOnIndex(),
+            CollectionField::new("products", "Produits")->onlyOnIndex(),
+            MoneyField::new("total")->setCurrency("TND")->setNumDecimals(3)->setStoredAsCents(false)
 
         ];
     }
