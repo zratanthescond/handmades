@@ -120,6 +120,11 @@ class Order
      */
     private $orderReview;
 
+    /**
+     * @ORM\OneToOne(targetEntity=AramexShipement::class, mappedBy="clientOrder", cascade={"persist", "remove"})
+     */
+    private $aramexShipement;
+
 
     public function __construct()
     {
@@ -285,6 +290,28 @@ class Order
         }
 
         $this->orderReview = $orderReview;
+
+        return $this;
+    }
+
+    public function getAramexShipement(): ?AramexShipement
+    {
+        return $this->aramexShipement;
+    }
+
+    public function setAramexShipement(?AramexShipement $aramexShipement): self
+    {
+        // unset the owning side of the relation if necessary
+        if ($aramexShipement === null && $this->aramexShipement !== null) {
+            $this->aramexShipement->setClientOrder(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($aramexShipement !== null && $aramexShipement->getClientOrder() !== $this) {
+            $aramexShipement->setClientOrder($this);
+        }
+
+        $this->aramexShipement = $aramexShipement;
 
         return $this;
     }
