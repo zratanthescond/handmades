@@ -19,7 +19,7 @@ class RewardPointsManager
 
     private $price;
 
-    public function __construct(float $price)
+    public function __construct(float $price = 0)
     {
         $this->price = $price;
     }
