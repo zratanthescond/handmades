@@ -1,8 +1,12 @@
 twig:
     default_path: '%kernel.project_dir%/templates'
     form_themes: ['bootstrap_5_layout.html.twig']
+    paths:
+       '%kernel.project_dir%/public/assets/email': style
+       '%kernel.project_dir%/public': publicPath
     globals:
       frontUrl : "http://localhost:3000"
+      siteName: "Paramall"
 
 when@test:
     twig:
