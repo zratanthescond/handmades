@@ -121,6 +121,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     private $resetPassword;
 
+    /**
+     * @ORM\OneToMany(targetEntity=RewardPointsHistory::class, mappedBy="user", orphanRemoval=true, cascade={"persist"})
+     */
+    private $rewardPointsHistories;
+
     public function __construct()
     {
         $this->createdAt = new DateTimeImmutable();
@@ -128,6 +133,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->addresses = new ArrayCollection();
         $this->rewardPoints = 0;
         $this->wishList = new ArrayCollection();
+        $this->rewardPointsHistories = new ArrayCollection();
     }
 
     public function __toString()
@@ -435,6 +441,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
          }
 
          $this->resetPassword = $resetPassword;
+
+         return $this;
+     }
+
+     /**
+      * @return Collection|RewardPointsHistory[]
+      */
+     public function getRewardPointsHistories(): Collection
+     {
+         return $this->rewardPointsHistories;
+     }
+
+     public function addRewardPointsHistory(RewardPointsHistory $rewardPointsHistory): self
+     {
+         if (!$this->rewardPointsHistories->contains($rewardPointsHistory)) {
+             $this->rewardPointsHistories[] = $rewardPointsHistory;
+             $rewardPointsHistory->setUser($this);
+         }
+
+         return $this;
+     }
+
+     public function removeRewardPointsHistory(RewardPointsHistory $rewardPointsHistory): self
+     {
+         if ($this->rewardPointsHistories->removeElement($rewardPointsHistory)) {
+             // set the owning side to null (unless already changed)
+             if ($rewardPointsHistory->getUser() === $this) {
+                 $rewardPointsHistory->setUser(null);
+             }
+         }
 
          return $this;
      }

@@ -1,0 +1,37 @@
+{% apply inky_to_html|inline_css(source('@style/foundation.css'), source('@style/email.css')) %}
+
+<container>
+	<row class="header">
+		<columns>
+			<spacer size="30"></spacer>
+
+			<a href="{{ frontUrl }}">
+				<center><img src="{{ email.image('@publicPath/img/logo.png') }}" class="logo" alt="{{ siteName }}"></center>
+			</a>
+
+
+		</columns>
+	</row>
+
+
+	<spacer size="30"></spacer>
+
+	{% block content %}{% endblock %}
+
+
+	<spacer size="30"></spacer>
+
+	<row class="bottom">
+
+		<columns>
+			<center>
+				<div>A trés bientôt sur paramall.tn ❤️</div>
+			</center>
+			<spacer size="35"></spacer>
+		</columns>
+	</row>
+
+
+</container>
+
+{% endapply %}

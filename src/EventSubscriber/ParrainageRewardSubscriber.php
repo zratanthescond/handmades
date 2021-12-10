@@ -3,7 +3,9 @@
 namespace App\EventSubscriber;
 
 use App\Core\Parrainage\ParrainageManager;
+use App\Core\RewardPoints\RewardPointsContext;
 use App\Entity\Parrainage;
+use App\Entity\RewardPointsHistory;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use App\Event\OrderIsPlacedEvent;
 use Doctrine\ORM\EntityManagerInterface;
@@ -53,10 +55,19 @@ class ParrainageRewardSubscriber implements EventSubscriberInterface
 
             $incrementedPoints = $this->parrainageManager->getPoints();
 
-            $fromUser->setRewardPoints($currentPoint + $incrementedPoints);
+            $newPoints = $currentPoint + $incrementedPoints;
 
             $parrainage->setIsRewarded(true)->setIsRewardedAt(new \DateTimeImmutable());
 
+            $history = (new RewardPointsHistory())
+            ->setCurrentPoints($currentPoint)
+            ->setPoints($incrementedPoints)
+            ->setNewPoints($newPoints)
+            ->setContext(RewardPointsContext::PARRAINAGE)
+            ->setOperation(RewardPointsContext::INCREMENT);
+
+            $fromUser->setRewardPoints($newPoints)->addRewardPointsHistory($history);
+            
             $this->em->persist($fromUser);
 
             $this->em->persist($parrainage);

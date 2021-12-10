@@ -1,7 +1,25 @@
-<h4>Bonjour {{ parrainage.beneficiaryFirstName }}</h4>
+{% extends 'email/base_email.html.twig' %}
 
-<p>{{ fromUser.firstName }} souhaite vous parrainer.</p>
+{% block content %}
 
-<p>Inscrivez vous sur notre site et offrez lui 4 DT de réduction.</p>
+	<row>
+		<columns>
 
-<p><a href="https://paramall.tn/">Inscrivez vous</a></p>
+			<h3>Bonjour
+				{{ parrainage.beneficiaryFirstName | capitalize }}
+			</h3>
+
+			<p>Votre ami
+				{{ fromUser.firstName | capitalize  }}
+				souhaite vous parrainer sur paramall.tn.</p>
+
+			<p>Inscrivez vous sur notre site et offrez lui 4 DT de réduction lors de votre première commande.</p>
+
+			<button href="{{ frontUrl }}">Visiter notre boutique en ligne
+			</button>
+
+		</columns>
+	</row>
+
+
+{% endblock %}

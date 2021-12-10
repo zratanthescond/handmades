@@ -1,0 +1,1 @@
+{% apply inky_to_html|inline_css(source('@style/email/foundation.css'), source('@style/email/email.css')) %}
