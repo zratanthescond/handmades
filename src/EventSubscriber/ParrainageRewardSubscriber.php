@@ -90,7 +90,7 @@ class ParrainageRewardSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            OrderIsPlacedEvent::EVENT_NAME => ["onOrderIsPlaced", 50]
+            OrderIsPlacedEvent::EVENT_NAME => ["onOrderIsPlaced", 20]
         ];
     }
 }
