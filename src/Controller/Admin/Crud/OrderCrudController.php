@@ -28,7 +28,8 @@ class OrderCrudController extends AbstractCrudController
         $orderDetails = Action::new('orderDetails', 'Détails', 'fa fa-file-invoice')
             ->linkToCrudAction('orderDetails');
 
-        return $actions->add(Crud::PAGE_INDEX, $orderDetails)->disable(Action::NEW);
+        return $actions->add(Crud::PAGE_INDEX, $orderDetails)
+            ->disable(Action::NEW, Action::BATCH_DELETE);
     }
 
     public function orderDetails(AdminContext $context)
@@ -45,10 +46,11 @@ class OrderCrudController extends AbstractCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return $crud->setEntityLabelInPlural("Commandes")
-        ->setEntityLabelInSingular("Commande")
-        ->setDefaultSort(["createdAt" => "DESC"])
-        ->setEntityPermission(UserRoles::SUPER_ADMIN);
+            ->setEntityLabelInSingular("Commande")
+            ->setDefaultSort(["createdAt" => "DESC"])
+            ->setEntityPermission(UserRoles::SUPER_ADMIN);
     }
+
 
     public function configureFields(string $pageName): iterable
     {
@@ -58,6 +60,7 @@ class OrderCrudController extends AbstractCrudController
             DateTimeField::new("createdAt", "Date"),
             AssociationField::new("user", "Client")->onlyOnIndex(),
             CollectionField::new("products", "Produits")->onlyOnIndex(),
+            MoneyField::new("subtotal", "Sous-total")->setCurrency("TND")->setNumDecimals(3)->setStoredAsCents(false),
             MoneyField::new("total")->setCurrency("TND")->setNumDecimals(3)->setStoredAsCents(false)
 
         ];

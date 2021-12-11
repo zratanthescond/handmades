@@ -5,7 +5,8 @@ twig:
        '%kernel.project_dir%/public/assets/email': style
        '%kernel.project_dir%/public': publicPath
     globals:
-      frontUrl : "http://localhost:3000"
+      #frontUrl : "http://localhost:3000"
+      frontUrl: "https://paramall.tn"
       siteName: "Paramall"
 
 when@test:
