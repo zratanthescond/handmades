@@ -79,6 +79,7 @@ class ParrainageRewardSubscriber implements EventSubscriberInterface
                 ->context([
                     "parrainage" => $parrainage,
                     "fromUser" => $fromUser,
+                    "newPoints" => $newPoints,
                     "incrementedPoints" => $incrementedPoints
                 ])
                 ->htmlTemplate("email/parrainage/parrainage_is_rewarded.html.twig");
