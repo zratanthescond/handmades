@@ -8,9 +8,28 @@
 
 <div class="col-md-6">
 
+<h5>Détails</h5>
+
 <ul class="list-group">
 
-<li class="list-group-item"><span class="bold fw-bold">Date de création :</span> {{ order.createdAt | date("d/m/Y")}} </li>
+<li class="list-group-item"><span class="bold fw-bold">Date :</span> {{ order.createdAt | date("d/m/Y")}} </li>
+
+<li class="list-group-item"><span class="bold fw-bold">Client :</span> {{ order.user | capitalize }} </li>
+
+<li class="list-group-item"><span class="bold fw-bold">Sous total :</span> {{ order.subtotal | format_currency('TND', {fraction_digit: 3}) }} </li> 
+
+<li class="list-group-item"><span class="bold fw-bold">Total :</span> {{ order.total | format_currency('TND', {fraction_digit: 3}) }} </li> 
+
+
+</ul>
+
+</div>
+
+<div class="col-md-6">
+
+<h5>Livraison</h5>
+
+<ul class="list-group">
 
 <li class="list-group-item">
 
@@ -21,7 +40,6 @@
 <span class="badge badge-primary ms-1"> {{ order.delivery.price | format_currency('TND', {fraction_digit: 3}) }} </span>
 
 </li>
-
 
 {% if order.aramexShipement %}
 
@@ -34,6 +52,8 @@
 </li>
 
 
+{% endif %}
+
 <li class="list-group-item">
 
 <span class="fw-bold">bordereau : </span>
@@ -43,27 +63,38 @@
 </li>
 
 
-{% endif %}
-
+<li class="list-group-item"><span class="bold fw-bold">Addresse de livraison :</span> {{ order.user.defaultAddress }}</li>
 
 </ul>
-
 </div>
 
-<div class="col-md-6">
+<div class="col-md-6 mt-4">
+
+<h5>Réduction</h5>
 
 <ul class="list-group">
 
-<li class="list-group-item"><span class="bold fw-bold">Client :</span> {{ order.user | capitalize }} </li>
+<li class="list-group-item"><span class="bold fw-bold">Points de fidélité :</span> {{ order.rewardPointsToConsume}} Points</li>
 
-<li class="list-group-item"><span class="bold fw-bold">Addresse de livraison :</span> {{ order.user.defaultAddress }}</li>
+<li class="list-group-item"><span class="bold fw-bold">Code promo:</span>
 
-<li class="list-group-item"><span class="bold fw-bold">Paiement :</span> Par carte bancaire</li>
+{% if order.discountCode %}
+
+<span> {{ order.discountCode.code }} // -{{ order.discountCode.percentage }}% </span>
+
+{% else %}
+
+<span>Aucun</span>
+
+{% endif %}
+
+</li>
 
 </ul>
+</div>
+</div>
 
-</div>
-</div>
+<h5>{{ order.products | length }} Produit(s) commandé(s)</h5>
 
 <table class="table table-bordered">
 
@@ -78,9 +109,13 @@
      
      {% for productOrder in order.products %}
 
+     {% set product = productOrder.product %}
+
     <tr>
       <td>{{ productOrder.product.title }}</td>
-      <td>{{ productOrder.product.price | format_currency('TND', {fraction_digit: 3})}}</td>
+      <td>
+      {{ product | pricePercentage | format_currency('TND', {fraction_digit: 3}) }}
+      </td>
       <td>{{ productOrder.qty }}</td>
     </tr>
 
