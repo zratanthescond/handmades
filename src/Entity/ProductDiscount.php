@@ -131,7 +131,11 @@ class ProductDiscount
 
         $discountValue = $price * $this->pourcentage / 100;
 
-        return round($price - $discountValue);
+        $newPrice = $price - $discountValue;
+
+        return $newPrice;
+
+       /// return round($price - $discountValue);
     }
 
     public function setNewPrice($newPrice): self
