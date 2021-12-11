@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\DeliveryType;
+use App\Entity\DiscountCode;
 use App\Entity\Order;
 use App\Entity\Product;
 use App\Entity\ProductOrder;
@@ -22,6 +23,8 @@ class MakeOrderController extends AbstractController
 
     private $productRepo;
 
+    private $discountCodeRepo;
+
     public function __construct(EntityManagerInterface $em)
     {
         $this->deliveryRepo = $em->getRepository(DeliveryType::class);
@@ -29,6 +32,8 @@ class MakeOrderController extends AbstractController
         $this->userRepo = $em->getRepository(User::class);
 
         $this->productRepo = $em->getRepository(Product::class);
+
+        $this->discountCodeRepo = $em->getRepository(DiscountCode::class);
     }
 
     public function __invoke(Request $request, EventDispatcherInterface $dispatcher)
@@ -54,7 +59,23 @@ class MakeOrderController extends AbstractController
               $order->addProduct($productOrder);
         }
 
-        $order->setDelivery($delivery)->setUser($user)->setTotal($data["total"])->setNote($data["note"]);
+        $rewardPointsToConsume = $data["rewardPointsToConsume"];
+
+        if(isset($data["discountCodeId"])) {
+
+             $discountCode = $this->discountCodeRepo->find($data["discountCodeId"]);
+
+             if($discountCode) {
+
+                 $order->setDiscountCode($discountCode);
+             }
+        }
+
+        $order->setDelivery($delivery)->setUser($user)
+        ->setSubtotal($data["subtotal"])
+        ->setTotal($data["total"])
+        ->setNote($data["note"])
+        ->setRewardPointsToConsume($rewardPointsToConsume);
 
         $event = new OrderIsPlacedEvent($order);
 

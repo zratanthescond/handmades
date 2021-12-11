@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\DiscountCodeRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use ApiPlatform\Core\Annotation\ApiResource;
@@ -44,25 +46,25 @@ class DiscountCode
      * @Assert\Length(
      *  min = 4
      * )
-     * @Groups({"discountCode:read"})
+     * @Groups({"discountCode:read", "order:read"})
      */
     private $code;
 
     /**
      * @ORM\Column(type="boolean")
-     * @Groups({"discountCode:read"})
+     * @Groups({"discountCode:read", "order:read"})
      */
     private $isValid;
 
     /**
      * @ORM\Column(type="datetime")
-     * @Groups({"discountCode:read"})
+     * @Groups({"discountCode:read", "order:read"})
      */
     private $expirationDate;
 
     /**
      * @ORM\ManyToOne(targetEntity=Promoter::class, inversedBy="discountCodes")
-     * @Groups({"discountCode:read"})
+     * @Groups({"discountCode:read", "order:read"})
      */
     private $promoter;
 
@@ -70,9 +72,14 @@ class DiscountCode
      * @ORM\Column(type="integer")
      * @Assert\LessThanOrEqual(100)
      * @Assert\GreaterThan(0)
-     * @Groups({"discountCode:read"})
+     * @Groups({"discountCode:read", "order:read"})
      */
     private $percentage;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Order::class, mappedBy="discountCode")
+     */
+    private $orders;
 
 
     public function __construct()
@@ -80,6 +87,7 @@ class DiscountCode
         $this->isValid = true;
 
         $this->createdAt = new \DateTimeImmutable();
+        $this->orders = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -155,6 +163,36 @@ class DiscountCode
     public function setPercentage(int $percentage): self
     {
         $this->percentage = $percentage;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Order[]
+     */
+    public function getOrders(): Collection
+    {
+        return $this->orders;
+    }
+
+    public function addOrder(Order $order): self
+    {
+        if (!$this->orders->contains($order)) {
+            $this->orders[] = $order;
+            $order->setDiscountCode($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOrder(Order $order): self
+    {
+        if ($this->orders->removeElement($order)) {
+            // set the owning side to null (unless already changed)
+            if ($order->getDiscountCode() === $this) {
+                $order->setDiscountCode(null);
+            }
+        }
 
         return $this;
     }

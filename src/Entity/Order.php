@@ -93,7 +93,7 @@ class Order
     /**
      * @ORM\ManyToOne(targetEntity=DeliveryType::class, inversedBy="orders")
      * @ORM\JoinColumn(nullable=false)
-     * @Groups({"order:write", "order:read"})
+     * @Groups({"order:write", "order:read", "order:collection:read"})
      */
     private $delivery;
 
@@ -124,6 +124,24 @@ class Order
      * @ORM\OneToOne(targetEntity=AramexShipement::class, mappedBy="clientOrder", cascade={"persist", "remove"})
      */
     private $aramexShipement;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     * @groups({"order:collection:read", "order:read"})
+     */
+    private $rewardPointsToConsume;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=DiscountCode::class, inversedBy="orders")
+     * @groups({"order:read"})
+     */
+    private $discountCode;
+
+    /**
+     * @ORM\Column(type="float")
+     * @groups({"order:collection:read", "order:read"})
+     */
+    private $subtotal;
 
 
     public function __construct()
@@ -312,6 +330,42 @@ class Order
         }
 
         $this->aramexShipement = $aramexShipement;
+
+        return $this;
+    }
+
+    public function getRewardPointsToConsume(): ?int
+    {
+        return $this->rewardPointsToConsume;
+    }
+
+    public function setRewardPointsToConsume(?int $rewardPointsToConsume): self
+    {
+        $this->rewardPointsToConsume = $rewardPointsToConsume;
+
+        return $this;
+    }
+
+    public function getDiscountCode(): ?DiscountCode
+    {
+        return $this->discountCode;
+    }
+
+    public function setDiscountCode(?DiscountCode $discountCode): self
+    {
+        $this->discountCode = $discountCode;
+
+        return $this;
+    }
+
+    public function getSubtotal(): ?float
+    {
+        return $this->subtotal;
+    }
+
+    public function setSubtotal(float $subtotal): self
+    {
+        $this->subtotal = $subtotal;
 
         return $this;
     }

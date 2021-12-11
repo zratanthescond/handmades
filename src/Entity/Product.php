@@ -113,7 +113,7 @@ class Product
 
     /**
      * @ORM\Column(type="float", nullable=true)
-     * @Groups({"product:read", "brand:read", "home:read"})
+     * @Groups({"product:read", "brand:read", "home:read", "order:read"})
      */
     private $price;
 
@@ -142,7 +142,7 @@ class Product
 
     /**
      * @ORM\OneToOne(targetEntity=ProductDiscount::class, mappedBy="product", cascade={"persist", "remove"})
-     * @Groups({"product:read", "brand:read", "home:read"})
+     * @Groups({"product:read", "brand:read", "home:read", "order:read"})
      */
     private $discount;
 

@@ -25,12 +25,13 @@ class Promoter
     /**
      * @ORM\Column(type="string", length=255)
      * @Groups({"discountCode:read"})
+     * @Groups({"discountCode:read", "order:read"})
      */
     private $firstName;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"discountCode:read"})
+     * @Groups({"discountCode:read", "order:read"})
      */
     private $lastName;
 

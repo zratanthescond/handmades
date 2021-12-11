@@ -28,13 +28,13 @@ class ProductDiscount
 
     /**
      * @ORM\Column(type="integer")
-     * @Groups({"product:read", "brand:read", "home:read"})
+     * @Groups({"product:read", "brand:read", "home:read", "order:read"})
      */
     private $pourcentage;
 
   
     /**
-     * @Groups({"product:read", "brand:read", "home:read"})
+     * @Groups({"product:read", "brand:read", "home:read", "order:read"})
      */
 
     private $newPrice;

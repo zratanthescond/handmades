@@ -28,7 +28,7 @@ class DeliveryType
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"order:write", "order:read"})
+     * @Groups({"order:write", "order:read", "order:collection:read"})
      */
     private $name;
 
