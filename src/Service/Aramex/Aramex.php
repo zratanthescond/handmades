@@ -262,7 +262,9 @@ class Aramex
 
             if ($data["HasErrors"] === true) {
 
-                throw new AramexException("Une erreur est survenue");
+                $errorMessage = AramexErrorHandler::getErrorMessage($data);
+
+                throw new AramexException($errorMessage);
             }
 
             return new AramexShippement($data["Shipments"]);
