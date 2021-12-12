@@ -1,0 +1,27 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+@import "~bootstrap/scss/_functions";
+
+$dark: #222;
+
+$primary: #03cecb;
+
+$font-family-base: "Outfit", sans-serif;
+
+$font-weight-light: 300;
+$font-weight-normal: 400;
+$font-weight-bold: 700; 
+
+@import "~bootstrap/scss/_variables";
+@import "~bootstrap/scss/_mixins";
+@import "~bootstrap/scss/bootstrap";
+
+body {
+  font-weight: 400;
+}
+
+#primary_nav {
+  .nav-link {
+    font-weight: 500;
+    color: #222;
+  }
+}

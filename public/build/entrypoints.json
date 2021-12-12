@@ -6,7 +6,7 @@
         "/build/app.4fe7be59.js"
       ],
       "css": [
-        "/build/app.c00527fd.css"
+        "/build/app.82421a12.css"
       ]
     },
     "menu_builder": {
@@ -23,6 +23,16 @@
       ],
       "css": [
         "/build/front.94c77e6f.css"
+      ]
+    },
+    "promoter": {
+      "js": [
+        "/build/runtime.6b2c1811.js",
+        "/build/169.a560f625.js",
+        "/build/promoter.aa183003.js"
+      ],
+      "css": [
+        "/build/promoter.b0493575.css"
       ]
     }
   }
