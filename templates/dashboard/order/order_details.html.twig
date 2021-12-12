@@ -54,6 +54,9 @@
 
 {% endif %}
 
+
+{% if order.aramexShipement %}
+
 <li class="list-group-item">
 
 <span class="fw-bold">bordereau : </span>
@@ -61,6 +64,8 @@
 <span><a href="{{ asset("upload/aramex/" ~ order.aramexShipement.attachement ) }}" download>Bordereau livraison</a></span> 
 
 </li>
+
+{% endif %}
 
 
 <li class="list-group-item"><span class="bold fw-bold">Addresse de livraison :</span> {{ order.user.defaultAddress }}</li>
