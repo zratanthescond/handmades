@@ -45,7 +45,7 @@ class AramexOrderSubscriber implements EventSubscriberInterface
 
         $isAramex = $order->getDelivery()->getName() === "Aramex";
 
-        if ($isAramex) {
+      /*  if ($isAramex) {
 
             $userAddress = $this->adressRepo->findOneBy(["user" => $order->getUser(), "isDefault" => true]);
 
@@ -68,7 +68,7 @@ class AramexOrderSubscriber implements EventSubscriberInterface
                 ->setAttachement($attachementName);
 
             $order->setAramexShipement($aramexShipement);
-        }
+        } */
     }
 
     public static function getSubscribedEvents()
