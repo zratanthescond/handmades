@@ -1,0 +1,52 @@
+{% extends "promoter/layout.html.twig" %}
+
+{% block title %}
+	Historiques
+{% endblock %}
+
+{% block main %}
+
+
+
+	<h1 class="h4 mb-3">Mes codes PROMO</h1>
+
+	{% if discountCodes is not empty  %}
+
+
+	<table class="table table-bordered stripped">
+		<thead>
+			<tr>
+				<th scope="col">Code</th>
+				<th scope="col">Valeur</th>
+				<th scope="col">Validité</th>
+				<th scope="col">Actif</th>
+                <th scope="col">Commandes</th>
+			</tr>
+		</thead>
+		<tbody>
+
+			{% for code in discountCodes %}
+
+				<tr>
+					<th scope="row">{{ code.code }}</th>
+					<td>-{{ code.percentage }}%</td>
+					<td>{{ code.expirationDate | date("d/m/Y") }}</td>
+					<td>{{ code.isValid ? "Oui" : "Non" }}</td>
+                    <td>{{ code.orders | length }}</td>
+				</tr>
+
+			{% endfor %}
+
+
+		</tbody>
+	</table>
+
+{% else %}
+
+<div class="text-danger">Vous n'avez aucun code promo</div>
+
+{% endif %}
+	
+
+
+{% endblock %}
