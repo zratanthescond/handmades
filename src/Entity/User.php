@@ -60,13 +60,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"order:read", "user:read"})
+     * @Groups({"order:read", "user:read", "blogComment:read"})
      */
     private $firstName;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"order:read", "user:read"})
+     * @Groups({"order:read", "user:read", "blogComment:read"})
      */
     private $lastName;
 
@@ -126,6 +126,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     private $rewardPointsHistories;
 
+    /**
+     * @ORM\OneToMany(targetEntity=BlogComment::class, mappedBy="user", orphanRemoval=true)
+     */
+    private $blogComments;
+
     public function __construct()
     {
         $this->createdAt = new DateTimeImmutable();
@@ -134,6 +139,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->rewardPoints = 0;
         $this->wishList = new ArrayCollection();
         $this->rewardPointsHistories = new ArrayCollection();
+        $this->blogComments = new ArrayCollection();
     }
 
     public function __toString()
@@ -469,6 +475,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
              // set the owning side to null (unless already changed)
              if ($rewardPointsHistory->getUser() === $this) {
                  $rewardPointsHistory->setUser(null);
+             }
+         }
+
+         return $this;
+     }
+
+     /**
+      * @return Collection|BlogComment[]
+      */
+     public function getBlogComments(): Collection
+     {
+         return $this->blogComments;
+     }
+
+     public function addBlogComment(BlogComment $blogComment): self
+     {
+         if (!$this->blogComments->contains($blogComment)) {
+             $this->blogComments[] = $blogComment;
+             $blogComment->setUser($this);
+         }
+
+         return $this;
+     }
+
+     public function removeBlogComment(BlogComment $blogComment): self
+     {
+         if ($this->blogComments->removeElement($blogComment)) {
+             // set the owning side to null (unless already changed)
+             if ($blogComment->getUser() === $this) {
+                 $blogComment->setUser(null);
              }
          }
 

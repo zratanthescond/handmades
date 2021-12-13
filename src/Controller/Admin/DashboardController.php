@@ -10,6 +10,7 @@ use App\Entity\AramexPickUp;
 use App\Entity\AramexShipement;
 use App\Entity\Blog;
 use App\Entity\BlogCategory;
+use App\Entity\BlogComment;
 use App\Entity\Brand;
 use App\Entity\DeliveryType;
 use App\Entity\DiscountCode;
@@ -74,7 +75,10 @@ class DashboardController extends AbstractDashboardController
     {
         yield MenuItem::linktoDashboard('Dashboard', 'fa fa-home')->setPermission(UserRoles::SUPER_ADMIN);
         yield MenuItem::linkToCrud('Pages', 'fa fa-files-o', Page::class);
-        yield MenuItem::linkToCrud('Homepage', 'fas fa-bookmark', Home::class)->setPermission(UserRoles::SUPER_ADMIN)->setEntityId(1)->setAction(Action::EDIT);
+        yield MenuItem::linkToCrud('Homepage', 'fas fa-bookmark', Home::class)
+        ->setPermission(UserRoles::SUPER_ADMIN)
+        ->setEntityId(1)
+        ->setAction(Action::EDIT);
 
         yield MenuItem::section("Boutique");
         yield MenuItem::linkToCrud('Produits', 'fas fa-list', Product::class);
@@ -121,6 +125,8 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Articles', 'fas fa-rss', Blog::class);
 
         yield MenuItem::linkToCrud('Catégories', 'fas fa-th-large', BlogCategory::class);
+
+        yield MenuItem::linkToCrud('Commentaires', 'fas fa-comment', BlogComment::class);
 
         yield MenuItem::section("Avis");
 

@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\BlogRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use ApiPlatform\Core\Annotation\ApiResource;
@@ -89,9 +91,20 @@ class Blog
      */
     private $slug;
 
+    /**
+     * @ORM\OneToMany(targetEntity=BlogComment::class, mappedBy="blog", orphanRemoval=true)
+     */
+    private $comments;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
+        $this->comments = new ArrayCollection();
+    }
+
+    public function __toString()
+    {
+        return $this->title;
     }
 
     public function getId(): ?int
@@ -208,5 +221,35 @@ class Blog
         $substr = substr($this->content, 0, 150) . "...";
 
         return strip_tags($substr);
+    }
+
+    /**
+     * @return Collection|BlogComment[]
+     */
+    public function getComments(): Collection
+    {
+        return $this->comments;
+    }
+
+    public function addComment(BlogComment $comment): self
+    {
+        if (!$this->comments->contains($comment)) {
+            $this->comments[] = $comment;
+            $comment->setBlog($this);
+        }
+
+        return $this;
+    }
+
+    public function removeComment(BlogComment $comment): self
+    {
+        if ($this->comments->removeElement($comment)) {
+            // set the owning side to null (unless already changed)
+            if ($comment->getBlog() === $this) {
+                $comment->setBlog(null);
+            }
+        }
+
+        return $this;
     }
 }
