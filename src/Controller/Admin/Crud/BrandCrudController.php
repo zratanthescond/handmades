@@ -3,7 +3,10 @@
 namespace App\Controller\Admin\Crud;
 
 use App\Entity\Brand;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\CountryField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
@@ -20,6 +23,16 @@ class BrandCrudController extends AbstractCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return $crud->setEntityLabelInPlural("Marques")->setEntityLabelInSingular("Marque")->setDefaultSort(["id" => "DESC"]);
+    }
+
+    public function configureActions(Actions $actions): Actions
+    {
+        return $actions->disable(Action::BATCH_DELETE);
+    }
+
+    public function configureFilters(Filters $filters): Filters
+    {
+        return $filters->add("country");
     }
 
     public function configureFields(string $pageName): iterable

@@ -2,6 +2,7 @@
 
 namespace App\Controller\Admin\Crud;
 
+use App\Admin\Filter\EmptyCollectionFilter;
 use App\Entity\Product;
 use App\Form\ProductDiscountType;
 use App\Form\ProductImageType;
@@ -22,6 +23,8 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\MoneyField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\NullFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 
 class ProductCrudController extends AbstractCrudController
 {
@@ -58,7 +61,27 @@ class ProductCrudController extends AbstractCrudController
 
     public function configureFilters(Filters $filters): Filters
     {
-        return $filters->add("category");
+        return $filters->add("category", "Catégorie")
+            ->add("brand", "Marque")
+            ->add("type")
+            ->add(NullFilter::new("price", "Prix")->setChoiceLabels("Sans Prix", "Avec prix"))
+            ->add(NullFilter::new("qty", "Quantité")->setChoiceLabels("Sans quantité", "Avec quantité"))
+            ->add(EmptyCollectionFilter::new("images", "Avec images"))
+            ->add(TextFilter::new("description"))
+            ->add(TextFilter::new("ref", "Référence"));
+    }
+
+
+    public function configureActions(Actions $actions): Actions
+    {
+        return $actions->disable(Action::BATCH_DELETE)
+            ->update(Crud::PAGE_INDEX, Action::DELETE, function ($dto) {
+
+                return $dto->displayIf(static function (Product $entity) {
+
+                    return $entity->getProductOrders()->isEmpty();
+                });
+            });
     }
 
     public function configureFields(string $pageName): iterable
@@ -67,7 +90,7 @@ class ProductCrudController extends AbstractCrudController
         return [
 
             ImageField::new("thumbnail", "Image")->setBasePath("/upload/img")->onlyOnIndex(),
-            TextField::new("title")->setColumns(6),
+            TextField::new("title", "Nom")->setColumns(6),
             TextField::new("ref", "Référence")->setColumns(4)->setFormTypeOptions(["disabled" => true]),
             TextareaField::new("description")->onlyOnForms()->setColumns(12),
             MoneyField::new("price", "Prix")->setCurrency("TND")->setStoredAsCents(false)->setColumns(4),
@@ -92,7 +115,8 @@ class ProductCrudController extends AbstractCrudController
             CollectionField::new("images")->setEntryType(ProductImageType::class)->onlyOnForms(),
             FormField::addPanel("SEO"),
             TextareaField::new("metaDescription", "Meta description")->onlyOnForms(),
-            CollectionField::new("users", "Wishlist")->onlyOnIndex()->formatValue(fn($v, $e) => $e->getUsers()->count())
+            CollectionField::new("users", "Wishlist")->onlyOnIndex()->formatValue(fn ($v, Product $e) => $e->getUsers()->count()),
+            CollectionField::new("productOrders", "Commandes")->onlyOnIndex()->formatValue(fn ($v, Product $e) => $e->getProductOrders()->count())
         ];
     }
 }
