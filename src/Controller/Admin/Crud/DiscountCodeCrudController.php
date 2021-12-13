@@ -7,6 +7,7 @@ use App\Entity\DiscountCode;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
@@ -15,6 +16,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\PercentField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use Symfony\Component\HttpFoundation\Response;
 
 class DiscountCodeCrudController extends AbstractCrudController
 {
@@ -33,7 +35,13 @@ class DiscountCodeCrudController extends AbstractCrudController
 
     public function configureActions(Actions $actions): Actions
     {
+       
+        $orders = Action::new("orders", "commandes")
+        ->linkToCrudAction("orders")->
+        displayIf(fn(DiscountCode $entity)=>!$entity->getOrders()->isEmpty());
+
         return $actions
+        ->add(Crud::PAGE_INDEX, $orders)
         ->disable(Action::BATCH_DELETE)
         ->update(Crud::PAGE_INDEX, Action::DELETE, function ($dto) {
 
@@ -42,6 +50,19 @@ class DiscountCodeCrudController extends AbstractCrudController
                 return $entity->getOrders()->isEmpty();
             });
         });
+    }
+
+    public function orders(AdminContext $context): Response
+    {
+        $discountCode = $context->getEntity()->getInstance();
+
+        $orders = $discountCode->getOrders();
+
+        return $this->render("dashboard/discount_code/orders.html.twig", [
+
+            "orders" => $orders,
+            "discountCode" => $discountCode
+        ]);
     }
 
     public function configureFields(string $pageName): iterable

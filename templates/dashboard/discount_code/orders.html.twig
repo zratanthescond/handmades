@@ -1,0 +1,44 @@
+{% extends '@!EasyAdmin/layout.html.twig' %}
+
+ {% block content_title %}Liste des commandes du code promo {{ discountCode.code }}{% endblock %}
+
+{% block main %}
+
+<div class="row">
+ 
+{% for order in orders %}
+
+<div class="col-md-6 mb-3">
+
+<div class="card">
+
+<div class="card-body">
+
+<ul class="list-group list-group-flush">
+
+<li class="list-group-item"><span class="bold fw-bold">Date :</span> {{ order.createdAt | date("d/m/Y")}} </li>
+
+<li class="list-group-item"><span class="bold fw-bold">Client :</span> {{ order.user | capitalize }} </li>
+
+<li class="list-group-item"><span class="bold fw-bold">Nombre de produits commandés :</span> {{ order.products | length }} produit(s)</li> 
+
+<li class="list-group-item"><span class="bold fw-bold">Sous total :</span> {{ order.subtotal | format_currency('TND', {fraction_digit: 3}) }} </li> 
+
+<li class="list-group-item"><span class="bold fw-bold">Total :</span> {{ order.total | format_currency('TND', {fraction_digit: 3}) }} </li> 
+
+</ul>
+
+<a href="{{ ea_url()
+    .setController('App\\Controller\\Admin\\Crud\\OrderCrudController')
+    .setAction('orderDetails')
+    .setEntityId(order.id) }}" class="btn btn-primary d-table mx-auto">Détails</a>
+
+</div>
+</div>
+</div>
+    
+{% endfor %}
+
+ </div>
+
+ {% endblock %}
