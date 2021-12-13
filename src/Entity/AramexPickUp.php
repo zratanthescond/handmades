@@ -71,7 +71,7 @@ class AramexPickUp
 
     public function __toString()
     {
-        return "pickup";
+        return $this->pickUpId;
     }
 
     public function getId(): ?int

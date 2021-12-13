@@ -57,6 +57,8 @@ class Parrainage
      */
     private $beneficiaryLastName;
 
+    private $beneficiaryFullName;
+
     /**
      * @ORM\Column(type="boolean")
      */
@@ -178,5 +180,11 @@ class Parrainage
         $this->isRewardedAt = $isRewardedAt;
 
         return $this;
+    }
+
+
+    public function getBeneficiaryFullName()
+    {
+        return $this->beneficiaryFirstName . " " . $this->beneficiaryLastName;
     }
 }
