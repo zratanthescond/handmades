@@ -18,6 +18,7 @@ use App\Entity\Home;
 use App\Entity\Order;
 use App\Entity\OrderReview;
 use App\Entity\Page;
+use App\Entity\Parrainage;
 use App\Entity\Product;
 use App\Entity\ProductCategory;
 use App\Entity\ProductDiscount;
@@ -80,7 +81,7 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Types', 'fas fa-paperclip', ProductType::class);
         yield MenuItem::linkToCrud('Catégories', 'fa fa-folder-open', ProductCategory::class);
         yield MenuItem::linkToCrud('Marques', 'fas fa-cube', Brand::class);
-        yield MenuItem::linkToCrud('Clients', 'fas fa-users', User::class)->setPermission(UserRoles::SUPER_ADMIN);
+
 
         yield MenuItem::section("Stock Epuisé");
 
@@ -88,10 +89,17 @@ class DashboardController extends AbstractDashboardController
 
         yield MenuItem::linkToCrud('Produits', 'fa fa-sort-amount-asc', Product::class)->setController(OutOfStockProductCrudController::class);
 
+        
+        yield MenuItem::section("Clients")->setPermission(UserRoles::SUPER_ADMIN);
+
+        yield MenuItem::linkToCrud('Clients', 'fas fa-user', User::class)->setPermission(UserRoles::SUPER_ADMIN);
+
+        yield MenuItem::linkToCrud('Parrainages', 'fas fa-users', Parrainage::class)->setPermission(UserRoles::SUPER_ADMIN);
+       
+       
         yield MenuItem::section("Commandes")->setPermission(UserRoles::SUPER_ADMIN);
 
         yield MenuItem::linkToCrud('Commandes', 'fas fa-shopping-cart', Order::class)->setPermission(UserRoles::SUPER_ADMIN);
-
 
         yield MenuItem::section("Aramex");
 
