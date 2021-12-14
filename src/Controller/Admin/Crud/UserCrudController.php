@@ -34,16 +34,15 @@ class UserCrudController extends AbstractCrudController
     {
         return [
 
-             IntegerField::new("id")->setFormTypeOptions(["disabled" => true]),
-             EmailField::new("email"),
-             DateField::new("createdAt", "Date d'inscription")->setFormTypeOptions(["disabled" => true]),
+            IntegerField::new("id")->setFormTypeOptions(["disabled" => true])->setColumns(6),
+            DateField::new("createdAt", "Date d'inscription")->setFormTypeOptions(["disabled" => true])->setColumns(6), 
+             EmailField::new("email")->setFormTypeOptions(["disabled" => true])->setColumns(4),
              TextField::new("fullName", "Nom et prénom")->onlyOnIndex(),
-             TextField::new("firstName", "Nom")->onlyOnForms(),
-             TextField::new("lastName", "Prénom")->onlyOnForms(),
-             TextField::new("phoneNumber", "Numéro de téléphone"),
-             DateField::new("birthDay", "Date de naissance"),
-            TextField::new("defaultAddress")->setFormTypeOptions(["disabled" => true])
-
+             TextField::new("firstName", "Nom")->onlyOnForms()->setColumns(4),
+             TextField::new("lastName", "Prénom")->onlyOnForms()->setColumns(4),
+             TextField::new("phoneNumber", "Numéro de téléphone")->setColumns(6),
+             DateField::new("birthDay", "Date de naissance")->setColumns(6),
+             IntegerField::new("rewardPoints", "Points de fidélité")->setFormTypeOptions(["disabled" => true])->setColumns(12)
 
         ];
     }
