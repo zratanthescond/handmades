@@ -102,6 +102,7 @@ class Product
     /**
      * @ORM\OneToMany(targetEntity=ProductImage::class, mappedBy="product", orphanRemoval=true, cascade={"persist", "remove"})
      * @Groups({"product:read"})
+     * @Assert\Count(min=1, minMessage="Chaque produit doit contenir 1 image ou plus")
      */
     private $images;
 
@@ -114,12 +115,14 @@ class Product
     /**
      * @ORM\Column(type="float", nullable=true)
      * @Groups({"product:read", "brand:read", "home:read", "order:read"})
+     * @Assert\GreaterThan(1)
      */
     private $price;
 
     /**
      * @ORM\ManyToOne(targetEntity=ProductCategory::class, inversedBy="products")
      * @Groups({"product:read", "brand:read", "home:read"})
+     * @Assert\NotBlank
      */
     private $category;
 

@@ -93,16 +93,16 @@ class ProductCrudController extends AbstractCrudController
             TextField::new("title", "Nom")->setColumns(6),
             TextField::new("ref", "Référence")->setColumns(4)->setFormTypeOptions(["disabled" => true]),
             TextareaField::new("description")->onlyOnForms()->setColumns(12),
-            MoneyField::new("price", "Prix")->setCurrency("TND")->setStoredAsCents(false)->setColumns(4),
+            MoneyField::new("price", "Prix")->setCurrency("TND")->setStoredAsCents(false)->setColumns(4)->setRequired(true),
             IntegerField::new("qty", "Quantité")->setColumns(4)->formatValue(function ($v, $e) {
                 if ($v === 0) {
                     return '<span class="text-danger">En rupture de stock</span>';
                 }
 
                 return $v;
-            }),
+            })->setRequired(true),
             BooleanField::new("isApprovisionnable", "Approvisionnable")->setColumns(4)->onlyOnForms()->addCssClass("mt-4"),
-            AssociationField::new("category", "Catégorie")->setColumns(3),
+            AssociationField::new("category", "Catégorie")->setColumns(3)->setRequired(true),
             AssociationField::new("brand", "Marque")->setColumns(3)->onlyOnForms(),
             AssociationField::new("type")->setColumns(2)->onlyOnForms(),
             // CountryField::new("originCountry", "Pays d'origine")->setColumns(3)->onlyOnForms(),
