@@ -34,7 +34,7 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\ExistsFilter;
  * )
  * @ApiFilter(
  * SearchFilter::class,
- * properties={"country"}
+ * properties={"country", "name": "start"}
  * )
  * @ApiFilter(
  * ExistsFilter::class,
