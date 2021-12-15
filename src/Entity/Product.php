@@ -84,13 +84,13 @@ class Product
 
     /**
      * @ORM\Column(type="text", nullable=true)
-     * @Groups({"product:read", "brand:read"})
+     * @Groups({"product:read", "brand:read", "home:read"})
      */
     private $description;
 
 
     /**
-     * @Groups({"product:read", "brand:read"})
+     * @Groups({"product:read", "brand:read", "home:read"})
      */
     private $shortDescription;
 
@@ -151,7 +151,7 @@ class Product
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"product:read", "brand:read"})
+     * @Groups({"product:read", "brand:read", "home:read"})
      */
     private $ref;
 

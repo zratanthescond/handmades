@@ -32,13 +32,13 @@ class ProductCategory
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Groups({"product:read", "category:read", "brand:read"})
+     * @Groups({"product:read", "category:read", "brand:read", "home:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"product:read", "category:read", "brand:read"})
+     * @Groups({"product:read", "category:read", "brand:read", "home:read"})
      */
     private $title;
 
