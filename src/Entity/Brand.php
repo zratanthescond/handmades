@@ -51,13 +51,13 @@ class Brand
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Groups({"product:read", "brand:read"})
+     * @Groups({"product:read", "brand:read", "home:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"product:read", "brand:read"})
+     * @Groups({"product:read", "brand:read", "home:read"})
      */
     private $name;
 
@@ -99,7 +99,7 @@ class Brand
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"product:read", "brand:read"})
+     * @Groups({"product:read", "brand:read", "home:read"})
      */
     private $country;
 
