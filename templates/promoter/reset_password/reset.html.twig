@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Reset your password{% endblock %}
+
+{% block body %}
+   
+<div class="container vh-100 d-flex flex-column justify-content-center">
+
+<div class="row w-100">
+
+<div class="col-md-6 offset-md-3">
+
+<img src="{{ asset("img/logo.png") }}" class="img-fluid d-block mb-3 mx-auto" alt="" />
+
+<div class="card">
+
+<div class="card-header">
+
+  <h1 class="h3 fw-bold mb-0 text-center">Changer mon mot de passe</h1>
+
+</div>
+
+<div class="card-body">
+
+
+    {{ form_start(resetForm) }}
+        {{ form_row(resetForm.plainPassword) }}
+        <button class="btn btn-primary">Valider</button>
+    {{ form_end(resetForm) }}
+
+
+</div>
+</div>
+</div>
+</div>
+</div>
+
+{% endblock %}

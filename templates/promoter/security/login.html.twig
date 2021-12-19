@@ -10,6 +10,8 @@
 
 <div class="col-md-6 offset-md-3">
 
+<img src="{{ asset("img/logo.png") }}" class="img-fluid d-block mb-3 mx-auto" alt="" />
+
 <div class="card">
 
 <div class="card-header">
@@ -19,6 +21,7 @@
 </div>
 
 <div class="card-body">
+
 
 <form method="post" class="d-flex flex-column">
     {% if error %}
@@ -37,6 +40,8 @@
     <input type="hidden" name="_csrf_token"
            value="{{ csrf_token('authenticate') }}"
     >
+
+    <a href="{{ path("app_forgot_password_request") }}" class="text-danger text-decoration-none d-block text-end">Mot de passe oublié</a>
 
 
    <div class="mt-3 d-flex align-self-center"> 

@@ -61,7 +61,8 @@ class ProductCrudController extends AbstractCrudController
 
     public function configureFilters(Filters $filters): Filters
     {
-        return $filters->add("category", "Catégorie")
+        return $filters
+            ->add("category", "Catégorie")
             ->add("brand", "Marque")
             ->add("type")
             ->add(NullFilter::new("price", "Prix")->setChoiceLabels("Sans Prix", "Avec prix"))
