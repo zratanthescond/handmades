@@ -16,6 +16,7 @@ use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\RangeFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\DateFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\ExistsFilter;
+use App\Filter\Product\ProductDiscountFilter;
 
 /**
  * @ApiResource(
@@ -25,6 +26,7 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\ExistsFilter;
  * itemOperations={"get"}
  * )
  * 
+ * @ApiFilter(ProductDiscountFilter::class, properties={"discount"})
  * @ApiFilter(
  * SearchFilter::class,
  * properties={

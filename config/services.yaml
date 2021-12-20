@@ -41,6 +41,10 @@ services:
         arguments:
           $collectionExtensions: !tagged api_platform.doctrine.orm.query_extension.collection
 
+    'App\Doctrine\Product\ProductInDiscountExtension':
+        tags:
+            - { name: api_platform.doctrine.orm.query_extension.collection, priority: 9 }      
+
     App\Service\Aramex\Aramex:
         arguments:
             $compagnyName: '%compagnyName%'
