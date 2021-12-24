@@ -27,24 +27,32 @@ class NavigationController extends AbstractController
 
                 $subcategories = $categorie->getProductCategories();
 
-                if ($subcategories->isEmpty() === false) {
+                if (!$subcategories->isEmpty()) {
 
                     $el["items"] = [];
 
                     foreach ($subcategories as $subcategory) {
 
+                        $subcategoriesChilds = $subcategory->getProductCategories();
+
+                        if (!$subcategoriesChilds->isEmpty()) {
+
+                            foreach ($subcategoriesChilds as $sub) {
+
+                                array_push($subcategory->subItems, $sub);
+
+                            }
+                        }
+
                         array_push($el["items"], $subcategory);
                     }
 
                     array_push($nav, $el);
-               
                 } else {
 
-                    array_push($nav,["item" => $categorie]);
+                    array_push($nav, ["item" => $categorie]);
                 }
             }
-            
-            
         }
 
         return $nav;

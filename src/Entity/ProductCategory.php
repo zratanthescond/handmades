@@ -68,6 +68,13 @@ class ProductCategory
      * @ORM\OneToMany(targetEntity=ProductCategory::class, mappedBy="parent")
      */
     private $productCategories;
+    
+    /**
+     * this is used only for to add subitems within API
+     * @Groups({"category:read"})
+     */
+
+    public $subItems = [];
 
     public function __toString()
     {
