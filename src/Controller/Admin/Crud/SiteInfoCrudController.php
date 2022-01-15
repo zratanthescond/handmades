@@ -3,6 +3,8 @@
 namespace App\Controller\Admin\Crud;
 
 use App\Entity\SiteInfo;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\EmailField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
@@ -13,6 +15,11 @@ class SiteInfoCrudController extends AbstractCrudController
     public static function getEntityFqcn(): string
     {
         return SiteInfo::class;
+    }
+
+    public function configureActions(Actions $actions): Actions
+    {
+        return $actions->disable(Action::NEW, Action::DELETE);
     }
 
     public function configureFields(string $pageName): iterable
@@ -33,15 +40,4 @@ class SiteInfoCrudController extends AbstractCrudController
            TextareaField::new("fullAdress", "Adresse")->setColumns(12)
         ];
     }
-
-    /*
-    public function configureFields(string $pageName): iterable
-    {
-        return [
-            IdField::new('id'),
-            TextField::new('title'),
-            TextEditorField::new('description'),
-        ];
-    }
-    */
 }
