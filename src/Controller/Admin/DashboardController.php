@@ -27,6 +27,7 @@ use App\Entity\ProductReview;
 use App\Entity\ProductStockSubscription;
 use App\Entity\ProductType;
 use App\Entity\Promoter;
+use App\Entity\SiteInfo;
 use App\Entity\User;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
@@ -140,9 +141,11 @@ class DashboardController extends AbstractDashboardController
 
         yield MenuItem::section("Paramétres")->setPermission(UserRoles::SUPER_ADMIN);
 
-        yield MenuItem::linkToCrud('Livraison', 'fas fa-truck', DeliveryType::class)->setPermission(UserRoles::SUPER_ADMIN);
+        yield MenuItem::linkToCrud('Info', 'fas fa-truck', SiteInfo::class)->setPermission(UserRoles::SUPER_ADMIN);
 
-        yield MenuItem::linkToRoute("Menu", "fa fa-sort-amount-asc", "menu_builder")->setPermission(UserRoles::SUPER_ADMIN);
+       // yield MenuItem::linkToCrud('Livraison', 'fas fa-truck', DeliveryType::class)->setPermission(UserRoles::SUPER_ADMIN);
+
+       // yield MenuItem::linkToRoute("Menu", "fa fa-sort-amount-asc", "menu_builder")->setPermission(UserRoles::SUPER_ADMIN);
 
         /// this is for handle user with amdin role
 
