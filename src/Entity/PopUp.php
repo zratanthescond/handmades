@@ -10,7 +10,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 use ApiPlatform\Core\Annotation\ApiResource;
 
 /**
- * @ApiResource
+ * @ApiResource(
+ * itemOperations={"get"},
+ * collectionOperations={"get"}
+ * )
  * @ORM\Entity(repositoryClass=PopUpRepository::class)
  * @Vich\Uploadable()
  */
