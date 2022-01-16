@@ -20,6 +20,7 @@ use App\Entity\Order;
 use App\Entity\OrderReview;
 use App\Entity\Page;
 use App\Entity\Parrainage;
+use App\Entity\PopUp;
 use App\Entity\Product;
 use App\Entity\ProductCategory;
 use App\Entity\ProductDiscount;
@@ -144,7 +145,10 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Infos', 'fas fa-info', SiteInfo::class)
         ->setPermission(UserRoles::SUPER_ADMIN)
         ->setEntityId(1)
-        ->setAction(Action::EDIT);;
+        ->setAction(Action::EDIT);
+
+
+        yield MenuItem::linkToCrud('PopUp', 'fas fa-image', PopUp::class);
 
        // yield MenuItem::linkToCrud('Livraison', 'fas fa-truck', DeliveryType::class)->setPermission(UserRoles::SUPER_ADMIN);
 
