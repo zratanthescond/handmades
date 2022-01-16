@@ -4,6 +4,7 @@ namespace App\Controller\Admin\Crud;
 
 use App\Entity\PopUp;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Vich\UploaderBundle\Form\Type\VichImageType;
 
@@ -20,6 +21,7 @@ class PopUpCrudController extends AbstractCrudController
         return [
 
            TextField::new("link", "LIen"),
+           BooleanField::new("isActive", "Active"),
            TextField::new("imageFile", "Image")->setFormType(VichImageType::class)
            ->setFormTypeOptions(["allow_delete" => false])
            ->OnlyOnForms()

@@ -47,6 +47,16 @@ class PopUp
      */
     private $updatedAt;
 
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $isActive;
+
+    public function __construct()
+    {
+        $this->isActive = true;
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -103,5 +113,17 @@ class PopUp
          }
 
          return $this;
+    }
+
+    public function getIsActive(): ?bool
+    {
+        return $this->isActive;
+    }
+
+    public function setIsActive(?bool $isActive): self
+    {
+        $this->isActive = $isActive;
+
+        return $this;
     }
 }
