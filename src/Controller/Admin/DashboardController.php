@@ -148,7 +148,10 @@ class DashboardController extends AbstractDashboardController
         ->setAction(Action::EDIT);
 
 
-        yield MenuItem::linkToCrud('PopUp', 'fas fa-image', PopUp::class);
+        yield MenuItem::linkToCrud('PopUp', 'fas fa-image', PopUp::class)
+        ->setPermission(UserRoles::SUPER_ADMIN)
+        ->setEntityId(1)
+        ->setAction(Action::EDIT);
 
        // yield MenuItem::linkToCrud('Livraison', 'fas fa-truck', DeliveryType::class)->setPermission(UserRoles::SUPER_ADMIN);
 
