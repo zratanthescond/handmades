@@ -26,16 +26,17 @@ class SiteInfoCrudController extends AbstractCrudController
     {
         return [
 
-           TextField::new("facebook")->setColumns(4),
+           TextField::new("facebook")->setColumns(6),
            
-           TextField::new("instagram")->setColumns(4),
+           TextField::new("instagram")->setColumns(6),
 
-           TextField::new("YoutubeVideo")->setHelp("Le key de la video")->setColumns(4),
+           TextField::new("youtubeVideo")->setHelp("Le key de la video")->setColumns(6),
+
+           TextField::new("mobileYoutubeVideo")->setHelp("Le key de la video")->setColumns(6),
 
            EmailField::new("email")->setColumns(6),
 
-           TextField::new("MobilePhone")->setColumns(6),
-
+           TextField::new("mobilePhone")->setColumns(6),
 
            TextareaField::new("fullAdress", "Adresse")->setColumns(12)
         ];

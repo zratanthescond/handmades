@@ -141,7 +141,7 @@ class DashboardController extends AbstractDashboardController
 
         yield MenuItem::section("Paramétres")->setPermission(UserRoles::SUPER_ADMIN);
 
-        yield MenuItem::linkToCrud('Info', 'fas fa-truck', SiteInfo::class)
+        yield MenuItem::linkToCrud('Infos', 'fas fa-info', SiteInfo::class)
         ->setPermission(UserRoles::SUPER_ADMIN)
         ->setEntityId(1)
         ->setAction(Action::EDIT);;

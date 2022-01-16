@@ -35,12 +35,12 @@ class SiteInfo
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $MobilePhone;
+    private $mobilePhone;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $YoutubeVideo;
+    private $youtubeVideo;
 
     /**
      * @ORM\Column(type="text")
@@ -51,6 +51,11 @@ class SiteInfo
      * @ORM\Column(type="string", length=255)
      */
     private $email;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $mobileYoutubeVideo;
 
     public function getId(): ?int
     {
@@ -83,24 +88,24 @@ class SiteInfo
 
     public function getMobilePhone(): ?string
     {
-        return $this->MobilePhone;
+        return $this->mobilePhone;
     }
 
-    public function setMobilePhone(string $MobilePhone): self
+    public function setMobilePhone(string $mobilePhone): self
     {
-        $this->MobilePhone = $MobilePhone;
+        $this->mobilePhone = $mobilePhone;
 
         return $this;
     }
 
     public function getYoutubeVideo(): ?string
     {
-        return $this->YoutubeVideo;
+        return $this->youtubeVideo;
     }
 
-    public function setYoutubeVideo(string $YoutubeVideo): self
+    public function setYoutubeVideo(string $youtubeVideo): self
     {
-        $this->YoutubeVideo = $YoutubeVideo;
+        $this->youtubeVideo = $youtubeVideo;
 
         return $this;
     }
@@ -125,6 +130,18 @@ class SiteInfo
     public function setEmail(string $email): self
     {
         $this->email = $email;
+
+        return $this;
+    }
+
+    public function getMobileYoutubeVideo(): ?string
+    {
+        return $this->mobileYoutubeVideo;
+    }
+
+    public function setMobileYoutubeVideo(?string $mobileYoutubeVideo): self
+    {
+        $this->mobileYoutubeVideo = $mobileYoutubeVideo;
 
         return $this;
     }
