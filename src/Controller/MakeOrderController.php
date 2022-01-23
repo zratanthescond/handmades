@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\DeliveryType;
 use App\Entity\DiscountCode;
 use App\Entity\Order;
+use App\Entity\PayementTransaction;
 use App\Entity\Product;
 use App\Entity\ProductOrder;
 use App\Entity\User;
@@ -76,6 +77,16 @@ class MakeOrderController extends AbstractController
         ->setTotal($data["total"])
         ->setNote($data["note"])
         ->setRewardPointsToConsume($rewardPointsToConsume);
+
+        if($data["payement"] === "Paiement par carte bancaire") {
+
+            
+            $ref = $data["payementRef"];
+              
+            $payementTransaction = (new PayementTransaction())->setType("GPG")->setRef($ref);
+
+            $order->setPayementTransaction($payementTransaction);
+        } 
 
         $event = new OrderIsPlacedEvent($order);
 

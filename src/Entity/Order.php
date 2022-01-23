@@ -143,6 +143,11 @@ class Order
      */
     private $subtotal;
 
+    /**
+     * @ORM\OneToOne(targetEntity=PayementTransaction::class, mappedBy="cOrder", cascade={"persist", "remove"})
+     */
+    private $payementTransaction;
+
 
     public function __construct()
     {
@@ -366,6 +371,28 @@ class Order
     public function setSubtotal(float $subtotal): self
     {
         $this->subtotal = $subtotal;
+
+        return $this;
+    }
+
+    public function getPayementTransaction(): ?PayementTransaction
+    {
+        return $this->payementTransaction;
+    }
+
+    public function setPayementTransaction(?PayementTransaction $payementTransaction): self
+    {
+        // unset the owning side of the relation if necessary
+        if ($payementTransaction === null && $this->payementTransaction !== null) {
+            $this->payementTransaction->setCOrder(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($payementTransaction !== null && $payementTransaction->getCOrder() !== $this) {
+            $payementTransaction->setCOrder($this);
+        }
+
+        $this->payementTransaction = $payementTransaction;
 
         return $this;
     }
