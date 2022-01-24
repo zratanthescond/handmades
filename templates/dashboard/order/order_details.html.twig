@@ -74,7 +74,13 @@
 
 {% if order.payementTransaction %}
 
+{% if order.payementTransaction.data is not empty %}
+
 <span>Par carte bancaire</span>/ Status : {{ order.payementTransaction.data.TransStatus == "00" ? "accordé" : "échoué" }}
+
+{% else %}
+
+<span class="alert alert-danger">Aucune donné envoyée par GPG</span>
 
 {% else %}
 
