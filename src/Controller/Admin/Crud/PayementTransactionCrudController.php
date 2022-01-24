@@ -23,15 +23,15 @@ class PayementTransactionCrudController extends AbstractCrudController
 
     public function configureCrud(Crud $crud): Crud
     {
-       
+
         return $crud->setEntityLabelInPlural("Paiments")
-        ->setEntityLabelInSingular("Paiement")
-        ->setDefaultSort(["createdAt" => "DESC"]);
+            ->setEntityLabelInSingular("Paiement")
+            ->setDefaultSort(["createdAt" => "DESC"]);
     }
 
     public function configureActions(Actions $actions): Actions
     {
-       
+
         return $actions->disable(Action::NEW, Action::DELETE, Action::EDIT)->add(CRUD::PAGE_INDEX, Action::DETAIL);
     }
 
@@ -41,12 +41,9 @@ class PayementTransactionCrudController extends AbstractCrudController
         $payment = $context->getEntity()->getInstance();
 
         return $this->render("dashboard/payment/details.html.twig", ["payment" => $payment]);
-        
-    } 
-        
-   
+    }
 
- 
+
     public function configureFields(string $pageName): iterable
     {
         return [
@@ -54,10 +51,29 @@ class PayementTransactionCrudController extends AbstractCrudController
             DateTimeField::new('createdAt', 'Date'),
             TextField::new("ref"),
             TextField::new("type"),
-            ArrayField::new("data"),
+            ArrayField::new("data", "Status")->formatValue(function($v, PayementTransaction $e) { 
+                
+                $data = $e->getdata();
+
+                if(count($data) > 0) {
+
+                    if($data["TransStatus"] == 00) {
+
+                        return '<span class="badge badge-success">Accordé</span>';
+                    } else {
+
+                        return '<span class="badge badge-danger">Echoué</span>';
+                    }
+
+                     
+                } else {
+
+                     return '<span class="badge badge-danger">Echoué</span>';
+                }
+                 
+            }),
             DateTimeField::new('updatedAt', 'Mise à jour'),
             AssociationField::new('cOrder')
         ];
     }
-    
 }
