@@ -1,0 +1,47 @@
+{% extends '@!EasyAdmin/layout.html.twig' %}
+
+ {% block content_title %}Paiement{% endblock %}
+
+ {% block main %}
+
+
+
+<ul class="list-group list-group-flush">
+
+
+ <li class="list-group-item"><span class="bold fw-bold">Date :</span> {{ payment.createdAt | date("d/m/Y")}} </li>
+
+ <li class="list-group-item"><span class="bold fw-bold">Réference :</span> {{ payment.ref }} </li>
+
+{% if payment.data is not empty %}
+
+<li class="list-group-item"><span class="bold fw-bold">Status : {{ payement.TransStatus == "00" ? "accordé" : "échoué" }}</span> 
+
+ </li>
+
+{% for k, v in payment.data %}
+
+ <li class="list-group-item"><span class="bold fw-bold">{{k}} :</span> {{ v }} </li>
+
+{% endfor %}
+
+
+{% else %}
+
+ <li class="list-group-item">
+
+<div class="alert alert-danger">Aucune donné envoyée par GPG</div>
+
+</li>
+
+{% endif %}
+
+</ul>
+
+
+</div>
+
+</div>
+
+
+ {% endblock %}

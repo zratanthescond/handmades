@@ -6,6 +6,7 @@ use App\Entity\PayementTransaction;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
@@ -31,8 +32,19 @@ class PayementTransactionCrudController extends AbstractCrudController
     public function configureActions(Actions $actions): Actions
     {
        
-        return $actions->disable(Action::NEW, Action::DELETE, Action::EDIT);
+        return $actions->disable(Action::NEW, Action::DELETE, Action::EDIT)->add(CRUD::PAGE_INDEX, Action::DETAIL);
     }
+
+    public function detail(AdminContext $context)
+    {
+
+        $payment = $context->getEntity()->getInstance();
+
+        return $this->render("dashboard/payment/details.html.twig", ["payment" => $payment]);
+        
+    } 
+        
+   
 
  
     public function configureFields(string $pageName): iterable
