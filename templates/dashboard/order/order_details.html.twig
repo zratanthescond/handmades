@@ -80,9 +80,11 @@
 
 {% else %}
 
-<span class="alert alert-danger">Aucune donné envoyée par GPG</span>
+<span class="text-danger">Aucune donné envoyée par GPG</span>
 
 {% endif %}
+
+<span>Référence de paiement : {{ order.payementTransaction.ref }} </span>
 
 {% else %}
 
