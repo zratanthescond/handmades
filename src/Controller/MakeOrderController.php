@@ -84,10 +84,11 @@ class MakeOrderController extends AbstractController
 
         if(isset($data["paymentRef"])) {
 
-              $transaction = (new PayementTransaction())->setRef($data["paymentRef"])->setType("GPG");
-
-              $order->setPayementTransaction($transaction);
-        }
+              $transaction = (new PayementTransaction())
+              ->setRef($data["paymentRef"])->setType("GPG");
+              $order->setPayementTransaction($transaction)
+              ->setStatus(0);
+            }
 
         $event = new OrderIsPlacedEvent($order);
 

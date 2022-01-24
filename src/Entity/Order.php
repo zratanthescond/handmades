@@ -152,7 +152,7 @@ class Order
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
-        $this->status = 0;
+        $this->status = 1;
         $this->products = new ArrayCollection();
         $this->productReviews = new ArrayCollection();
     }
