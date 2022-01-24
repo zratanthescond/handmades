@@ -10,6 +10,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class PayementTransactionCrudController extends AbstractCrudController
 {
@@ -38,6 +39,7 @@ class PayementTransactionCrudController extends AbstractCrudController
         return [
             IdField::new('id'),
             DateTimeField::new('createdAt', 'Date'),
+            TextField::new("ref"),
             DateTimeField::new('updatedAt', 'Mise à jour'),
             AssociationField::new('cOrder')
         ];

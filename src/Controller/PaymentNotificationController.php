@@ -13,51 +13,54 @@ use Symfony\Component\Routing\Annotation\Route;
 
 
 class PaymentNotificationController extends AbstractController
-{ 
+{
 
     /**
      * @Route("/payment/notification", name="payment_notification")
      */
     public function index(
-        Request $request, 
-        MailerInterface $mailer, 
+        Request $request,
+        MailerInterface $mailer,
         PayementTransactionRepository $repo,
         EntityManagerInterface $em
-        ): Response
-    {
+    ): Response {
 
         $data = $request->request->all();
 
 
-        if(isset($data["Signature"])) {
+        if (isset($data["Signature"])) {
 
             $signature = $data['Signature'];
 
             $payment = $repo->findOneBy(["ref" => $signature]);
-    
-            $payment->setData($data)->setUpdatedAt(new \DateTimeImmutable());
-    
-            $em->persist($payment);
-    
-            $em->flush();
+
+            if ($payment) {
+
+                $payment->setData($data)->setUpdatedAt(new \DateTimeImmutable());
+
+                $em->persist($payment);
+
+                $em->flush();
+            } else {
+                 
+                $data["fail"] = sprintf("payment ref not found width %s", $signature);
+            }
         } else {
 
-            $data["fail"] = "no ref";
+            $data["fail"] = "no Signature";
         }
 
-       
 
         $decoded = json_encode($data, JSON_UNESCAPED_UNICODE);
 
         $email = (new Email())
-        ->to("mrbileltn@gmail.com")
-        ->subject('Time for Symfony Mailer!')
-        ->text($decoded)
-        ->html(sprintf("<p> %s </p>", $decoded));
+            ->to("mrbileltn@gmail.com")
+            ->subject('Time for Symfony Mailer!')
+            ->text($decoded)
+            ->html(sprintf("<p> %s </p>", $decoded));
 
-           $mailer->send($email);
+        $mailer->send($email);
 
-        return $this->json(['property'=>'value'],200);
-
+        return $this->json(['property' => 'value'], 200);
     }
 }
