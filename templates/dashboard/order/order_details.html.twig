@@ -74,7 +74,7 @@
 
 {% if order.payementTransaction %}
 
-<span>Par carte bancaire</span>/ Status : {{ payment.data.TransStatus == "00" ? "accordé" : "échoué" }}
+<span>Par carte bancaire</span>/ Status : {{ order.payementTransaction.data.TransStatus == "00" ? "accordé" : "échoué" }}
 
 {% else %}
 
