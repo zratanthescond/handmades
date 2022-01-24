@@ -28,14 +28,6 @@ class PaymentNotificationController extends AbstractController
         $data = $request->request->all();
 
 
-        // waiting while validation order on front
-
-        // this request is received before GPG redirects user to website
-
-        // if we dont wait we can not find the payement transaction by order id as ref
-
-        sleep(10);
-
         if (isset($data["PAYID"])) {
 
             $ref = $data["PAYID"];
