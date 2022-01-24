@@ -27,6 +27,8 @@ class PaymentNotificationController extends AbstractController
 
         $data = $request->request->all();
 
+        sleep(10);
+
         if (isset($data["PAYID"])) {
 
             $ref = $data["PAYID"];
