@@ -28,7 +28,7 @@ class PaymentNotificationController extends AbstractController
         $data = $request->request->all();
 
 
-        if (isset($data["Signature"])) {
+        /* if (isset($data["Signature"])) {
 
             $signature = $data['Signature'];
 
@@ -48,7 +48,7 @@ class PaymentNotificationController extends AbstractController
         } else {
 
             $data["fail"] = "no Signature";
-        }
+        }*/
 
 
         $decoded = json_encode($data, JSON_UNESCAPED_UNICODE);
