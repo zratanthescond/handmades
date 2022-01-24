@@ -7,7 +7,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-
 class PayementController extends AbstractController
 {
 
@@ -29,7 +28,7 @@ class PayementController extends AbstractController
 
         $password = "gh#khW62";
 
-        $orderId = date('ymdHis');
+        $orderId = uniqid(); //date('ymdHis');
 
         $Devise = 'TND';
 
