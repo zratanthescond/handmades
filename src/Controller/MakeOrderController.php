@@ -78,15 +78,12 @@ class MakeOrderController extends AbstractController
         ->setNote($data["note"])
         ->setRewardPointsToConsume($rewardPointsToConsume);
 
-        if($data["payement"] === "Paiement par carte bancaire") {
+        if($data["paymentRef"]) {
 
-            
-            $ref = $data["payementRef"];
-              
-            $payementTransaction = (new PayementTransaction())->setType("GPG")->setRef($ref);
+              $transaction = (new PayementTransaction())->setRef($data["paymentRef"])->setType("GPG");
 
-            $order->setPayementTransaction($payementTransaction);
-        } 
+              $order->setPayementTransaction($transaction);
+        }
 
         $event = new OrderIsPlacedEvent($order);
 

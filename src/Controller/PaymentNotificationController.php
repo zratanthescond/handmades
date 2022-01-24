@@ -1,6 +1,9 @@
 <?php
 
 namespace App\Controller;
+
+use App\Repository\PayementTransactionRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,12 +18,27 @@ class PaymentNotificationController extends AbstractController
     /**
      * @Route("/payment/notification", name="payment_notification")
      */
-    public function index(Request $request, MailerInterface $mailer): Response
+    public function index(
+        Request $request, 
+        MailerInterface $mailer, 
+        PayementTransactionRepository $repo,
+        EntityManagerInterface $em
+        ): Response
     {
 
         $data = $request->request->all();
 
         $decoded = json_encode($data, JSON_UNESCAPED_UNICODE);
+
+        $signature = $data['Signature'];
+
+        $payment = $repo->findOneBy(["ref" => $signature]);
+
+        $payment->setData($data)->setUpdatedAt(new \DateTimeImmutable());
+
+        $em->persist($payment);
+
+        $em->flush();
 
         $email = (new Email())
         ->to("mrbileltn@gmail.com")
