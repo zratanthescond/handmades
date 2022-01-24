@@ -61,7 +61,33 @@ class OrderCrudController extends AbstractCrudController
             AssociationField::new("user", "Client")->onlyOnIndex(),
             CollectionField::new("products", "Produits")->onlyOnIndex(),
             MoneyField::new("subtotal", "Sous-total")->setCurrency("TND")->setNumDecimals(3)->setStoredAsCents(false),
-            MoneyField::new("total")->setCurrency("TND")->setNumDecimals(3)->setStoredAsCents(false)
+            MoneyField::new("total")->setCurrency("TND")->setNumDecimals(3)->setStoredAsCents(false),
+            AssociationField::new("payementTransaction", "Paiement")->formatValue(function ($v, Order $order) {
+
+                $payment = $order->getPayementTransaction();
+
+                if ($payment) {
+
+                    $data = $payment->getdata();
+
+                    if (count($data) > 0) {
+
+                        if ($data["TransStatus"] == 00) {
+
+                            return '<span class="badge badge-success">Accordé</span>';
+                        } else {
+
+                            return '<span class="badge badge-danger">Echoué</span>';
+                        }
+                    } else {
+
+                        return '<span class="badge badge-danger">Echoué</span>';
+                    }
+                } else {
+
+                    return "<span>à la livraison</span>";
+                }
+            })->onlyOnIndex()
 
         ];
     }
