@@ -28,9 +28,9 @@ class PaymentNotificationController extends AbstractController
         $data = $request->request->all();
 
 
-        /* if (isset($data["Signature"])) {
+      /**   if (isset($data["merchandSession"])) {
 
-            $signature = $data['Signature'];
+            $signature = $data['merchandSession'];
 
             $payment = $repo->findOneBy(["ref" => $signature]);
 
@@ -45,10 +45,11 @@ class PaymentNotificationController extends AbstractController
                  
                 $data["fail"] = sprintf("payment ref not found width %s", $signature);
             }
+        
         } else {
 
             $data["fail"] = "no Signature";
-        }*/
+        } */
 
 
         $decoded = json_encode($data, JSON_UNESCAPED_UNICODE);

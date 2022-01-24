@@ -37,12 +37,15 @@ class PayementController extends AbstractController
 
         $signature = sha1($numSite.$password.$orderId.$Amount.$Devise);
 
+        $merchandSession = $signature;
+
         return $this->json([
 
             "NumSite" => $numSite,
             "Password" => MD5($password),
             "orderID" => $orderId,
-            "signature" => $signature
+            "signature" => $signature,
+            "merchandSession" => $merchandSession
         ]);
 
     }
