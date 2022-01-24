@@ -20,6 +20,7 @@ use App\Entity\Order;
 use App\Entity\OrderReview;
 use App\Entity\Page;
 use App\Entity\Parrainage;
+use App\Entity\PayementTransaction;
 use App\Entity\PopUp;
 use App\Entity\Product;
 use App\Entity\ProductCategory;
@@ -106,6 +107,8 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::section("Commandes")->setPermission(UserRoles::SUPER_ADMIN);
 
         yield MenuItem::linkToCrud('Commandes', 'fas fa-shopping-cart', Order::class)->setPermission(UserRoles::SUPER_ADMIN);
+
+        yield MenuItem::linkToCrud('Paiments', 'fas fa-shopping-cart', PayementTransaction::class)->setPermission(UserRoles::SUPER_ADMIN);
 
         yield MenuItem::section("Aramex");
 

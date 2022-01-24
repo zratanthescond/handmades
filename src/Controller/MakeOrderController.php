@@ -75,10 +75,14 @@ class MakeOrderController extends AbstractController
         $order->setDelivery($delivery)->setUser($user)
         ->setSubtotal($data["subtotal"])
         ->setTotal($data["total"])
-        ->setNote($data["note"])
         ->setRewardPointsToConsume($rewardPointsToConsume);
 
-        if($data["paymentRef"]) {
+        if(isset($data["note"])) {
+
+              $order->setNote($data["note"]);
+        }
+
+        if(isset($data["paymentRef"])) {
 
               $transaction = (new PayementTransaction())->setRef($data["paymentRef"])->setType("GPG");
 
