@@ -70,7 +70,7 @@
 
 <li class="list-group-item"><span class="bold fw-bold">Addresse de livraison :</span> {{ order.user.defaultAddress }}</li>
 
-<li class="list-group-item">Paiement : 
+<li class="list-group-item"><span class="bold fw-bold">Paiement :</span>
 
 {% if order.payementTransaction %}
 
@@ -84,7 +84,7 @@
 
 {% endif %}
 
-<span>Référence de paiement : {{ order.payementTransaction.ref }} </span>
+<span class="d-block">Référence de paiement : {{ order.payementTransaction.ref }} </span>
 
 {% else %}
 
