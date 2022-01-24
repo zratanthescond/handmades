@@ -40,6 +40,7 @@ class PayementTransactionCrudController extends AbstractCrudController
             IdField::new('id'),
             DateTimeField::new('createdAt', 'Date'),
             TextField::new("ref"),
+            TextField::new("type"),
             DateTimeField::new('updatedAt', 'Mise à jour'),
             AssociationField::new('cOrder')
         ];

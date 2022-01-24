@@ -29,7 +29,7 @@ class PaymentNotificationController extends AbstractController
 
         if (isset($data["PAYID"])) {
 
-            $ref = $data['PAYID'];
+            $ref = $data["PAYID"];
 
             $payment = $repo->findOneBy(["ref" => $ref]);
 
@@ -42,7 +42,7 @@ class PaymentNotificationController extends AbstractController
                 $em->flush();
             } else {
                  
-                
+                $data["fail"] = "can not find payement with this ref" . $ref;
             }
         
         } else {
