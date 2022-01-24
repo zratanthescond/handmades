@@ -28,17 +28,26 @@ class PaymentNotificationController extends AbstractController
 
         $data = $request->request->all();
 
+
+        if(isset($data["Signature"])) {
+
+            $signature = $data['Signature'];
+
+            $payment = $repo->findOneBy(["ref" => $signature]);
+    
+            $payment->setData($data)->setUpdatedAt(new \DateTimeImmutable());
+    
+            $em->persist($payment);
+    
+            $em->flush();
+        } else {
+
+            $data["fail"] = "no ref";
+        }
+
+       
+
         $decoded = json_encode($data, JSON_UNESCAPED_UNICODE);
-
-        $signature = $data['Signature'];
-
-        $payment = $repo->findOneBy(["ref" => $signature]);
-
-        $payment->setData($data)->setUpdatedAt(new \DateTimeImmutable());
-
-        $em->persist($payment);
-
-        $em->flush();
 
         $email = (new Email())
         ->to("mrbileltn@gmail.com")
