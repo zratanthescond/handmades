@@ -108,7 +108,7 @@ class DashboardController extends AbstractDashboardController
 
         yield MenuItem::linkToCrud('Commandes', 'fas fa-shopping-cart', Order::class)->setPermission(UserRoles::SUPER_ADMIN);
 
-        yield MenuItem::linkToCrud('Paiments', 'fas fa-shopping-cart', PayementTransaction::class)->setPermission(UserRoles::SUPER_ADMIN);
+        yield MenuItem::linkToCrud('Paiments', 'fas fa-credit-card', PayementTransaction::class)->setPermission(UserRoles::SUPER_ADMIN);
 
         yield MenuItem::section("Aramex");
 
