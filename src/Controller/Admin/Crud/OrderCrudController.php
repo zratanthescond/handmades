@@ -25,14 +25,11 @@ class OrderCrudController extends AbstractCrudController
     public function configureActions(Actions $actions): Actions
     {
 
-        $orderDetails = Action::new('orderDetails', 'Détails', 'fa fa-file-invoice')
-            ->linkToCrudAction('orderDetails');
-
-        return $actions->add(Crud::PAGE_INDEX, $orderDetails)
-            ->disable(Action::NEW, Action::BATCH_DELETE);
+        return $actions->add(Crud::PAGE_INDEX, Action::DETAIL)
+            ->disable(Action::NEW, Action::BATCH_DELETE, Action::EDIT);
     }
 
-    public function orderDetails(AdminContext $context)
+    public function detail(AdminContext $context)
     {
 
         $order = $context->getEntity()->getInstance();

@@ -27,7 +27,7 @@
 
 <div class="col-md-6">
 
-<h5>Livraison</h5>
+<h5>Livraison & Paiement</h5>
 
 <ul class="list-group">
 
@@ -69,6 +69,20 @@
 
 
 <li class="list-group-item"><span class="bold fw-bold">Addresse de livraison :</span> {{ order.user.defaultAddress }}</li>
+
+<li class="list-group-item">Paiement : 
+
+{% if order.payementTransaction %}
+
+<span>Par carte bancaire</span>/ Status : {{ payment.data.TransStatus == "00" ? "accordé" : "échoué" }}
+
+{% else %}
+
+<span>à la livraison</span>
+
+{% endif %}
+
+</li>
 
 </ul>
 </div>
