@@ -14,6 +14,7 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 
 /**
  * @ApiResource(
+ * order={"createdAt": "DESC"},
  * collectionOperations={
  * "get"={
  * "normalization_context"={"groups"={"order:collection:read"}}
