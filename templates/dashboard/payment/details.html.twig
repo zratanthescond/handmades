@@ -15,7 +15,7 @@
 
 {% if payment.data is not empty %}
 
-<li class="list-group-item"><span class="bold fw-bold">Status : {{ payment.TransStatus == "00" ? "accordé" : "échoué" }}</span> 
+<li class="list-group-item"><span class="bold fw-bold">Status : {{ payment.data.TransStatus == "00" ? "accordé" : "échoué" }}</span> 
 
  </li>
 
