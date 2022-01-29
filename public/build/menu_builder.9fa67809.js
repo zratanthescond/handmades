@@ -1,1 +1,0 @@
-(self.webpackChunk=self.webpackChunk||[]).push([[585],{945:()=>{console.log("hello world")}},l=>{var e;e=945,l(l.s=e)}]);
