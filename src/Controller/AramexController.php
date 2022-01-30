@@ -188,7 +188,7 @@ class AramexController extends AbstractController
 
         $em->flush();
       }
-    } catch (Exception $e) {
+    } catch (\Exception $e) {
 
       return $this->json(["error" => $e->getMessage()], 400);
     }
