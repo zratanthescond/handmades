@@ -25,23 +25,18 @@ class AramexErrorHandler
 
                 return $errorNotification["Message"];
             }
-        
-        } elseif ($response["Shipments"]["ProcessedShipment"]["Notifications"]) {
+        } elseif (isset($response["Shipments"]["ProcessedShipment"]["Notifications"])) {
 
             $notifications = $response["Shipments"]["ProcessedShipment"]["Notifications"]["Notification"];
 
             $errors = implode(', ', array_map(function ($entry) {
                 return $entry['Message'];
-              }, $notifications));
+            }, $notifications));
 
-             $errorsNbr = count($notifications);
-
-             return $errors;
+            return $errors;
         } else {
 
             return "Unknown error";
         }
-
-        
     }
 }
