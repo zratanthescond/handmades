@@ -43,7 +43,7 @@ class ProductOutStockSubscriber implements EventSubscriberInterface
             $subject = count($outOfStock) . " produit(s) en rupture de stock";
 
             $email = (new TemplatedEmail())
-                ->to("mrbileltn@gmail.com")
+                ->to("zgolli.issam@gmail.com")
                 ->subject($subject)
                 ->htmlTemplate('email/admin/notification/out_of_stock.html.twig')
                 ->context([
