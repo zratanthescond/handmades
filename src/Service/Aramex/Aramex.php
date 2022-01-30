@@ -269,8 +269,6 @@ class Aramex
 
             if ($data["HasErrors"] === true) {
 
-                dd($data);
-
                $errorMessage = AramexErrorHandler::getErrorMessage($data);
 
                 throw new AramexException($errorMessage);

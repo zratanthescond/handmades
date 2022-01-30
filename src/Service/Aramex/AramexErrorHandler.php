@@ -8,6 +8,7 @@ class AramexErrorHandler
     public static function getErrorMessage(array $response): string
     {
 
+
         if (isset($response["Notifications"]) && count($response["Notifications"])) {
 
             $errorNotification = $response["Notifications"]["Notification"];
@@ -18,7 +19,7 @@ class AramexErrorHandler
 
             if (is_array($errorNotification[$key])) {
 
-                $errorNumber = count($errorNotification);
+                //$errorNumber = count($errorNotification);
 
                 return $errorNotification[$key]["Message"];
             } else {
@@ -30,7 +31,7 @@ class AramexErrorHandler
             $notifications = $response["Shipments"]["ProcessedShipment"]["Notifications"]["Notification"];
 
             $errors = implode(', ', array_map(function ($entry) {
-                return $entry['Message'];
+                return $entry['Message'] ?? "Unknown error";
             }, $notifications));
 
             return $errors;
