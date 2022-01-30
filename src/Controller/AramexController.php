@@ -62,7 +62,7 @@ class AramexController extends AbstractController
 
       if(!count($address)) {
 
-         return $this->json(["error" => sprintf("No default address is set from %s addresses", count($addresses))], 400);
+         return $this->json(["error" => sprintf("No default address is set from %s addresses", count($addresses))], 422);
       }
  
       try {
