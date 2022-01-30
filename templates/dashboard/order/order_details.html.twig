@@ -80,7 +80,28 @@
 {% endif %}
 
 
-<li class="list-group-item"><span class="bold fw-bold">Addresse de livraison :</span> {{ order.user.defaultAddress }}</li>
+
+
+<li class="list-group-item">
+
+<span class="bold fw-bold">Addresse de livraison :</span>
+
+<span>{{ order.user.defaultAddress }}</span>
+
+{% if defaultAddress %}
+
+{% set adresseEditUrl = ea_url()
+    .setController('App\\Controller\\Admin\\Crud\\UserAddressCrudController')
+    .setAction('edit')
+    .setEntityId(defaultAddress.id) 
+    
+%}
+
+<a clas="btn btn-outline-danger" href="{{ adresseEditUrl }}">Modifier</a>
+
+{% endif %}
+
+</li>
 
 <li class="list-group-item"><span class="bold fw-bold">Paiement :</span>
 
@@ -186,7 +207,7 @@
      {% set product = productOrder.product %}
 
     <tr>
-      <td>{{ productOrder.product.title }}</td>
+      <td>{{ product.title }} | <span class="badge badge-info">Ref: {{ product.ref }}</span></td>
       <td>
       {{ product | pricePercentage | format_currency('TND', {fraction_digit: 3}) }}
       </td>

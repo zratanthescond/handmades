@@ -1,0 +1,175 @@
+{% extends '@!EasyAdmin/layout.html.twig' %}
+
+ {% block content_title %}{{ client.fullName | capitalize }}{% endblock %}
+
+ {% block main %}
+
+<div class="row">
+
+<div class="col-md-6">
+
+<ul class="list-group list-group-flush">
+
+<li class="list-group-item"><span class="bold fw-bold">Date d'inscription :</span> {{ client.createdAt | date("d/m/Y")}} </li>
+
+<li class="list-group-item"><span class="bold fw-bold">Nom :</span> {{ client.lastName | capitalize }}</li> </li>
+
+<li class="list-group-item"><span class="bold fw-bold">Prénom :</span> {{ client.firstName | capitalize }} </li>
+
+<li class="list-group-item"><span class="bold fw-bold">Numéro de téléphone :</span> {{ client.phoneNumber }} </li>
+
+<li class="list-group-item"><span class="bold fw-bold">Email :</span> {{ client.email }} </li>
+
+<li class="list-group-item"><span class="bold fw-bold">Date de naissance :</span> {{ client.birthDay ? client.birthDay | date("d/m/Y") : "NULL"}} </li>
+
+
+</ul>
+
+</div>
+
+<div class="col-md-6">
+
+<ul class="list-group list-group-flush">
+
+<li class="list-group-item"><span class="fw-bold">Points de fidélité :</span> {{ client.rewardPoints }} point(s)</li>
+
+<li class="list-group-item"><span class="fw-bold">Nombre de commandes :</span> {{ client.orders | length }} commandes(s)</li>
+
+<li class="list-group-item"><span class="fw-bold">Wishlist :</span> {{ client.wishList | length }} produit(s)</li>
+
+<li class="list-group-item"><span class="fw-bold">Commentaires sur le blog :</span> {{ client.blogComments | length }} commentaire(s)</li>
+
+</ul>
+
+</div>
+
+
+<div class="col-md-12 mt-4 mb-5">
+
+{% set addresses = client.addresses %}
+
+<div class="mb-4 d-flex align-items-center">
+
+<h4 class="mb-0 me-3 fw-bold">Adresses</h4>
+
+{% if addresses | length %} <div><span class="badge badge-info"> {{ addresses | length }} Adresses(s)</span></div> {% endif %}
+
+</div>
+
+<div class="row">
+
+{% for address in addresses %}
+
+<div class="col-md-6 mb-3">
+
+<div class="card">
+
+<div class="card-body">
+
+<ul class="list-group list-group-flush client_address_edit" data-address-id="{{ address.id }}">
+
+<li class="list-group-item">
+
+<span class="fw-bold">Adresse :</span> 
+
+<span class="client_address" data-address>{{ address.address }}</span>
+
+</li>
+
+<li class="list-group-item"><span class="fw-bold">Ville :</span> {{ address.town }}</li> 
+
+<li class="list-group-item"><span class="fw-bold">Code Postal</span> {{ address.postalCode }}</li>
+
+{% if address.isDefault %} 
+
+<li class="list-group-item"><span class="text-success"><i class="fa fa-check" aria-hidden="true"></i> Adresse par défault</span></li> 
+
+{% endif %}
+
+
+</ul>
+
+
+{% set adresseEditUrl = ea_url()
+    .setController('App\\Controller\\Admin\\Crud\\UserAddressCrudController')
+    .setAction('edit')
+    .setEntityId(address.id) 
+    
+%}
+
+<a href="{{ adresseEditUrl }}" class="btn btn-primary d-table mx-auto">Modifier</a>
+
+</div>
+</div>
+</div>
+
+{% else %}
+
+<div class="col-md-12 text-danger">Aucune Adresse</div>
+
+
+{% endfor %}
+</div>
+
+</div> <!-- /COL-12 -->
+
+<div class="col-md-12 mb-5">
+
+{% set orderNbr =  client.orders | length %}
+
+<div class="mb-4 d-flex align-items-center">
+
+<h4 class="mb-0 me-3 fw-bold">Commandes</h4>
+
+{% if orderNbr %} <div><span class="badge badge-info"> {{ orderNbr }} commande(s)</span></div> {% endif %}
+
+</div>
+
+<div class="row">
+
+{% for order in client.orders %}
+
+<div class="col-md-6 mb-3">
+
+<div class="card">
+
+<div class="card-body">
+
+<ul class="list-group list-group-flush">
+
+<li class="list-group-item"><span class="fw-bold">Date :</span> {{ order.createdAt | date("d/m/Y")}} </li>
+
+<li class="list-group-item"><span class="fw-bold">Nombre de produits commandés :</span> {{ order.products | length }} produit(s)</li> 
+
+<li class="list-group-item"><span class="fw-bold">Sous total :</span> {{ order.subtotal | format_currency('TND', {fraction_digit: 3}) }} </li> 
+
+<li class="list-group-item"><span class="fw-bold">Total :</span> {{ order.total | format_currency('TND', {fraction_digit: 3}) }} </li> 
+
+</ul>
+
+{% set orderUrl = ea_url()
+    .setController('App\\Controller\\Admin\\Crud\\OrderCrudController')
+    .setAction('detail')
+    .setEntityId(order.id) 
+    
+%}
+
+<a href="{{ orderUrl }}" class="btn btn-primary d-table mx-auto">Détails</a>
+
+</div>
+</div>
+</div>
+
+{% else %}
+
+<div class="col-md-12 text-danger">Aucune commande</div>
+
+
+{% endfor %}
+</div>
+
+</div>
+</div>
+
+
+ {% endblock %}

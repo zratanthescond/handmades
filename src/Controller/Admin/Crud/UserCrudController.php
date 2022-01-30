@@ -6,8 +6,8 @@ use App\Entity\User;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
-use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\EmailField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
@@ -27,7 +27,19 @@ class UserCrudController extends AbstractCrudController
 
     public function configureActions(Actions $actions): Actions
     {
-        return $actions->disable(Action::DELETE, Action::NEW);
+        return $actions->disable(Action::DELETE, Action::NEW)->add(Crud::PAGE_INDEX, Action::DETAIL);
+    }
+
+    public function detail(AdminContext $context)
+    {
+
+        $client = $context->getEntity()->getInstance();
+
+
+        return $this->render("dashboard/client/details.html.twig", [
+            "client" => $client
+        ]);
+
     }
 
     public function configureFields(string $pageName): iterable

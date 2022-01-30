@@ -4,6 +4,7 @@ namespace App\Controller\Admin\Crud;
 
 use App\Core\Security\Permission\UserRoles;
 use App\Entity\Order;
+use App\Entity\UserAddress;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -36,10 +37,20 @@ class OrderCrudController extends AbstractCrudController
 
         $shippement = $order->getAramexShipement();
 
+        $client = $order->getUser();
+
+        $addresses = array_filter($client->getAddresses()->toArray(), function (UserAddress $address) {
+
+            return $address->getIsDefault();
+        });
+
+        $defaultAddress = count($addresses) ? $addresses[0] : null;
+
         return $this->render("dashboard/order/order_details.html.twig", [
 
             "order" => $order,
-            "shippement" => $shippement
+            "shippement" => $shippement,
+            "defaultAddress" => $defaultAddress
         ]);
     }
 
