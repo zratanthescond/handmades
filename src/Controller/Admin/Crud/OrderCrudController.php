@@ -34,9 +34,12 @@ class OrderCrudController extends AbstractCrudController
 
         $order = $context->getEntity()->getInstance();
 
+        $shippement = $order->getAramexShipement();
+
         return $this->render("dashboard/order/order_details.html.twig", [
 
-            "order" => $order
+            "order" => $order,
+            "shippement" => $shippement
         ]);
     }
 
@@ -84,7 +87,9 @@ class OrderCrudController extends AbstractCrudController
 
                     return "<span>à la livraison</span>";
                 }
-            })->onlyOnIndex()
+            })->onlyOnIndex(),
+
+            AssociationField::new("aramexShipement", "Livraison")->onlyOnIndex(),
 
         ];
     }
