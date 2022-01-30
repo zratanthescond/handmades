@@ -50,7 +50,7 @@ class OrderInvoiceController extends AbstractController
 
         $discount = 0;
 
-        $discount = +$order->gettotal() - $order->GetSubtotal();
+        $discount = +$order->getTotal() - $order->getSubtotal();
 
         if ($freeDelivery) {
 
