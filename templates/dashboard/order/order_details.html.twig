@@ -14,11 +14,34 @@
 
 <li class="list-group-item"><span class="bold fw-bold">Date :</span> {{ order.createdAt | date("d/m/Y")}} </li>
 
-<li class="list-group-item"><span class="bold fw-bold">Client :</span> {{ order.user | capitalize }} </li>
+{% set userDetailsUrl = ea_url()
+    .setController('App\\Controller\\Admin\\Crud\\UserCrudController')
+    .setAction('detail')
+    .setEntityId(order.user.id) 
+    
+%}
+
+<li class="list-group-item"><span class="bold fw-bold">Client :</span> <a href="{{ userDetailsUrl }}">{{ order.user | capitalize }}</a> </li>
 
 <li class="list-group-item"><span class="bold fw-bold">Sous total :</span> {{ order.subtotal | format_currency('TND', {fraction_digit: 3}) }} </li> 
 
-<li class="list-group-item"><span class="bold fw-bold">Total :</span> {{ order.total | format_currency('TND', {fraction_digit: 3}) }} </li> 
+<li class="list-group-item">
+
+<span class="bold fw-bold">Total :</span> 
+
+<span>{{ order.total | format_currency('TND', {fraction_digit: 3}) }}</span> 
+
+{% if not order.invoice %}
+
+<a href="/order/invoice/{{ order.id }}" class="btn btn-primary" download>Facture</a>
+
+{% else %}
+
+<a href="/upload/invoice/{{ order.invoice }}" class="btn btn-primary" download>Facture</a>
+
+{% endif %}
+
+</li> 
 
 
 </ul>
@@ -78,9 +101,6 @@
 </li>
 
 {% endif %}
-
-
-
 
 <li class="list-group-item">
 
@@ -207,7 +227,7 @@
      {% set product = productOrder.product %}
 
     <tr>
-      <td>{{ product.title }} | <span class="badge badge-info">Ref: {{ product.ref }}</span></td>
+      <td>{{ product.title }} | <span class="text-muted">Ref: {{ product.ref }}</span></td>
       <td>
       {{ product | pricePercentage | format_currency('TND', {fraction_digit: 3}) }}
       </td>

@@ -149,6 +149,11 @@ class Order
      */
     private $payementTransaction;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $invoice;
+
 
     public function __construct()
     {
@@ -394,6 +399,18 @@ class Order
         }
 
         $this->payementTransaction = $payementTransaction;
+
+        return $this;
+    }
+
+    public function getInvoice(): ?string
+    {
+        return $this->invoice;
+    }
+
+    public function setInvoice(?string $invoice): self
+    {
+        $this->invoice = $invoice;
 
         return $this;
     }

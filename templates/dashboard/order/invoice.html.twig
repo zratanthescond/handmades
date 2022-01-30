@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="fr">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+
+		<style type="text/css">
+
+			body {
+
+				font-family: 'Outfit', sans-serif;
+				font-size: 16px;
+				font-weight: 300;
+             
+			}
+		</style>
+
+	</head>
+	<body>
+
+		<div class="container pt-5 pb-5" style="border:1px solid #eee; margin: 30px auto; padding: 30px 50px; background: #fff">
+
+			<div class="row" style="margin-bottom: 20px;">
+
+				<div class="col-md-12">
+
+					<img src="https://api.paramall.tn/img/logo.png" class="img-fluid" style="margin-bottom: 20px"/>
+
+				</div>
+
+			</div>
+
+			<div class="row" style="margin-bottom: 40px;">
+
+				<div class="col-md-6">
+
+					<h1 class="h2">
+						<strong>Facture numéro
+							#{{ order.id }}</strong>
+					</h1>
+
+					<ul class="list-unstyled">
+
+						<li style="margin-bottom: 8px;">www.paramall.tn</li>
+
+						<li style="margin-bottom: 8px;">Adresse: 3 Rue Somaani cité Ennasim Ariana 2073, Tunis</li>
+
+						<li style="margin-bottom: 8px;">Tél : 28 122 180</li>
+
+						<li style="margin-bottom: 8px;">Email: contact@paramall.tn</li>
+
+					</ul>
+
+				</div>
+
+				<div class="col-md-6">
+
+					<h1 class="h2">
+						<strong>Client</strong>
+					</h1>
+
+					<ul class="list-unstyled">
+
+						<li style="margin-bottom: 8px;">{{ order.user | capitalize }}</li>
+
+						{% if defaultAddress %}
+
+							<li style="margin-bottom: 8px;">{{ defaultAddress.address }},
+								{{ defaultAddress.town }}
+								{{ defaultAddress.postalCode }}</li>
+
+						{% endif %}
+
+						<li style="margin-bottom: 8px;">Tél :
+							{{ order.user.phoneNumber}}</li>
+
+						<li style="margin-bottom: 8px;">Email:
+							{{ order.user.email}}</li>
+
+					</ul>
+
+
+				</div>
+
+			</div>
+
+
+			<div class="row">
+
+				<div class="col-md-12">
+
+
+					<table class="table table-bordered">
+
+						<thead>
+							<tr>
+								<th>Date de la commande</th>
+								<th>Numéro de commande</th>
+								<th>Méthode de paiement</th>
+								<th>Livraison</th>
+							</tr>
+						</thead>
+						<tbody>
+
+
+							<tr>
+								<td>{{ order.createdAt | date("d/m/Y")}}</td>
+								<td>{{ order.id }}</td>
+								<td>{{ order.payementTransaction ? "Par carte bancaire" : "A la livraison" }}</td>
+								<td>{{ order.delivery.name }}</td>
+							</tr>
+
+						</tbody>
+
+					</table>
+
+
+					<table class="table table-bordered">
+
+						<thead>
+							<tr>
+								<th>Produit(s)</th>
+								<th>Prix</th>
+								<th>Quantité</th>
+							</tr>
+						</thead>
+						<tbody>
+
+							{% for productOrder in order.products %}
+
+								{% set product = productOrder.product %}
+
+								<tr>
+									<td>{{ product.title }}
+										|
+										<span class="text-muted">Ref:
+											{{ product.ref }}</span>
+									</td>
+									<td>
+										{{ product | pricePercentage | format_currency('TND', {fraction_digit: 3}) }}
+									</td>
+									<td>{{ productOrder.qty }}</td>
+								</tr>
+
+							{% endfor %}
+
+                            <tr>
+
+							<td colspan="1"></td>
+
+							<td><strong>Sous Total</strong></td>
+
+							<td><strong>{{ order.subTotal | format_currency('TND', {fraction_digit: 3}) }}</strong></td>
+						
+					</tr>
+
+					<tr>
+
+						<td colspan="1"></td>
+
+						<td><strong>Livraison</strong></td>
+
+						<td><strong>{{ "7" | format_currency('TND', {fraction_digit: 3}) }}</strong></td>
+
+					</tr>
+
+					{% if discount > 0  %}
+
+						<tr>
+
+							<td colspan="1"></td>
+
+							<td class="danger"><strong>Réduction</strong></td>
+
+							<td class="danger">-
+								<strong>{{ discount | format_currency('TND', {fraction_digit: 3}) }}</strong></td>
+
+						</tr>
+
+					{% endif %}
+
+					<tr>
+
+						<td colspan="1"></td>
+
+						<td class="success"><strong>Total</strong></td>
+
+						<td class="success"><strong>{{ order.total | format_currency('TND', {fraction_digit: 3}) }}</strong></td>
+
+					</tr>
+
+				</tbody>
+
+
+			</table>
+
+
+		</div>
+      
+      </div><!-- ROW --></div><!-- container -->
+
+	</body>
+</html>
