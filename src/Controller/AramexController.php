@@ -58,10 +58,15 @@ class AramexController extends AbstractController
 
       $addresses = $user->getAddresses()->toArray();
 
-      $address = array_filter($addresses, fn (UserAddress $add) => $add->getIsDefault())[0];
+      $address = array_filter($addresses, fn (UserAddress $add) => $add->getIsDefault());
 
+      if(!count($address)) {
+
+         return $this->json(["error" => sprintf("No default address is set from %s addresses", count($addresses))], 400);
+      }
+ 
       try {
-        $shipement = $aramex->CreateShipments($address, $order);
+        $shipement = $aramex->CreateShipments($address[0], $order);
 
         $trackingId = $shipement->getTrackingId();
 
