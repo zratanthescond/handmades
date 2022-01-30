@@ -30,6 +30,11 @@ class AramexErrorHandler
 
             $notifications = $response["Shipments"]["ProcessedShipment"]["Notifications"]["Notification"];
 
+            if (AramexHelper::isMultiDimensional($notifications) === false) {
+
+                return $notifications["Message"];
+            }
+
             $errors = implode(', ', array_map(function ($entry) {
                 return $entry['Message'] ?? "Unknown error";
             }, $notifications));
