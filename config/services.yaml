@@ -55,6 +55,9 @@ services:
     
     App\Service\Aramex\AramexPickUp:
         parent: App\Service\Aramex\Aramex
+    
+    App\Service\Aramex\AramexTracking:
+        parent: App\Service\Aramex\Aramex
 
 
     # please note that last definitions always *replace* previous ones
