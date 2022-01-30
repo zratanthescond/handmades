@@ -93,11 +93,11 @@
 
 <div>
 
-<button type="button" class="btn btn-primary" data-order="{{ order.id }}">Créer Aramex shippement</button>
-
-<div class="alert alert-danger mt-3" id="create_shipment_error" style="display: none"></div>
+<button id="create_shipment" class="btn btn-primary" data-token="{{ csrf_token('aramex_shippement')}}" data-order-id="{{ order.id }}">Créer Aramex shippement</button>
 
 <span id="trackingId" class="fw-bold text-success"></span>
+
+<div class="alert alert-danger mt-3" id="create_shipment_error" style="display: none"></div>
 
 </div>
 
