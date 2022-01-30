@@ -49,6 +49,11 @@ class AramexShipement
 
     private $isPickedUp;
 
+    /**
+     * @ORM\OneToOne(targetEntity=AramexTracking::class, mappedBy="shippement", cascade={"persist", "remove"})
+     */
+    private $tracking;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
@@ -140,6 +145,23 @@ class AramexShipement
    public function setAramexPickUp(?AramexPickUp $aramexPickUp): self
    {
        $this->aramexPickUp = $aramexPickUp;
+
+       return $this;
+   }
+
+   public function getTracking(): ?AramexTracking
+   {
+       return $this->tracking;
+   }
+
+   public function setTracking(AramexTracking $tracking): self
+   {
+       // set the owning side of the relation if necessary
+       if ($tracking->getShippement() !== $this) {
+           $tracking->setShippement($this);
+       }
+
+       $this->tracking = $tracking;
 
        return $this;
    }

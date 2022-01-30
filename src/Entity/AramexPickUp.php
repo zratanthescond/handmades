@@ -64,7 +64,7 @@ class AramexPickUp
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->shippements = new ArrayCollection();
-        $this->readyTime = new \DateTime();
+        $this->readyTime =  (new \DateTime())->add(new \DateInterval('PT3M'));
         $this->lastPickupTime = (new \DateTime())->setTime(19, 00, 00);
     
     }
