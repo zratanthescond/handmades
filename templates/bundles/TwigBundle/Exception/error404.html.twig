@@ -1,0 +1,24 @@
+{# templates/bundles/TwigBundle/Exception/error404.html.twig #}
+
+
+{% extends 'blank.html.twig' %}
+
+{% block title %}Erreur 404 {% endblock %}
+
+{% block body %}
+
+<div class="container d-flex align-items-center vh-100">
+
+<div class="col-md-6 offset-md-3 text-center">
+
+<h1 class="bold primary_c" style="font-size: 120px">Ooops</h1>
+
+<h2 class="bold mb-4" style="font-size: 50px">Page introuvable</h2>
+
+<button class="btn btn-default"><a class="text-white" href="{{path("homepage")}}">Revenir à la page d'accueil</a></h1>
+
+
+</div>
+</div>
+
+{% endblock %}

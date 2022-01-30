@@ -1,0 +1,44 @@
+{% if app.session is not null and app.session.started %}
+    {% set flash_messages = app.session.flashbag.all %}
+
+    {% if flash_messages|length > 0 %}
+       
+            {% for label, messages in flash_messages %}
+                
+                  <div style="position: fixed;bottom: 50px;right: 20px; z-index:3">
+
+                {% for message in messages %}
+
+                
+                    
+
+     <div role="alert" aria-live="polite" aria-atomic="true" class="toast fade show position-relative" data-autohide="true" animation="true" data-delay="4000">
+       <div class="toast-header {{ label == "danger" ? "text-danger" : "text-success" }}">
+        
+        <strong class="me-auto"><i class="fa fa-info-circle mr-2" aria-hidden="true"></i>
+    
+        {% if label == "danger" %} Erreur ! {% elseif label == "success "%}Success {% else %} Info {% endif %}
+        
+        
+        </strong>
+       <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body">
+        {{ message|trans|raw }}
+      </div>
+    </div>
+            
+                {% endfor %}
+
+                  </div>
+           
+           {% endfor %}
+        
+    {% endif %}
+
+   
+
+ 
+
+
+{% endif %}

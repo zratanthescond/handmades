@@ -1,0 +1,68 @@
+{% extends '@!EasyAdmin/layout.html.twig' %}
+
+{% block content_title %}Aramex PickUp {{ pickUp.pickUpId }}{% endblock %}
+
+{% block main %}
+
+<ul class="list-group list-group-flush">
+ <li class="list-group-item"><strong>Date de demande: </strong>{{ pickUp.createdAt | date('Y-m-d H:i:s') }}</li>
+  <li class="list-group-item"><strong>PickUpId: </strong> {{ pickUp.pickUpId }}</li>
+  <li class="list-group-item"><strong>Guid: </strong>{{ pickUp.guid }} </li>
+  <li class="list-group-item"><strong>Ready Time: </strong>{{ pickUp.readyTime | date('Y-m-d H:i:s') }}</li>
+  <li class="list-group-item"><strong>Last Pickup Time: </strong>{{ pickUp.lastPickupTime | date('Y-m-d H:i:s')}}</li>
+ 
+</ul>
+
+<a id="generate_mafinest" class="btn btn-success ps-5 pe-5 d-table mx-auto mt-3 text-white" href="/aramex/create/manifeste/{{pickUp.id}}" download>
+<i class="fa fa-file me-2" aria-hidden="true"></i>
+<span>Générer un manifeste</span>
+</a>
+
+
+<div class="border-top mt-4 pt-4 pb-4">
+
+<h4 class="fw-bold mb-3">Shippements</h4>
+
+{% for shippement in shippements %}
+
+<ul class="list-group mb-4">
+
+{% set order = shippement.clientOrder %}
+
+{% set orderUrl = ea_url()
+    .setController('App\\Controller\\Admin\\Crud\\OrderCrudController')
+    .setAction('detail')
+    .setEntityId(order.id) %}
+
+<li class="list-group-item"><strong>trackingId: </strong>{{ shippement.trackingId }}</li>
+
+<li class="list-group-item"><strong>bordereau: </strong><a href="{{ asset("upload/aramex/" ~ shippement.attachement ) }}" download>Télécharger</a></li>
+
+<li class="list-group-item"><strong>Commande: </strong><a href="{{ orderUrl }}">{{ order.id }}</a></li>
+
+<li class="list-group-item"><strong>Total: </strong>{{ order.total | format_currency('TND', {fraction_digit: 3}) }}</li>
+
+<li class="list-group-item"><strong>Nombre de produits: </strong>{{ order.products | length }}</li>
+
+{% set arrayProducts = [] %}
+{% for item in order.products %}
+    {% set arrayProducts = arrayProducts|merge([item.product.title]) %}
+{% endfor %}
+
+<li class="list-group-item"><strong>Liste de produits: </strong>{{ arrayProducts | join }}</li>
+
+<li class="list-group-item"><strong>Paiement: </strong>{{ order.payementTransaction ? "Par carte bancaire": "A la livraison" }}</li>
+
+<li class="list-group-item"><strong>Client: </strong>{{ order.user.fullName | capitalize }}</li>
+
+<li class="list-group-item"><strong>Adresse de livraison: </strong>{{ order.user.defaultAddress | capitalize }}</li>
+
+</ul>
+
+{% endfor %}
+
+
+</div>
+
+
+{% endblock %}

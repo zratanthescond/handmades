@@ -1,0 +1,66 @@
+{% extends '@!EasyAdmin/layout.html.twig' %}
+
+{% block content_title %}Aramex Shippement {{ shippement.trackingId }}{% endblock %}
+
+{% block main %}
+
+{% set order = shippement.clientOrder %}
+
+{% set orderUrl = ea_url()
+    .setController('App\\Controller\\Admin\\Crud\\OrderCrudController')
+    .setAction('detail')
+    .setEntityId(order.id) %}
+
+<ul class="list-group list-group-flush">
+
+<li class="list-group-item"><strong>Date de demande: </strong>{{ shippement.createdAt | date('Y-m-d H:i:s') }}</li>
+
+<li class="list-group-item"><strong>Derniére mise à jour: </strong>{{ shippement.tracking.updatedAt | date('Y-m-d H:i:s') }}</li>
+
+<li class="list-group-item"><strong>TrackingID: </strong> {{ shippement.trackingId }}</li>
+
+<li class="list-group-item"><strong>Status de livraison: </strong> 
+
+<span class="badge badge-danger" id="tracking_status">{{ shippement.tracking.updateCode | aramexStatus }}</span>
+
+{% if shippement.tracking.updateCode != "SH005" %}
+
+<button class="btn btn-danger btn-sm ms-1" id="update_shippement" data-tracking-id="{{ shippement.trackingId }}">Mettre à jour</button>
+
+<span id="update_shippement_error" class="text-danger"></span>
+
+{% endif %}
+
+</li>
+
+<li class="list-group-item"><strong>PickUp: </strong>
+
+{% if shippement.aramexPickUp %}
+
+{% set pickUpUrl = ea_url()
+    .setController('App\\Controller\\Admin\\Crud\\AramexPickUpCrudController')
+    .setAction('detail')
+    .setEntityId(shippement.aramexPickUp.id) %}
+
+<a href="{{ pickUpUrl }}">{{ shippement.aramexPickUp.pickUpId}}</a>
+
+{% else %}
+
+<span class="badge badge-danger">Non</span>
+
+{% endif %}
+
+</li>
+
+<li class="list-group-item"><strong>bordereau: </strong><a href="{{ asset("upload/aramex/" ~ shippement.attachement ) }}" download>Télécharger</a></li>
+
+<li class="list-group-item"><strong>Commande: </strong><a href="{{ orderUrl }}">{{ order.id }}</a></li>
+
+<li class="list-group-item"><strong>Total: </strong>{{ order.total | format_currency('TND', {fraction_digit: 3}) }}</li>
+
+<li class="list-group-item"><strong>Nombre de produits: </strong>{{ order.products | length }}</li>
+
+</ul>
+
+
+{% endblock %}

@@ -39,18 +39,30 @@
 
 <span class="badge badge-primary ms-1"> {{ order.delivery.price | format_currency('TND', {fraction_digit: 3}) }} </span>
 
+
 </li>
 
-{% if order.aramexShipement %}
+{% if shippement %}
 
 <li class="list-group-item">
 
 <span class="fw-bold">TrackingID :</span>
 
-<span>{{ order.aramexShipement.trackingId }}</span>
+<span class="badge badge-info">{{ shippement.trackingId}}</span>
 
 </li>
 
+{% endif %}
+
+{% if shippement and shippement.tracking %}
+
+<li class="list-group-item">
+
+<span class="fw-bold">Status de livraison: </span>
+
+<span class="text-info">{{ shippement.tracking.updateCode | aramexStatus }}</span>
+
+</li>
 
 {% endif %}
 
@@ -77,6 +89,20 @@
 {% if order.payementTransaction.data is not empty %}
 
 <span>Par carte bancaire</span>/ Status : {{ order.payementTransaction.data.TransStatus == "00" ? "accordé" : "échoué" }}
+{% if order.payementTransaction.data.TransStatus == 00 and not order.aramexShipement %}
+
+<div>
+
+<button type="button" class="btn btn-primary" data-order="{{ order.id }}">Créer Aramex shippement</button>
+
+<div class="alert alert-danger mt-3" id="create_shipment_error" style="display: none"></div>
+
+<span id="trackingId" class="fw-bold text-success"></span>
+
+</div>
+
+{% endif %}
+
 
 {% else %}
 
@@ -86,9 +112,28 @@
 
 <span class="d-block">Référence de paiement : {{ order.payementTransaction.ref }} </span>
 
+
 {% else %}
 
 <span>à la livraison</span>
+
+{% if not order.aramexShipement %}
+
+<div>
+
+
+<button id="create_shipment" class="btn btn-primary" data-token="{{ csrf_token('aramex_shippement')}}" data-order-id="{{ order.id }}">Créer Aramex shippement</button>
+
+<span id="trackingId" class="fw-bold text-success"></span>
+
+<div class="alert alert-danger mt-3" id="create_shipment_error" style="display: none"></div>
+
+</div>
+
+
+{% endif %}
+
+
 
 {% endif %}
 
