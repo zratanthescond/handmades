@@ -3,6 +3,7 @@
 
 namespace App\Service\Aramex;
 
+use App\Entity\Order;
 use App\Service\Aramex\Exception\AramexException;
 
 class AramexPickUp extends Aramex
@@ -33,7 +34,7 @@ class AramexPickUp extends Aramex
                     'CountryCode' => 'TN',
                 ),
                 'PickupLocation' => 'reciption ', // keep it static lik "reciption"
-                'PickupDate' => time(), // date requested for the pickup  avant 11 am le mm jour  apres 11 am j +1 2021-12-0T08:00:00.000Z
+                'PickupDate' => $readyTime->getTimestamp(), // date requested for the pickup  avant 11 am le mm jour  apres 11 am j +1 2021-12-0T08:00:00.000Z
                 'ReadyTime' => $readyTime->getTimestamp(), // time requested for the pickup ready time ouvert 9 am a 7 pm 
                 'LastPickupTime' => $lastPickupTime->getTimestamp(), // time requested for the pickup last time  last tim 7pm
                 'ClosingTime' => $lastPickupTime->getTimestamp(), // time requested for the pickup last time
@@ -94,13 +95,13 @@ class AramexPickUp extends Aramex
             ),
 
             'ClientInfo'              => array(
-                'AccountCountryCode'    => 'JO',
-                'AccountEntity'             => 'AMM',
-                'AccountNumber'             => '20016',
-                'AccountPin'             => '331421',
-                'UserName'                 => 'reem@reem.com',
-                'Password'                 => '123456789',
-                'Version'                 => '1.0'
+                'AccountCountryCode'    => 'TN', //TN LIVE
+                'AccountEntity'             => AramexConfig::ACCOUNT_ENTITY, //TUN LIVE
+                'AccountNumber'             => AramexConfig::ACCOUNT_NUMBER,
+                'AccountPin'             => AramexConfig::ACCOUNT_PIN,
+                'UserName'                 => AramexConfig::USERNAME,
+                'Password'                 => AramexConfig::PASSWORD,
+                'Version'                 => AramexConfig::VERSION,
             ),
 
             'Transaction'             => array(
@@ -139,7 +140,6 @@ class AramexPickUp extends Aramex
 
             if ($data["HasErrors"] === true) {
 
-                
                 $errorMessage = AramexErrorHandler::getErrorMessage($data);
 
                 throw new AramexException($errorMessage);

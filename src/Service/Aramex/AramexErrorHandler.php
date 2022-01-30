@@ -8,19 +8,40 @@ class AramexErrorHandler
     public static function getErrorMessage(array $response): string
     {
 
-        $errorNotification = $response["Notifications"]["Notification"];
+        if (isset($response["Notifications"]) && count($response["Notifications"])) {
 
-        // api can send multiple error
+            $errorNotification = $response["Notifications"]["Notification"];
 
-        $key = array_key_first($errorNotification);
+            // api can send multiple error
 
-        if (is_array($errorNotification[$key])) {
+            $key = array_key_first($errorNotification);
 
-            $errorNumber = count($errorNotification);
+            if (is_array($errorNotification[$key])) {
 
-            return $errorNotification[$key]["Message"];
+                $errorNumber = count($errorNotification);
+
+                return $errorNotification[$key]["Message"];
+            } else {
+
+                return $errorNotification["Message"];
+            }
+        
+        } elseif ($response["Shipments"]["ProcessedShipment"]["Notifications"]) {
+
+            $notifications = $response["Shipments"]["ProcessedShipment"]["Notifications"]["Notification"];
+
+            $errors = implode(', ', array_map(function ($entry) {
+                return $entry['Message'];
+              }, $notifications));
+
+             $errorsNbr = count($notifications);
+
+             return $errors;
+        } else {
+
+            return "Unknown error";
         }
 
-        return $errorNotification["Message"];
+        
     }
 }

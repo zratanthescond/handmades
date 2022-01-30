@@ -2,6 +2,7 @@
 
 namespace App\Service\Aramex;
 
+use App\Entity\Order;
 use App\Entity\User;
 use App\Entity\UserAddress;
 use App\Service\Aramex\Exception\AramexException;
@@ -11,7 +12,9 @@ class Aramex
 
     // URL LIVE "https://ws.aramex.net/ShippingAPI.V2/Shipping/Service_1_0.svc?wsdl
 
-    public const WSDL = "https://ws.dev.aramex.net/ShippingAPI.V2/Shipping/Service_1_0.svc?wsdl";
+    // url dev https://ws.dev.aramex.net/ShippingAPI.V2/Shipping/Service_1_0.svc?wsdl
+
+    public const WSDL = "https://ws.aramex.net/ShippingAPI.V2/Shipping/Service_1_0.svc?wsdl";
 
     protected $compagnyName;
 
@@ -52,7 +55,7 @@ class Aramex
     }
 
  
-    public function CreateShipments(UserAddress $userAddress): AramexShippement
+    public function CreateShipments(UserAddress $userAddress, Order $order): AramexShippement
     {
         $soapClient = $this->client();
 
@@ -60,13 +63,17 @@ class Aramex
 
         //$soapClient->__getFunctions());
 
+        $cashOnDelivery = $order->getPayementTransaction() === null;
+
+        
+
         $params = array(
             'Shipments' => array(
                 'Shipment' => array(
                     'Shipper'    => array(
                         'Reference1'     => 'Ooption', //option ref a
                         'Reference2'     => 'Ref 222222', // ref user creadted
-                        'AccountNumber' => '20016', //numer de compt aramex
+                        'AccountNumber' => AramexConfig::ACCOUNT_NUMBER, //numer de compt aramex
                         'PartyAddress'    => array( //addreess de envo
                             'Line1'                    => $this->compagnyAddress, //address physique de envo
                             'Line2'                 => '',
@@ -95,7 +102,7 @@ class Aramex
                     'Consignee'    => array( //reciver
                         'Reference1'    => 'Ref 333333', //option
                         'Reference2'    => 'Ref 444444', //option 
-                        'AccountNumber' => '',
+                        'AccountNumber' => '60519122',
                         'PartyAddress'    => array(
                             'Line1'                    => $userAddress->getAddress(), //addrerss destinater
                             'Line2'                    => '',
@@ -183,13 +190,13 @@ class Aramex
                         'ProductType'            => 'ONP', // VALEUR = "ONP" pick aramex ( creat pickup  api call ), "FIX" drop buro aramex
                         'PaymentType'            => 'P',
                         'PaymentOptions'         => '',
-                        'Services'                => '', //"CODS" PAMENT A LIVRE ,"RTRN" ECHANGE ,"RTRN,CODS" echange + payment a livraisent ; (vide)livraisent normal sans payment san echange 
+                        'Services'                => $cashOnDelivery?'CODS':'', //"CODS" PAMENT A LIVRE ,"RTRN" ECHANGE ,"RTRN,CODS" echange + payment a livraisent ; (vide)livraisent normal sans payment san echange 
                         'NumberOfPieces'        => 1, // number de embalage general a expdi 
                         'DescriptionOfGoods'     => 'Docs',
                         'GoodsOriginCountry'     => 'TN',
 
                         'CashOnDeliveryAmount'     => array( //IF CODS IN SERVICE 
-                            'Value'                    => 0, // amount will be collected 10
+                            'Value'                    => $cashOnDelivery ? $order->getTotal() : '', // amount will be collected 
                             'CurrencyCode'            => 'TND'
                         ),
 
@@ -221,13 +228,13 @@ class Aramex
             ),
 
             'ClientInfo'              => array(
-                'AccountCountryCode'    => 'JO', //TN LIVE
-                'AccountEntity'             => 'AMM', //TUN LIVE
-                'AccountNumber'             => '20016',
-                'AccountPin'             => '331421',
-                'UserName'                 => 'reem@reem.com',
-                'Password'                 => '123456789',
-                'Version'                 => '1.0'
+                'AccountCountryCode'    => 'TN', //TN LIVE
+                'AccountEntity'             => AramexConfig::ACCOUNT_ENTITY, //TUN LIVE
+                'AccountNumber'             => AramexConfig::ACCOUNT_NUMBER,
+                'AccountPin'             => AramexConfig::ACCOUNT_PIN,
+                'UserName'                 => AramexConfig::USERNAME,
+                'Password'                 => AramexConfig::PASSWORD,
+                'Version'                 => AramexConfig::VERSION,
             ),
 
             'Transaction'             => array(
@@ -262,12 +269,13 @@ class Aramex
 
             if ($data["HasErrors"] === true) {
 
-                $errorMessage = AramexErrorHandler::getErrorMessage($data);
+               $errorMessage = AramexErrorHandler::getErrorMessage($data);
 
                 throw new AramexException($errorMessage);
             }
 
             return new AramexShippement($data["Shipments"]);
+       
         } catch (\SoapFault $fault) {
 
             dd('Error : ' . $fault->faultstring);

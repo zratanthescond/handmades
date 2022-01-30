@@ -11,7 +11,16 @@ trait AramexHelper
     }
 
 
-    public function hasError()
+    public static function hasError(array $data): bool
     {
+
+        return $data["HasErrors"] === true;
     }
+
+    public static function isMultiDimensional(array $data): bool
+    {
+        $key = array_key_first($data);
+        
+        return is_array($data[$key]);
+    } 
 }
