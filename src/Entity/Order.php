@@ -124,6 +124,7 @@ class Order
 
     /**
      * @ORM\OneToOne(targetEntity=AramexShipement::class, mappedBy="clientOrder", cascade={"persist", "remove"})
+     * @groups({"order:read", "order:update"})
      */
     private $aramexShipement;
 
@@ -147,6 +148,7 @@ class Order
 
     /**
      * @ORM\OneToOne(targetEntity=PayementTransaction::class, mappedBy="cOrder", cascade={"persist", "remove"})
+     * @groups({"order:collection:read", "order:read"})
      */
     private $payementTransaction;
 

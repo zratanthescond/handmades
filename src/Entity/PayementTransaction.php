@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\PayementTransactionRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=PayementTransactionRepository::class)
@@ -14,6 +15,7 @@ class PayementTransaction
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @groups({"order:collection:read", "order:read"})
      */
     private $id;
 
@@ -24,11 +26,13 @@ class PayementTransaction
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @groups({"order:collection:read", "order:read"})
      */
     private $type;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @groups({"order:collection:read", "order:read"})
      */
     private $ref;
 
@@ -39,6 +43,7 @@ class PayementTransaction
 
     /**
      * @ORM\Column(type="json", nullable=true)
+     * @groups({"order:collection:read", "order:read"})
      */
     private $data = [];
 

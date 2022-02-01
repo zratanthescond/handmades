@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\AramexShipementRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=AramexShipementRepository::class)
@@ -19,6 +20,7 @@ class AramexShipement
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @groups({"order:read", "order:update"})
      */
     private $trackingId;
 
@@ -51,6 +53,7 @@ class AramexShipement
 
     /**
      * @ORM\OneToOne(targetEntity=AramexTracking::class, mappedBy="shippement", cascade={"persist", "remove"})
+     * @groups({"order:read", "order:update"})
      */
     private $tracking;
 

@@ -28,7 +28,7 @@ class AramexTracking
 
     /**
      * @ORM\Column(type="json", nullable=true)
-     * @Groups({"trackings:read"})
+     * @Groups({"trackings:read", "order:read", "order:update"})
      */
     private $data = [];
 
