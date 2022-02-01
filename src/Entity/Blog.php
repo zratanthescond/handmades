@@ -220,7 +220,7 @@ class Blog
     {
         $substr = substr($this->content, 0, 150) . "...";
 
-        return strip_tags($substr);
+        return html_entity_decode(strip_tags($substr));
     }
 
     /**
