@@ -4,6 +4,7 @@ namespace App\EventSubscriber;
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use App\Event\OrderIsPlacedEvent;
+use App\Service\Mailer\Mailer;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 
@@ -43,7 +44,7 @@ class ProductOutStockSubscriber implements EventSubscriberInterface
             $subject = count($outOfStock) . " produit(s) en rupture de stock";
 
             $email = (new TemplatedEmail())
-                ->to("zgolli.issam@gmail.com")
+                ->to(Mailer::STOCK_EMAIL)
                 ->subject($subject)
                 ->htmlTemplate('email/admin/notification/out_of_stock.html.twig')
                 ->context([
