@@ -2,38 +2,38 @@
   "entrypoints": {
     "app": {
       "js": [
-        "/build/runtime.js",
-        "/build/vendors-node_modules_axios_index_js-node_modules_core-js_modules_es_object_to-string_js-node_-957e3f.js",
-        "/build/app.js"
+        "/build/runtime.73ad9136.js",
+        "/build/714.627ca40e.js",
+        "/build/app.616b9f36.js"
       ],
       "css": [
-        "/build/app.css"
+        "/build/app.82421a12.css"
       ]
     },
     "menu_builder": {
       "js": [
-        "/build/runtime.js",
-        "/build/menu_builder.js"
+        "/build/runtime.73ad9136.js",
+        "/build/menu_builder.e6f81ab2.js"
       ]
     },
     "front": {
       "js": [
-        "/build/runtime.js",
-        "/build/vendors-node_modules_bootstrap_dist_js_bootstrap_esm_js.js",
-        "/build/front.js"
+        "/build/runtime.73ad9136.js",
+        "/build/169.42da4472.js",
+        "/build/front.90dc1bd8.js"
       ],
       "css": [
-        "/build/front.css"
+        "/build/front.94c77e6f.css"
       ]
     },
     "promoter": {
       "js": [
-        "/build/runtime.js",
-        "/build/vendors-node_modules_bootstrap_dist_js_bootstrap_esm_js.js",
-        "/build/promoter.js"
+        "/build/runtime.73ad9136.js",
+        "/build/169.42da4472.js",
+        "/build/promoter.ab600c0e.js"
       ],
       "css": [
-        "/build/promoter.css"
+        "/build/promoter.b0493575.css"
       ]
     }
   }
