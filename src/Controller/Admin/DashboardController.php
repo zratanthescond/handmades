@@ -29,6 +29,7 @@ use App\Entity\ProductReview;
 use App\Entity\ProductStockSubscription;
 use App\Entity\ProductType;
 use App\Entity\Promoter;
+use App\Entity\PromoterWithdrawalRequest;
 use App\Entity\SiteInfo;
 use App\Entity\User;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -122,8 +123,12 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Promotion produits', 'fas fa-magic', ProductDiscount::class)->setPermission(UserRoles::SUPER_ADMIN);
 
         yield MenuItem::linkToCrud('Code promo', 'fas fa-database', DiscountCode::class)->setPermission(UserRoles::SUPER_ADMIN);
+          
+        yield MenuItem::section("Influenceurs")->setPermission(UserRoles::SUPER_ADMIN);
 
-        yield MenuItem::linkToCrud('Promoteurs', 'fas fa-user', Promoter::class)->setPermission(UserRoles::SUPER_ADMIN);
+        yield MenuItem::linkToCrud('Influenceurs', 'fas fa-user', Promoter::class)->setPermission(UserRoles::SUPER_ADMIN);
+
+        yield MenuItem::linkToCrud('Retraits', 'fas fa-user', PromoterWithdrawalRequest::class)->setPermission(UserRoles::SUPER_ADMIN);
        
         yield MenuItem::section("Blog");
 
