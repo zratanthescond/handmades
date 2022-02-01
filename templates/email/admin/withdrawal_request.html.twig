@@ -1,0 +1,15 @@
+{% extends 'email/base_email.html.twig' %}
+
+{% block content %}
+
+	<row>
+		<columns>
+
+			<h4>Bonjour</h4>
+
+			<p>Le promoteur {{ promoter.fullName }} vient de demander un retrait de {{ amount }}</p>
+
+		</columns>
+	</row>
+
+{% endblock %}

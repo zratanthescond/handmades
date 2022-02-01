@@ -33,6 +33,7 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
  * "controller": MakeOrderController::class,
  * "path": "/orders/make",
  * "read": false,
+ *  "write": false,
  * "pagination_enabled": false,
  * "denormalization_context"={"groups" = {"order:write"}},
  * "normalization_context"={"groups" = {"order:read"}},
@@ -154,6 +155,11 @@ class Order
      */
     private $invoice;
 
+    /**
+     * @ORM\OneToMany(targetEntity=PromoterEarning::class, mappedBy="cOrder", orphanRemoval=true)
+     */
+    private $promoterEarnings;
+
 
     public function __construct()
     {
@@ -161,6 +167,7 @@ class Order
         $this->status = 1;
         $this->products = new ArrayCollection();
         $this->productReviews = new ArrayCollection();
+        $this->promoterEarnings = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -411,6 +418,36 @@ class Order
     public function setInvoice(?string $invoice): self
     {
         $this->invoice = $invoice;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|PromoterEarning[]
+     */
+    public function getPromoterEarnings(): Collection
+    {
+        return $this->promoterEarnings;
+    }
+
+    public function addPromoterEarning(PromoterEarning $promoterEarning): self
+    {
+        if (!$this->promoterEarnings->contains($promoterEarning)) {
+            $this->promoterEarnings[] = $promoterEarning;
+            $promoterEarning->setCOrder($this);
+        }
+
+        return $this;
+    }
+
+    public function removePromoterEarning(PromoterEarning $promoterEarning): self
+    {
+        if ($this->promoterEarnings->removeElement($promoterEarning)) {
+            // set the owning side to null (unless already changed)
+            if ($promoterEarning->getCOrder() === $this) {
+                $promoterEarning->setCOrder(null);
+            }
+        }
 
         return $this;
     }

@@ -1,0 +1,48 @@
+{% extends "promoter/layout.html.twig" %}
+
+{% block title %}Code promo {{ discountCode.code }}{% endblock %}
+
+{% block main %}
+
+      
+    <a href="{{ path("promoter_discount_code_list") }}" class="btn btn-link">Retour</a>
+
+	<h1 class="h4 mb-3 fw-bold">Code promo {{ discountCode.code }}</h1>
+
+	<table class="table table-bordered stripped table-responsive">
+		<thead>
+			<tr>
+				<th scope="col">Date</th>
+                <th scope="col">Nombre de produits</th>
+                <th scope="col">Valeur de la commande</th>
+				<th scope="col">Revenu</th>
+			</tr>
+		</thead>
+		<tbody>
+
+			{% for earning in earnings %}
+
+				<tr>
+					<td>{{ earning.createdAt | date("d/m/Y") }}</td>
+					<td>
+					<ul class="list-inline mb-0">
+
+					{% for product in earning.cOrder.products %}
+
+					<li>{{ product.product.title }}</li>
+
+					{% endfor %}
+
+					</ul>
+					</td>
+					<td>{{ earning.cOrder.total |format_currency('TND', {fraction_digit: 3}) }}</td>
+                    <td>{{ earning.income |format_currency('TND', {fraction_digit: 3}) }} <span class="badge bg-light text-dark">{{ earning.percent }} %</span></td>
+				</tr>
+
+			{% endfor %}
+
+		</tbody>
+	</table>
+
+
+{% endblock %}

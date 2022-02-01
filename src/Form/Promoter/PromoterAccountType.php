@@ -7,6 +7,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -29,8 +30,6 @@ class PromoterAccountType extends AbstractType
             ])
             ->add('email', EmailType::class, [
 
-                "disabled" => true,
-
                 "help" => "Contacter nous si vous souhaitez changer votre adresse email"
             ])
             ->add('alias', null, [
@@ -42,7 +41,27 @@ class PromoterAccountType extends AbstractType
 
                 "label" => "Numéro de téléphone"
             ])
-            
+
+            ->add("facebookLink", UrlType::class, [
+
+                "label" => "Lien de votre compte Facebook",
+                "required" => false
+            ])
+
+            ->add("instagramLink", UrlType::class, [
+
+                "label" => "Lien de votre compte Instagram",
+
+                "required" => false
+            ])
+
+            ->add("rib", null, [
+
+                "label" => "RIB",
+                "help" => "Utile pour demander des retraits",
+                "required" => false
+            ])
+
             ->add("submit", SubmitType::class, [
 
                 "label" => "Mettre à jour"

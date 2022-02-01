@@ -4,7 +4,69 @@
 
 {% block main %}
 
+<h1 class="h4 mb-3 fw-bold">Mon compte</h1>
+
 {{ form_start(form)}}
+
+<div class="row">
+
+<div class="col-md-6">
+
+{{ form_row(form.firstName) }}
+
+</div>
+
+<div class="col-md-6">
+
+{{ form_row(form.lastName) }}
+
+</div>
+
+
+<div class="col-md-6">
+
+{{ form_row(form.email) }}
+
+</div>
+
+<div class="col-md-6">
+
+{{ form_row(form.phoneNumber) }}
+
+</div>
+
+<div class="col-md-6">
+
+{{ form_row(form.alias) }}
+
+</div>
+
+<div class="col-md-6">
+
+{{ form_row(form.rib) }}
+
+</div>
+
+<div class="col-md-6">
+
+{{ form_row(form.facebookLink) }}
+
+</div>
+
+<div class="col-md-6">
+
+{{ form_row(form.instagramLink) }}
+
+</div>
+
+<div class="col-md-6">
+
+{{ form_row(form.submit) }}
+
+</div>
+
+
+</div>
 
 {{ form_end(form)}}
 

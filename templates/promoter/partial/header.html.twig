@@ -11,24 +11,45 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
         <li class="nav-item">
-          <a class="nav-link" href="{{ path("discount_code_histories") }}">Tableau de bord</a>
+          <a class="nav-link" href="{{ path("promoter_discount_code_list") }}">Tableau de bord</a>
         </li>
           <li class="nav-item">
           <a class="nav-link" href="{{ path("promoter_account") }}">Mon compte</a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{{ path("discount_code_histories") }}">Codes promo</a>
+
+          <li class="nav-item">
+          <a class="nav-link" href="{{ path("promoter_discount_code_list") }}">Codes promo</a>
         </li>
+
+        </li>
+          <li class="nav-item">
+          <a class="nav-link" href="{{ path("promoter_withdrawals") }}">Retraits</a>
+        </li>
+      
+      
         <li class="nav-item">
           <a class="nav-link" href="{{ frontUrl }}" target="_blank">Boutique</a>
         </li>
       </ul>
-      <ul class="d-flex flex-column flex-md-row list-inline mb-0">
+      <ul class="d-flex flex-column flex-md-row list-inline align-items-center mb-0">
 
-      <li class="me-3">Bonjour {{ app.user.firstName }}</li>
+      <li class="text-success">Solde: {{ app.user.balance |format_currency('TND', {fraction_digit: 3}) }}</li>
 
-       <li><a href="{{ path("app_promoter_logout") }}">Se déconnecter</a></li>
-       
+      <li class="me-4">
+      
+      <div class="dropdown">
+  <a class="btn btn-link dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+    {{ app.user.firstName | capitalize }} {{ app.user.lastName }}
+  </a>
+
+  <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+    <li><a class="dropdown-item" href="{{ path("app_promoter_logout") }}">Se déconnecter</a></li>
+  </ul>
+</div>
+      
+      
+      </li>
+      
         
       </ul>
     </div>

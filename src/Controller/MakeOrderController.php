@@ -26,6 +26,8 @@ class MakeOrderController extends AbstractController
 
     private $discountCodeRepo;
 
+    private $em;
+
     public function __construct(EntityManagerInterface $em)
     {
         $this->deliveryRepo = $em->getRepository(DeliveryType::class);
@@ -35,6 +37,8 @@ class MakeOrderController extends AbstractController
         $this->productRepo = $em->getRepository(Product::class);
 
         $this->discountCodeRepo = $em->getRepository(DiscountCode::class);
+
+        $this->em = $em;
     }
 
     public function __invoke(Request $request, EventDispatcherInterface $dispatcher)
@@ -49,52 +53,65 @@ class MakeOrderController extends AbstractController
 
         $items = $data["items"];
 
-        foreach($items as $item) {
+        foreach ($items as $item) {
 
-              $product = $this->productRepo->find($item["product"]["id"]);
+            $product = $this->productRepo->find($item["product"]["id"]);
 
-              $productOrder = new ProductOrder();
+            $productOrder = new ProductOrder();
 
-              $productOrder->setProduct($product)->setQty($item["qty"]);
+            $productOrder->setProduct($product)->setQty($item["qty"]);
 
-              $order->addProduct($productOrder);
+            $order->addProduct($productOrder);
         }
 
         $rewardPointsToConsume = $data["rewardPointsToConsume"];
 
-        if(isset($data["discountCodeId"])) {
+        if (isset($data["discountCodeId"])) {
 
-             $discountCode = $this->discountCodeRepo->find($data["discountCodeId"]);
+            $discountCode = $this->discountCodeRepo->find($data["discountCodeId"]);
 
-             if($discountCode) {
+            if ($discountCode) {
 
-                 $order->setDiscountCode($discountCode);
-             }
+                $order->setDiscountCode($discountCode);
+            }
         }
 
         $order->setDelivery($delivery)->setUser($user)
-        ->setSubtotal($data["subtotal"])
-        ->setTotal($data["total"])
-        ->setRewardPointsToConsume($rewardPointsToConsume);
+            ->setSubtotal($data["subtotal"])
+            ->setTotal($data["total"])
+            ->setRewardPointsToConsume($rewardPointsToConsume);
 
-        if(isset($data["note"])) {
+        if (isset($data["note"])) {
 
-              $order->setNote($data["note"]);
+            $order->setNote($data["note"]);
         }
 
-        if(isset($data["paymentRef"])) {
+        if (isset($data["paymentRef"])) {
 
-              $transaction = (new PayementTransaction())
-              ->setRef($data["paymentRef"])->setType("GPG");
-              $order->setPayementTransaction($transaction)
-              ->setStatus(0);
-            }
+            $transaction = (new PayementTransaction())
+                ->setRef($data["paymentRef"])->setType("GPG");
+            $order->setPayementTransaction($transaction)
+                ->setStatus(0);
+        }
 
-        $event = new OrderIsPlacedEvent($order);
 
-        $dispatcher->dispatch($event, OrderIsPlacedEvent::EVENT_NAME);
+        $this->em->persist($order);
 
-        return $order;
-            
+        $this->em->flush();
+
+        /// order is still on hold
+
+        // we dispatch an event later when receiving notitication from GPG
+
+        if(!$order->getPayementTransaction()) {
+
+            $event = new OrderIsPlacedEvent($order);
+
+            $dispatcher->dispatch($event, OrderIsPlacedEvent::EVENT_NAME);
+        }
+
+        return $this->json($order, 200, [], ["groups" => ["order:read"]]);
+
+   
     }
 }

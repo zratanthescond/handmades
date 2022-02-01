@@ -79,17 +79,15 @@ class Promoter implements UserInterface, PasswordAuthenticatedUserInterface
 
       /**
      * @SerializedName("password")
-     * @Assert\NotBlank()
-     * @Assert\Length(min=6)
      */
     
     private $plainPassword;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Assert\Length(min=8, max=8)
      */
     private $phoneNumber;
-
     
     /**
      * @ORM\Column(type="json")
@@ -97,13 +95,44 @@ class Promoter implements UserInterface, PasswordAuthenticatedUserInterface
      */
     private $roles = [];
 
+    /**
+     * @ORM\OneToMany(targetEntity=PromoterWithdrawalRequest::class, mappedBy="promoter", orphanRemoval=true, cascade={"persist", "remove"})
+     */
+    private $withdrawalsRequests;
+
+    /**
+     * @ORM\Column(type="float")
+     */
+    private $balance;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $rib;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $instagramLink;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $facebookLink;
+
+    /**
+     * @ORM\OneToMany(targetEntity=PromoterEarning::class, mappedBy="promoter", orphanRemoval=true, cascade={"persist", "remove"})
+     */
+    private $earnings;
+
     public function __construct()
     {
         $this->discountCodes = new ArrayCollection();
-
         $this->createdAt = new \DateTimeImmutable();
-
         $this->isActif = true;
+        $this->withdrawalsRequests = new ArrayCollection();
+        $this->balance = 0;
+        $this->earnings = new ArrayCollection();
     }
 
     public function __toString()
@@ -317,6 +346,114 @@ class Promoter implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPlainPassword($plainPassword)
     {
         $this->plainPassword = $plainPassword;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|PromoterWithdrawalRequest[]
+     */
+    public function getWithdrawalsRequests(): Collection
+    {
+        return $this->withdrawalsRequests;
+    }
+
+    public function addWithdrawalsRequest(PromoterWithdrawalRequest $withdrawalsRequest): self
+    {
+        if (!$this->withdrawalsRequests->contains($withdrawalsRequest)) {
+            $this->withdrawalsRequests[] = $withdrawalsRequest;
+            $withdrawalsRequest->setPromoter($this);
+        }
+
+        return $this;
+    }
+
+    public function removeWithdrawalsRequest(PromoterWithdrawalRequest $withdrawalsRequest): self
+    {
+        if ($this->withdrawalsRequests->removeElement($withdrawalsRequest)) {
+            // set the owning side to null (unless already changed)
+            if ($withdrawalsRequest->getPromoter() === $this) {
+                $withdrawalsRequest->setPromoter(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getBalance(): ?float
+    {
+        return $this->balance;
+    }
+
+    public function setBalance(float $balance): self
+    {
+        $this->balance = $balance;
+
+        return $this;
+    }
+
+    public function getRib(): ?string
+    {
+        return $this->rib;
+    }
+
+    public function setRib(?string $rib): self
+    {
+        $this->rib = $rib;
+
+        return $this;
+    }
+
+    public function getInstagramLink(): ?string
+    {
+        return $this->instagramLink;
+    }
+
+    public function setInstagramLink(?string $instagramLink): self
+    {
+        $this->instagramLink = $instagramLink;
+
+        return $this;
+    }
+
+    public function getFacebookLink(): ?string
+    {
+        return $this->facebookLink;
+    }
+
+    public function setFacebookLink(?string $facebookLink): self
+    {
+        $this->facebookLink = $facebookLink;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|PromoterEarning[]
+     */
+    public function getEarnings(): Collection
+    {
+        return $this->earnings;
+    }
+
+    public function addEarning(PromoterEarning $earning): self
+    {
+        if (!$this->earnings->contains($earning)) {
+            $this->earnings[] = $earning;
+            $earning->setPromoter($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEarning(PromoterEarning $earning): self
+    {
+        if ($this->earnings->removeElement($earning)) {
+            // set the owning side to null (unless already changed)
+            if ($earning->getPromoter() === $this) {
+                $earning->setPromoter(null);
+            }
+        }
 
         return $this;
     }

@@ -1,0 +1,23 @@
+{% extends "promoter/layout.html.twig" %}
+
+{% block title %}Demande de retrait{% endblock %}
+
+{% block main %}
+
+<a href="{{ path("promoter_withdrawals") }}" class="btn btn-link mb-1">Retour</a>
+
+<h1 class="fw-bold h4 mb-3">Demande de retrait</h1>
+
+<div class="row">
+
+<div class="col-md-6">
+
+{{ form_start(form)}}
+
+{{ form_end(form)}}
+
+</div>
+
+</div>
+
+{% endblock %}

@@ -2,10 +2,12 @@
 
 namespace App\Controller;
 
+use App\Event\OrderIsPlacedEvent;
 use App\Repository\PayementTransactionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
@@ -22,7 +24,8 @@ class PaymentNotificationController extends AbstractController
         Request $request,
         MailerInterface $mailer,
         PayementTransactionRepository $repo,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        EventDispatcherInterface $dispatcher
     ): Response {
 
         $data = $request->request->all();
@@ -41,6 +44,12 @@ class PaymentNotificationController extends AbstractController
                 $em->persist($payment);
 
                 $em->flush();
+
+                $order = $payment->getCOrder();
+
+                $event = new OrderIsPlacedEvent($order);
+
+                $dispatcher->dispatch($event, OrderIsPlacedEvent::EVENT_NAME);
             } else {
 
                 $data["fail"] = "can not find payement with this ref" . $ref;
@@ -51,11 +60,13 @@ class PaymentNotificationController extends AbstractController
         }
 
 
+
         $decoded = json_encode($data, JSON_UNESCAPED_UNICODE);
 
         $email = (new Email())
             ->to("mrbileltn@gmail.com")
-            ->subject('Time for Symfony Mailer!')
+            ->cc("zgolli.issam@gmail.com")
+            ->subject('Payment notification')
             ->text($decoded)
             ->html(sprintf("<p> %s </p>", $decoded));
 

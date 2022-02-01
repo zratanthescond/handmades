@@ -27,6 +27,21 @@
 
 <div class="col-md-12">
 
+ {% for label, messages in app.flashes(['danger', 'success']) %}
+    
+    {% for message in messages %}
+     
+    <div class="temporary-alert mb-4 alert alert-{{ label }} text-center font-weight-bold"> 
+    
+    <i class="fa fa-info-circle" aria-hidden="true"></i>
+    
+    <span class="ml-2">{{ message }} </span>
+    
+    </div>
+
+    {% endfor %}
+{% endfor %}
+
 {% block main %} {% endblock %}
 
 </div>

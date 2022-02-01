@@ -81,6 +81,11 @@ class DiscountCode
      */
     private $orders;
 
+    /**
+     * @ORM\OneToMany(targetEntity=PromoterEarning::class, mappedBy="discountCode", orphanRemoval=true)
+     */
+    private $promoterEarnings;
+
 
     public function __construct()
     {
@@ -88,6 +93,7 @@ class DiscountCode
 
         $this->createdAt = new \DateTimeImmutable();
         $this->orders = new ArrayCollection();
+        $this->promoterEarnings = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -191,6 +197,36 @@ class DiscountCode
             // set the owning side to null (unless already changed)
             if ($order->getDiscountCode() === $this) {
                 $order->setDiscountCode(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|PromoterEarning[]
+     */
+    public function getPromoterEarnings(): Collection
+    {
+        return $this->promoterEarnings;
+    }
+
+    public function addPromoterEarning(PromoterEarning $promoterEarning): self
+    {
+        if (!$this->promoterEarnings->contains($promoterEarning)) {
+            $this->promoterEarnings[] = $promoterEarning;
+            $promoterEarning->setDiscountCode($this);
+        }
+
+        return $this;
+    }
+
+    public function removePromoterEarning(PromoterEarning $promoterEarning): self
+    {
+        if ($this->promoterEarnings->removeElement($promoterEarning)) {
+            // set the owning side to null (unless already changed)
+            if ($promoterEarning->getDiscountCode() === $this) {
+                $promoterEarning->setDiscountCode(null);
             }
         }
 

@@ -1,0 +1,61 @@
+{% extends "promoter/layout.html.twig" %}
+
+{% block title %}Demandes de retrait{% endblock %}
+
+{% block main %}
+
+<div class="d-flex flex-md-row flex-column justify-content-between mb-3 align-items-md-center">
+
+<div class="mb-3 mb-md-0"><h1 class="h4 mb-0 fw-bold">Demandes de retrait</h1></div>
+
+<div>
+
+{% if app.user.balance >= 200 %}
+
+<a href="{{ path("promoter_withdrawal_request") }}" class="btn btn-primary mb-3">Demander un retrait</a> 
+
+{% else %}
+
+<div class="alert alert-danger">Vous devrez avoir un solde de {{ 200 |format_currency('TND', {fraction_digit: 3}) }} ou plus pour demander un retrait</div>
+
+{% endif %}
+
+</div>
+
+</div>
+
+{% if withdrawals is not empty  %}
+
+	<table class="table table-bordered stripped table-responsive">
+		<thead>
+			<tr>
+				<th scope="col">Date</th>
+				<th scope="col">Montant</th>
+				<th scope="col">Méthode</th>
+				<th scope="col">Status</th>
+			</tr>
+		</thead>
+		<tbody>
+
+			{% for withdrawal in withdrawals %}
+
+				<tr>
+					<td>{{ withdrawal.createdAt | date("d/m/Y") }}</td>
+					<td>{{ withdrawal.amount |format_currency('TND', {fraction_digit: 3}) }}</td>
+					<td>{{ withdrawal.method }}</td>
+					<td>{{ withdrawal.status }}</td>
+				</tr>
+
+			{% endfor %}
+
+		</tbody>
+	</table>
+
+{% else %}
+
+<div class="text-danger mt-3 d-block">Aucune demande de retrait effectuée !</div>
+
+{% endif %}
+
+
+{% endblock %}

@@ -12,6 +12,8 @@ require("./js/aramex_shippement");
 
 require("./js/aramex_tracking");
 
+require("./js/client_address");
+
 
 // start the Stimulus application
 //import './bootstrap';
