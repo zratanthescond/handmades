@@ -8,18 +8,32 @@ use App\Form\Promoter\PromoterWithdrawalRequestType;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\MoneyField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
 
 class PromoterWithdrawalRequestCrudController extends AbstractCrudController
 {
+    
+    public const STATUS = [
+        "On Hold" => "On Hold",
+        "Validated" => "Validated",
+           
+    ];
+
     public static function getEntityFqcn(): string
     {
         return PromoterWithdrawalRequest::class;
+    }
+
+    public function configureFilters(Filters $filters): Filters
+    {
+        return $filters->add(ChoiceFilter::new("status")->setChoices(self::STATUS));
     }
 
     public function configureCrud(Crud $crud): Crud
@@ -53,11 +67,7 @@ class PromoterWithdrawalRequestCrudController extends AbstractCrudController
             ChoiceField::new("method", "Méthode")->setChoices(
                 array_combine(PromoterWithdrawalRequestType::WITHDRAWALS_METHODS, PromoterWithdrawalRequestType::WITHDRAWALS_METHODS)
             ),
-            ChoiceField::new("status", "Statut")->setChoices([
-
-                "On Hold" => "On Hold",
-                "Validated" => "Validated",
-            ])
+            ChoiceField::new("status", "Statut")->setChoices(self::STATUS)
 
 
         ];
