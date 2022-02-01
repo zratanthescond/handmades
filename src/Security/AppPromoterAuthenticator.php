@@ -50,7 +50,7 @@ class AppPromoterAuthenticator extends AbstractLoginFormAuthenticator
             return new RedirectResponse($targetPath);
         }
 
-       return new RedirectResponse($this->urlGenerator->generate('discount_code_histories'));
+       return new RedirectResponse($this->urlGenerator->generate('promoter_discount_code_list'));
         
        ///throw new \Exception('TODO: provide a valid redirect inside '.__FILE__);
     }
