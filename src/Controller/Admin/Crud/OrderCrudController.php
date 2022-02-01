@@ -27,7 +27,7 @@ class OrderCrudController extends AbstractCrudController
     {
 
         return $actions->add(Crud::PAGE_INDEX, Action::DETAIL)
-            ->disable(Action::NEW, Action::BATCH_DELETE, Action::EDIT);
+            ->disable(Action::NEW, Action::DELETE, Action::EDIT);
     }
 
     public function detail(AdminContext $context)
