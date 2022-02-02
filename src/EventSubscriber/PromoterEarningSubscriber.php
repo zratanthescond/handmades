@@ -2,7 +2,7 @@
 
 namespace App\EventSubscriber;
 
-use App\Core\Promoter\Earning\Earning;
+use App\Core\Promoter\Eearning\Earning;
 use App\Entity\PromoterEarning;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use App\Event\OrderIsPlacedEvent;

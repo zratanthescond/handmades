@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Core\Promoter\Earning;
+namespace App\Core\Promoter\Eearning;
 
 class Earning
 {
