@@ -24,9 +24,9 @@ class PayementController extends AbstractController
             return $this->json(["error" => "Amount field is required"], 400);
         }
 
-        $numSite = "MAR920";
+        $numSite = "MAR881";
 
-        $password = "gh#khW62";
+        $password = 'zu$whX34';
 
         $orderId = uniqid(); //date('ymdHis');
 
