@@ -62,10 +62,10 @@ class PaymentNotificationController extends AbstractController
         $decoded = json_encode([], JSON_UNESCAPED_UNICODE);
 
         $email = (new Email())
-            ->cc("zgolli.issam@gmail.com")
+            ->cc("mrbileltn@gmail.com")
             ->subject('Payment notification')
-            ->text($decoded)
-            ->html(sprintf("<p> %s </p>", $decoded));
+            ->text("hello world")
+            ->html(sprintf("<p> %s </p>"));
 
         $mailer->send($email);
 
