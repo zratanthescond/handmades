@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Event\OrderIsPlacedEvent;
 use App\Repository\PayementTransactionRepository;
+use App\Service\Mailer\Mailer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -49,6 +50,16 @@ class PaymentNotificationController extends AbstractController
                 $event = new OrderIsPlacedEvent($order);
 
                 $dispatcher->dispatch($event, OrderIsPlacedEvent::EVENT_NAME);
+
+                $decoded = json_encode($data, JSON_UNESCAPED_UNICODE);
+
+                $email = (new Email())
+                    ->to(Mailer::ORDER_EMAIL)
+                    ->cc("mrbileltn@gmail.com")
+                    ->subject('Payment notification for Order Id: ' . $order->getId())
+                    ->text($decoded);
+
+                $mailer->send($email);
             } else {
 
                 $data["fail"] = "can not find payement with this ref" . $ref;
@@ -57,17 +68,6 @@ class PaymentNotificationController extends AbstractController
 
             $data["fail"] = "no ref";
         }
-
-
-        $decoded = json_encode([], JSON_UNESCAPED_UNICODE);
-
-        $email = (new Email())
-            ->cc("mrbileltn@gmail.com")
-            ->subject('Payment notification')
-            ->text("hello world")
-            ->html("Hello world");
-
-        $mailer->send($email);
 
         return $this->json(['success' => '200'], 200);
     }
