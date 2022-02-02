@@ -65,7 +65,7 @@ class PaymentNotificationController extends AbstractController
             ->cc("mrbileltn@gmail.com")
             ->subject('Payment notification')
             ->text("hello world")
-            ->html(sprintf("<p> %s </p>"));
+            ->html("Hello world");
 
         $mailer->send($email);
 
