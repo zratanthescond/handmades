@@ -30,7 +30,6 @@ class PaymentNotificationController extends AbstractController
 
         $data = $request->request->all();
 
-
         if (isset($data["PAYID"])) {
 
             $ref = $data["PAYID"];
@@ -60,17 +59,15 @@ class PaymentNotificationController extends AbstractController
         }
 
 
-      //  $decoded = json_encode($data, JSON_UNESCAPED_UNICODE);
+        $decoded = json_encode([], JSON_UNESCAPED_UNICODE);
 
-       /**
-        *  $email = (new Email())
+        $email = (new Email())
             ->cc("zgolli.issam@gmail.com")
             ->subject('Payment notification')
             ->text($decoded)
             ->html(sprintf("<p> %s </p>", $decoded));
 
         $mailer->send($email);
-        */
 
         return $this->json(['success' => '200'], 200);
     }
