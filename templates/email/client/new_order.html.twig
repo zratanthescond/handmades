@@ -11,7 +11,12 @@
 
 			<p>Nous avons bien reçu votre commande, et vous sera livrée dans les plus brefs délais.</p>
 
-            <div class="alert alert-success">Vous avez gagné <strong>{{ points }} points </strong>de fidélité vous offrant une réduction de  <strong>{{ pointsDiscount | format_currency('TND', {fraction_digit: 3}) }}</strong></div>
+			<div class="alert alert-success">Vous avez gagné
+				<strong>{{ points }}
+					points
+				</strong>de fidélité vous offrant une réduction de
+				<strong>{{ pointsDiscount | format_currency('TND', {fraction_digit: 3}) }}</strong>
+			</div>
 
 		</columns>
 	</row>
@@ -39,9 +44,10 @@
 
 	</row>
 
-	<row>
 
-		{% for productOrder in order.products %}
+	{% for productOrder in order.products %}
+
+		<row>
 
 			{% set product = productOrder.product %}
 
@@ -64,10 +70,10 @@
 
 			</columns>
 
+		</row>
 
-		{% endfor %}
 
-	</row>
+	{% endfor %}
 
 
 	<row>
@@ -79,7 +85,8 @@
 
 	<row>
 
-		<columns small="12" large="12">Livraison: <strong>{{ "7" | format_currency('TND', {fraction_digit: 3}) }}</strong>
+		<columns small="12" large="12">Livraison:
+			<strong>{{ "7" | format_currency('TND', {fraction_digit: 3}) }}</strong>
 		</columns>
 
 	</row>
@@ -89,7 +96,8 @@
 
 		<row>
 
-			<columns small="12" large="12">Réduction: <strong>{{ discount | format_currency('TND', {fraction_digit: 3}) }}</strong>
+			<columns small="12" large="12">Réduction:
+				<strong>{{ discount | format_currency('TND', {fraction_digit: 3}) }}</strong>
 			</columns>
 
 		</row>
@@ -99,7 +107,8 @@
 
 	<row>
 
-		<columns small="12" large="12">Total: <strong>{{ order.total | format_currency('TND', {fraction_digit: 3}) }}</strong>
+		<columns small="12" large="12">Total:
+			<strong>{{ order.total | format_currency('TND', {fraction_digit: 3}) }}</strong>
 		</columns>
 	</row>
 
