@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Service\Mailer\Mailer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,7 +24,7 @@ class ContactController extends AbstractController {
         $data = $request->toArray();
 
         $email = (new TemplatedEmail())
-        ->to("mrbileltn@gmail.com")
+        ->to(Mailer::CONTACT_EMAIL)
         ->subject("Demande de contact")
         ->htmlTemplate("email/contact/contact.html.twig")
         ->context(["data" => $data]);
