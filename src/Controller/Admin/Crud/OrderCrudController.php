@@ -26,8 +26,14 @@ class OrderCrudController extends AbstractCrudController
     public function configureActions(Actions $actions): Actions
     {
 
-        return $actions->add(Crud::PAGE_INDEX, Action::DETAIL)
-            ->disable(Action::NEW, Action::DELETE, Action::EDIT);
+        $actions->add(Crud::PAGE_INDEX, Action::DETAIL)
+            ->disable(Action::NEW, Action::EDIT);
+
+        $actions->update(Crud::PAGE_INDEX, Action::DELETE, function (Action $action) {
+            return $action->displayIf(fn (Order $order) => ($order->getAramexShipement() === null && $order->getPayementTransaction() === null));
+        });
+
+        return $actions;
     }
 
     public function detail(AdminContext $context)
