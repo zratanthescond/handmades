@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+
 use App\Service\Mailer\Mailer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -11,26 +12,27 @@ use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Routing\Annotation\Route;
 
-class ContactController extends AbstractController {
+class ContactController extends AbstractController
+{
 
-     
-     /**
-     * @Route("/contact", name="contact_api", methods={"POST"})
-     */
 
-     public function contact(Request $request, MailerInterface $mailer): Response
-     {
+   /**
+    * @Route("/contact", name="contact_api", methods={"GET"})
+    */
 
-        $data = $request->toArray();
+   public function contact(Request $request, MailerInterface $mailer): Response
+   {
 
-        $email = (new TemplatedEmail())
-        ->to(Mailer::CONTACT_EMAIL)
-        ->subject("Demande de contact")
-        ->htmlTemplate("email/contact/contact.html.twig")
-        ->context(["data" => $data]);
+      $data = $request->toArray();
 
-        $mailer->send($email);
-        
-        return new JsonResponse($data);
-     }
+      $email = (new TemplatedEmail())
+         ->to(Mailer::CONTACT_EMAIL)
+         ->subject("Demande de contact")
+         ->htmlTemplate("email/contact/contact.html.twig")
+         ->context(["data" => $data]);
+
+      $mailer->send($email);
+
+      return new JsonResponse($data);
+   }
 }

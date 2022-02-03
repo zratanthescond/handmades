@@ -1,0 +1,106 @@
+{% extends 'email/base_email.html.twig' %}
+
+{% block content %}
+
+	<row>
+		<columns>
+
+			<h4>Bonjour
+				{{ client.firstName }}
+			</h4>
+
+			<p>Nous avons bien reçu votre commande, et vous sera livrée dans les plus brefs délais.</p>
+
+            <div class="alert alert-success">Vous avez gagné <strong>{{ points }} points </strong>de fidélité vous offrant une réduction de  <strong>{{ pointsDiscount | format_currency('TND', {fraction_digit: 3}) }}</strong></div>
+
+		</columns>
+	</row>
+
+	<row>
+
+		<columns small="6" large="6">
+
+			<span class="text-muted">Produit</span>
+
+		</columns>
+
+		<columns small="3" large="3">
+
+			<span class="text-muted">Prix</span>
+
+		</columns>
+
+		<columns small="3" large="3">
+
+			<span class="text-muted">Quantité</span>
+
+		</columns>
+
+
+	</row>
+
+	<row>
+
+		{% for productOrder in order.products %}
+
+			{% set product = productOrder.product %}
+
+
+			<columns small="6" large="6">
+
+				<span class="text-muted">{{ product.title }}</span>
+
+			</columns>
+
+			<columns small="3" large="3">
+
+				<span class="text-muted">{{ product | pricePercentage | format_currency('TND', {fraction_digit: 3}) }}</span>
+
+			</columns>
+
+			<columns small="3" large="3">
+
+				<span class="text-muted">{{ productOrder.qty }}</span>
+
+			</columns>
+
+
+		{% endfor %}
+
+	</row>
+
+
+	<row>
+		<columns small="12" large="12">Sous total :
+			<strong>{{ order.subTotal | format_currency('TND', {fraction_digit: 3}) }}</strong>
+		</columns>
+
+	</row>
+
+	<row>
+
+		<columns small="12" large="12">Livraison: <strong>{{ "7" | format_currency('TND', {fraction_digit: 3}) }}</strong>
+		</columns>
+
+	</row>
+
+	{% if discount > 0  %}
+
+
+		<row>
+
+			<columns small="12" large="12">Réduction: <strong>{{ discount | format_currency('TND', {fraction_digit: 3}) }}</strong>
+			</columns>
+
+		</row>
+
+
+	{% endif %}
+
+	<row>
+
+		<columns small="12" large="12">Total: <strong>{{ order.total | format_currency('TND', {fraction_digit: 3}) }}</strong>
+		</columns>
+	</row>
+
+{% endblock %}
