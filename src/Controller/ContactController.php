@@ -17,7 +17,7 @@ class ContactController extends AbstractController
 
 
    /**
-    * @Route("/contact", name="contact_api", methods={"GET"})
+    * @Route("/contact", name="contact_api", methods={"POST"})
     */
 
    public function contact(Request $request, MailerInterface $mailer): Response
