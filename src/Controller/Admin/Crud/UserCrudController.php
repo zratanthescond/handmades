@@ -2,6 +2,7 @@
 
 namespace App\Controller\Admin\Crud;
 
+use App\Core\Security\Permission\UserRoles;
 use App\Entity\User;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -15,6 +16,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class UserCrudController extends AbstractCrudController
 {
+
     public static function getEntityFqcn(): string
     {
         return User::class;
@@ -39,22 +41,27 @@ class UserCrudController extends AbstractCrudController
         return $this->render("dashboard/client/details.html.twig", [
             "client" => $client
         ]);
-
     }
 
     public function configureFields(string $pageName): iterable
     {
+        $user = $this->getUser();
+
+        $disabled = in_array(UserRoles::SUPER_ADMIN, $user->getRoles()) ? false : true;
+
         return [
 
             IntegerField::new("id")->setFormTypeOptions(["disabled" => true])->setColumns(6),
-            DateField::new("createdAt", "Date d'inscription")->setFormTypeOptions(["disabled" => true])->setColumns(6), 
-             EmailField::new("email")->setFormTypeOptions(["disabled" => true])->setColumns(4),
-             TextField::new("fullName", "Nom et prénom")->onlyOnIndex(),
-             TextField::new("firstName", "Nom")->onlyOnForms()->setColumns(4),
-             TextField::new("lastName", "Prénom")->onlyOnForms()->setColumns(4),
-             TextField::new("phoneNumber", "Numéro de téléphone")->setColumns(6),
-             DateField::new("birthDay", "Date de naissance")->setColumns(6),
-             IntegerField::new("rewardPoints", "Points de fidélité")->setFormTypeOptions(["disabled" => true])->setColumns(12)
+            DateField::new("createdAt", "Date d'inscription")->setFormTypeOptions(["disabled" => true])->setColumns(6),
+            EmailField::new("email")->setFormTypeOptions(["disabled" => true])->setColumns(4),
+            TextField::new("fullName", "Nom et prénom")->onlyOnIndex(),
+            TextField::new("firstName", "Nom")->onlyOnForms()->setColumns(4),
+            TextField::new("lastName", "Prénom")->onlyOnForms()->setColumns(4),
+            TextField::new("phoneNumber", "Numéro de téléphone")->setColumns(6),
+            DateField::new("birthDay", "Date de naissance")->setColumns(6),
+            IntegerField::new("rewardPoints", "Points de fidélité")
+                ->setFormTypeOptions(["disabled" => $disabled])
+                ->setColumns(6)
 
         ];
     }
