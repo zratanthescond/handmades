@@ -36,7 +36,7 @@ class UserAddressCrudController extends AbstractCrudController
             TextareaField::new("address", "Adresse")->setColumns(12),
             TextField::new("town", "Ville")->setColumns(6),
             IntegerField::new("postalCode", "Code Postal")->setColumns(6),
-            BooleanField::new("isDefault", "Adresse par défault")->setFormTypeOptions(["disabled" => true])->setColumns(12)
+            BooleanField::new("isDefault", "Adresse par défault")->setColumns(12)
             
            
         ];
