@@ -30,21 +30,20 @@ class OrderCrudController extends AbstractCrudController
             ->disable(Action::NEW, Action::EDIT);
 
         $actions->update(Crud::PAGE_INDEX, Action::DELETE, function (Action $action) {
-            return $action->displayIf(function (Order $order) {
-
-                if ($order->getAramexShipement()) {
-
-                    return false;
-                }
+            return $action->displayIf(function (Order $order) {;
 
                 $payment = $order->getPayementTransaction();
 
-                if ($payment && $payment->getData()) {
+                $shipment = $order->getAramexShipement();
 
-                    if ($payment->getData()["TransStatus "] == "00") {
+                if($shipment) {
+                    
+                    return false;
+                }
 
-                       return false;
-                    }
+                if($payment && $payment->getData() && count($payment->getData()) && $payment->getData()["s"] == "") {
+                     
+                    return false;
                 }
 
                 return true;
