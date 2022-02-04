@@ -42,20 +42,24 @@ class ClientOrderNotificationSubscriber implements EventSubscriberInterface
 
         $pm = new RewardPointsManager($order->getTotal());
 
-        $email = (new TemplatedEmail())
-            ->to($client->getEmail())
-            ->cc(Mailer::ORDER_EMAIL)
-            ->subject("Nous avons bien reçu votre commande")
-            ->htmlTemplate('email/client/new_order.html.twig')
-            ->context([
-                "client" => $client,
-                "order" => $order,
-                "discount" => $discount,
-                "pointsDiscount" => $pm->getValue(),
-                "points" => $pm->getPoints()
-            ]);
+        try {
 
-        $this->mailer->send($email);
+            $email = (new TemplatedEmail())
+                ->to($client->getEmail())
+                ->cc(Mailer::ORDER_EMAIL)
+                ->subject("Nous avons bien reçu votre commande")
+                ->htmlTemplate('email/client/new_order.html.twig')
+                ->context([
+                    "client" => $client,
+                    "order" => $order,
+                    "discount" => $discount,
+                    "pointsDiscount" => $pm->getValue(),
+                    "points" => $pm->getPoints()
+                ]);
+
+            $this->mailer->send($email);
+        } catch (\Exception $e) {
+        }
     }
 
     public static function getSubscribedEvents()

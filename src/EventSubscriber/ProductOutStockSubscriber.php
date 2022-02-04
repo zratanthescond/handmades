@@ -43,15 +43,19 @@ class ProductOutStockSubscriber implements EventSubscriberInterface
 
             $subject = count($outOfStock) . " produit(s) en rupture de stock";
 
-            $email = (new TemplatedEmail())
-                ->to(Mailer::STOCK_EMAIL)
-                ->subject($subject)
-                ->htmlTemplate('email/admin/notification/out_of_stock.html.twig')
-                ->context([
-                    'outOfStock' => $outOfStock,
-                ]);
+            try {
+
+                $email = (new TemplatedEmail())
+                    ->to(Mailer::STOCK_EMAIL)
+                    ->subject($subject)
+                    ->htmlTemplate('email/admin/notification/out_of_stock.html.twig')
+                    ->context([
+                        'outOfStock' => $outOfStock,
+                    ]);
 
                 $this->mailer->send($email);
+            } catch (\Exception $e) {
+            }
         }
     }
 

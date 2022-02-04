@@ -40,18 +40,22 @@ class PromoterWithdrawalRequestSubscriber implements EventSubscriberInterface
 
         $fullName =  ucfirst($promoter->getFullName());
 
-        $email = (new TemplatedEmail())
-            ->to(Mailer::PROMOTER_EMAIL)
-            ->cc("mrbileltn@gmail.com")
-            ->subject(sprintf("Demande de retrait de %s de %s",  $amount, $fullName))
-            ->htmlTemplate('email//admin/withdrawal_request.html.twig')
-            ->context([
-                'promoter' => $promoter,
-                'amount' => $amount,
-                'withdrawalRequest' => $withdrawalRequest
-            ]);
+        try {
 
-        $this->mailer->send($email);
+            $email = (new TemplatedEmail())
+                ->to(Mailer::PROMOTER_EMAIL)
+                ->cc("mrbileltn@gmail.com")
+                ->subject(sprintf("Demande de retrait de %s de %s",  $amount, $fullName))
+                ->htmlTemplate('email//admin/withdrawal_request.html.twig')
+                ->context([
+                    'promoter' => $promoter,
+                    'amount' => $amount,
+                    'withdrawalRequest' => $withdrawalRequest
+                ]);
+
+            $this->mailer->send($email);
+        } catch (\Exception $e) {
+        }
     }
 
     public static function getSubscribedEvents()

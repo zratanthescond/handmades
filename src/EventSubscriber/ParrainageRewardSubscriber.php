@@ -60,31 +60,35 @@ class ParrainageRewardSubscriber implements EventSubscriberInterface
             $parrainage->setIsRewarded(true)->setIsRewardedAt(new \DateTimeImmutable());
 
             $history = (new RewardPointsHistory())
-            ->setCurrentPoints($currentPoint)
-            ->setPoints($incrementedPoints)
-            ->setNewPoints($newPoints)
-            ->setContext(RewardPointsContext::PARRAINAGE)
-            ->setOperation(RewardPointsContext::INCREMENT);
+                ->setCurrentPoints($currentPoint)
+                ->setPoints($incrementedPoints)
+                ->setNewPoints($newPoints)
+                ->setContext(RewardPointsContext::PARRAINAGE)
+                ->setOperation(RewardPointsContext::INCREMENT);
 
             $fromUser->setRewardPoints($newPoints)->addRewardPointsHistory($history);
-            
+
             $this->em->persist($fromUser);
 
             $this->em->persist($parrainage);
 
             $this->em->flush();
 
-            $email = (new TemplatedEmail())->to($fromUser->getEmail())
-                ->subject(sprintf("Vous venez de gagner %s points", $incrementedPoints))
-                ->context([
-                    "parrainage" => $parrainage,
-                    "fromUser" => $fromUser,
-                    "newPoints" => $newPoints,
-                    "incrementedPoints" => $incrementedPoints
-                ])
-                ->htmlTemplate("email/parrainage/parrainage_is_rewarded.html.twig");
+            try {
 
-            $this->mailer->send($email);
+                $email = (new TemplatedEmail())->to($fromUser->getEmail())
+                    ->subject(sprintf("Vous venez de gagner %s points", $incrementedPoints))
+                    ->context([
+                        "parrainage" => $parrainage,
+                        "fromUser" => $fromUser,
+                        "newPoints" => $newPoints,
+                        "incrementedPoints" => $incrementedPoints
+                    ])
+                    ->htmlTemplate("email/parrainage/parrainage_is_rewarded.html.twig");
+
+                $this->mailer->send($email);
+            } catch (\Exception $e) {
+            }
         }
     }
 

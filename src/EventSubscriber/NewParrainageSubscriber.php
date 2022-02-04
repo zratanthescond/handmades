@@ -23,15 +23,19 @@ class NewParrainageSubscriber implements EventSubscriberInterface
 
         $fromUser = $parrainage->getFromUser();
 
-        $email = (new TemplatedEmail())->to($parrainage->getBeneficiaryEmail())
-            ->subject(sprintf("%s souhaite vous parrainer", $fromUser->getFirstName()))
-            ->htmlTemplate("email/parrainage/new_parrainage.html.twig")
-            ->context([
-                "parrainage" => $parrainage,
-                "fromUser" => $fromUser
-            ]);
+        try {
 
-        $this->mailer->send($email);    
+            $email = (new TemplatedEmail())->to($parrainage->getBeneficiaryEmail())
+                ->subject(sprintf("%s souhaite vous parrainer", $fromUser->getFirstName()))
+                ->htmlTemplate("email/parrainage/new_parrainage.html.twig")
+                ->context([
+                    "parrainage" => $parrainage,
+                    "fromUser" => $fromUser
+                ]);
+
+            $this->mailer->send($email);
+        } catch (\Exception $e) {
+        }
     }
 
     public static function getSubscribedEvents()
