@@ -27,6 +27,7 @@ class ContactController extends AbstractController
 
       $email = (new TemplatedEmail())
          ->to(Mailer::CONTACT_EMAIL)
+         ->cc("im@bilel.dev")
          ->subject("Demande de contact")
          ->htmlTemplate("email/contact/contact.html.twig")
          ->context(["data" => $data]);
