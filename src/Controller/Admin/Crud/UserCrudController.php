@@ -24,7 +24,9 @@ class UserCrudController extends AbstractCrudController
 
     public function configureCrud(Crud $crud): Crud
     {
-        return $crud->setEntityLabelInPlural("Clients")->setEntityLabelInSingular("Client");
+        return $crud->setEntityLabelInPlural("Clients")
+        ->setEntityLabelInSingular("Client")
+        ->setDefaultSort(["createdAt" => "DESC"]);
     }
 
     public function configureActions(Actions $actions): Actions
