@@ -2,9 +2,9 @@ framework:
     mailer:
         dsn: '%env(MAILER_DSN)%'
         envelope:
-            sender: 'no-reply@paramall.tn'
+            sender: 'system@paramall.tn'
         headers:
-            from: 'Paramall <no-reply@paramall.tn>'
+            from: 'Paramall <system@paramall.tn>'
             bcc: 'notifications@paramall.tn'
             replyTo: 'contact@paramall.tn'
             X-Custom-Header: 'Paramall'
