@@ -41,7 +41,6 @@ class PromoterWithdrawalRequestSubscriber implements EventSubscriberInterface
         $fullName =  ucfirst($promoter->getFullName());
 
         $email = (new TemplatedEmail())
-            ->from(new Address('noreply@paramall.tn', 'Paramall'))
             ->to(Mailer::PROMOTER_EMAIL)
             ->cc("mrbileltn@gmail.com")
             ->subject(sprintf("Demande de retrait de %s de %s",  $amount, $fullName))
