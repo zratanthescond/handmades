@@ -41,7 +41,7 @@ class OrderCrudController extends AbstractCrudController
                     return false;
                 }
 
-                if($payment && $payment->getData() && count($payment->getData()) && $payment->getData()["s"] == "") {
+                if($payment && $payment->getData() && count($payment->getData()) && $payment->getData()["TransStatus "] == "00") {
                      
                     return false;
                 }
