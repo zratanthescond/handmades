@@ -19,16 +19,16 @@ class AramexPickUp extends Aramex
             // agence 101 col a exp 
             'Pickup' => array(
                 'PickupContact' => array(
-                    'PersonName' => $this->compagnyName . " , "  . $this->compagnyAddress, // buyer name (how we will picked from him the shippment)
-                    'CompanyName' => $this->compagnyName . " , "  . $this->compagnyAddress, // buyer name (how we will picked from him the shippment)
-                    'PhoneNumber1' => $this->compagnyPhone, // phone  number  of buyer
+                    'PersonName' => AramexConfig::COMPAGNY_NAME . " , "  . AramexConfig::COMPAGNY_ADDRESS, // buyer name (how we will picked from him the shippment)
+                    'CompanyName' => AramexConfig::COMPAGNY_NAME . " , "  . AramexConfig::COMPAGNY_ADDRESS, // buyer name (how we will picked from him the shippment)
+                    'PhoneNumber1' => AramexConfig::COMPAGNY_PHONE, // phone  number  of buyer
                     'PhoneNumber1Ext' => '',
-                    'CellPhone' => $this->compagnyPhone, //phone  number  of buyer
-                    'EmailAddress' => $this->compagnyEmail, // buyer mail addres
+                    'CellPhone' => AramexConfig::COMPAGNY_PHONE, // phone number  number  of buyer
+                    'EmailAddress' => AramexConfig::COMPAGNY_EMAIL, // buyer mail addres
                 ),
                 'PickupAddress' => array(
-                    'Line1' => $this->compagnyName . " , "  . $this->compagnyAddress, //buyer address
-                    'City' => $this->compagnyCity, // buyer city
+                    'Line1' => AramexConfig::COMPAGNY_NAME. " , "  . AramexConfig::COMPAGNY_ADDRESS, //buyer address
+                    'City' => AramexConfig::COMPAGNY_CITY, // buyer city
                     'StateOrProvinceCode' => '', //optionel
                     'PostCode' => '', //optionel
                     'CountryCode' => 'TN',

@@ -16,36 +16,6 @@ class Aramex
 
     public const WSDL = "https://ws.aramex.net/ShippingAPI.V2/Shipping/Service_1_0.svc?wsdl";
 
-    protected $compagnyName;
-
-    protected $compagnyAddress;
-
-    protected $compagnyCity;
-
-    protected $compagnyPhone;
-
-    protected $compagnyEmail;
-
-
-    public function __construct(
-        $compagnyName,
-        $compagnyAddress,
-        $compagnyCity,
-        $compagnyPhone,
-        $compagnyEmail
-    ) {
-
-        $this->compagnyName = $compagnyName;
-
-        $this->compagnyAddress = $compagnyAddress;
-
-        $this->compagnyCity = $compagnyCity;
-
-        $this->compagnyPhone = $compagnyPhone;
-
-        $this->compagnyEmail = $compagnyEmail;
-    }
-
     public function client(): \SoapClient
     {
         return new \SoapClient(self::WSDL, [
@@ -71,30 +41,30 @@ class Aramex
             'Shipments' => array(
                 'Shipment' => array(
                     'Shipper'    => array(
-                        'Reference1'     => 'Ooption', //option ref a
-                        'Reference2'     => 'Ref 222222', // ref user creadted
+                        'Reference1'     => '', //option ref a
+                        'Reference2'     => '', // ref user creadted
                         'AccountNumber' => AramexConfig::ACCOUNT_NUMBER, //numer de compt aramex
                         'PartyAddress'    => array( //addreess de envo
-                            'Line1'                    => $this->compagnyAddress, //address physique de envo
+                            'Line1'                    => AramexConfig::COMPAGNY_ADDRESS, //address physique de envo
                             'Line2'                 => '',
                             'Line3'                 => '',
-                            'City'                    => $this->compagnyCity, // vilee de env (from list a enc=ve)
+                            'City'                    => AramexConfig::COMPAGNY_CITY, // vilee de env (from list a enc=ve)
                             'StateOrProvinceCode'    => '',
                             'PostCode'                => '',
                             'CountryCode'            => 'TN'
                         ),
                         'Contact'        => array( // none de env
                             'Department'            => '',
-                            'PersonName'            =>  $this->compagnyName . " , "  . $this->compagnyAddress, //nome vendeur
+                            'PersonName'            =>  AramexConfig::COMPAGNY_NAME. " , "  . AramexConfig::COMPAGNY_ADDRESS, //nome vendeur
                             'Title'                    => '',
-                            'CompanyName'            => $this->compagnyName . " , "  . $this->compagnyAddress, //nome vendeur
-                            'PhoneNumber1'            => $this->compagnyPhone, // numer tel vendeur
+                            'CompanyName'            => AramexConfig::COMPAGNY_NAME . " , "  . AramexConfig::COMPAGNY_ADDRESS, //nome vendeur
+                            'PhoneNumber1'            => AramexConfig::COMPAGNY_PHONE, // numer tel vendeur
                             'PhoneNumber1Ext'        => '',
                             'PhoneNumber2'            => '',
                             'PhoneNumber2Ext'        => '',
                             'FaxNumber'                => '',
-                            'CellPhone'                => $this->compagnyPhone, //oblig numer de tel 
-                            'EmailAddress'            => $this->compagnyEmail, // mail address obliga
+                            'CellPhone'                => AramexConfig::COMPAGNY_PHONE, //oblig numer de tel 
+                            'EmailAddress'            => AramexConfig::COMPAGNY_EMAIL, // mail address obliga
                             'Type'                    => ''
                         ),
                     ),

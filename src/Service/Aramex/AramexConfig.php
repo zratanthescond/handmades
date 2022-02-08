@@ -19,6 +19,17 @@ class AramexConfig
 
     public const ACCOUNT_COUNTRY_CODE = "TN";
 
+   public const COMPAGNY_NAME = "Paramall";
+
+   public const COMPAGNY_ADDRESS = "Rue Somaani cité Ennasim Ariana 2073, Tunis";
+
+   public const COMPAGNY_CITY = "Ariana";
+
+   public const COMPAGNY_PHONE = "28 122 180";
+
+   public const COMPAGNY_EMAIL = "contact@paramall.tn";
+    
+
     public static function getClientInfos(): array
     {
         return [

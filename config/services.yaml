@@ -43,21 +43,7 @@ services:
 
     'App\Doctrine\Product\ProductInDiscountExtension':
         tags:
-            - { name: api_platform.doctrine.orm.query_extension.collection, priority: 9 }      
-
-    App\Service\Aramex\Aramex:
-        arguments:
-            $compagnyName: '%compagnyName%'
-            $compagnyAddress: '%compagnyAddress%'
-            $compagnyCity: '%compagnyCity%'
-            $compagnyPhone: '%compagnyPhone%'
-            $compagnyEmail: '%compagnyEmail%'
-    
-    App\Service\Aramex\AramexPickUp:
-        parent: App\Service\Aramex\Aramex
-    
-    App\Service\Aramex\AramexTracking:
-        parent: App\Service\Aramex\Aramex
+            - { name: api_platform.doctrine.orm.query_extension.collection, priority: 9 }
 
 
     # please note that last definitions always *replace* previous ones

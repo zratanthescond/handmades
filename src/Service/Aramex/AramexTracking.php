@@ -2,8 +2,19 @@
 
 namespace App\Service\Aramex;
 
+use Symfony\Component\Serializer\SerializerInterface;
+
 class AramexTracking extends Aramex
 {
+
+    private $serializer;
+
+    public function __construct(SerializerInterface $serializer)
+    {
+        $this->serializer = $serializer;
+    }
+
+
 
     public const WSDL = "http://ws.aramex.net/ShippingAPI.V2/Tracking/Service_1_0.svc?wsdl";
 
@@ -16,6 +27,9 @@ class AramexTracking extends Aramex
         ]);
     }
 
+    /**
+     * @return AramexTrackingEntity[]
+     */
 
     public function trackMultiple(array $trackingIds): array
     {
@@ -48,20 +62,53 @@ class AramexTracking extends Aramex
 
             $trackingResults = (array) $data["TrackingResults"][array_key_first($data["TrackingResults"])];
 
-            return $trackingResults;
+            $results = [];
+
+            $HasMultipleResults = AramexHelper::isMultiDimensional($trackingResults);
+
+            if (!$HasMultipleResults) {
+
+                $results[0] = $trackingResults;
+            } else {
+
+                $results = $trackingResults;
+            }
+
+            $entities = [];
+
+            foreach ($results as $result) {
+
+                $trackingResult = (array) $result["Value"]["TrackingResult"];
+
+                // if tracking has multiple events api return an array
+
+                $HasMultipleTrackingResult = AramexHelper::isMultiDimensional($trackingResult);
+
+                if ($HasMultipleTrackingResult) {
+
+                    // get the last event
+
+                    $trackingResult = $trackingResult[0];
+                }
+
+                $entity = $this->serializer->deserialize(json_encode($trackingResult), AramexTrackingEntity::class, "json");
+
+                array_push($entities, $entity);
+            }
+
+
+            return $entities;
         } catch (SoapFault $fault) {
             die('Error : ' . $fault->faultstring);
         }
     }
 
 
-    public function trackOne(string $trackingId): array
+    public function trackOne(string $trackingId): AramexTrackingEntity
     {
 
-        $tracking = $this->trackMultiple([$trackingId]);
+        $result = $this->trackMultiple([$trackingId]);
 
-        $trackingResult = (array) $tracking["Value"]["TrackingResult"];
-
-        return $trackingResult;
+        return $result[0];
     }
 }

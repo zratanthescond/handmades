@@ -12,7 +12,6 @@ use App\Repository\OrderRepository;
 use App\Service\Aramex\Aramex;
 use App\Service\Aramex\AramexTracking;
 use Doctrine\ORM\EntityManagerInterface;
-use App\Service\Aramex\AramexHelper;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,6 +21,8 @@ use Dompdf\Dompdf;
 use Dompdf\Options as PdfOptions;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use Symfony\Component\Serializer\SerializerInterface;
 use Twig\Environment as Twig;
 
 class AramexController extends AbstractController
@@ -37,6 +38,7 @@ class AramexController extends AbstractController
     Aramex $aramex,
     AramexTracking $aramexTrackingApi,
     HttpClientInterface $httpClient,
+    NormalizerInterface $normalizer,
     EntityManagerInterface $em
   ): Response {
 
@@ -60,11 +62,11 @@ class AramexController extends AbstractController
 
       $address = array_filter($addresses, fn (UserAddress $add) => $add->getIsDefault());
 
-      if(!count($address)) {
+      if (!count($address)) {
 
-         return $this->json(["error" => sprintf("No default address is set from %s addresses", count($addresses))], 422);
+        return $this->json(["error" => sprintf("No default address is set from %s addresses", count($addresses))], 422);
       }
- 
+
       try {
         $shipement = $aramex->CreateShipments($address[0], $order);
 
@@ -92,9 +94,11 @@ class AramexController extends AbstractController
 
           $trackingResult = $aramexTrackingApi->trackOne($trackingId);
 
-          $aramexTracking->setData($trackingResult)
-            ->setUpdateCode($trackingResult["UpdateCode"])
-            ->setWaybillNumber($trackingResult["WaybillNumber"]);
+          $trackingData = $normalizer->normalize($trackingResult);
+
+          $aramexTracking->setData($trackingData)
+            ->setUpdateCode($trackingResult->getUpdateCode())
+            ->setWaybillNumber($trackingResult->getWaybillNumber());
 
           $aramexShipement->setTracking($aramexTracking);
 
@@ -124,7 +128,8 @@ class AramexController extends AbstractController
     Request $request,
     AramexTracking $aramexTrackingApi,
     AramexTrackingRepository $repo,
-    EntityManagerInterface $em
+    EntityManagerInterface $em,
+    NormalizerInterface $normalizer
   ): Response {
 
     $data = $request->toArray();
@@ -142,36 +147,11 @@ class AramexController extends AbstractController
 
       $trackingResults = $aramexTrackingApi->trackMultiple($trackingIds);
 
-      $HasMultipleResults = AramexHelper::isMultiDimensional($trackingResults);
+      foreach ($trackingResults as $tracking) {
 
-      if ($HasMultipleResults) {
+        $waybillNumber = $tracking->getWaybillNumber();
 
-        foreach ($trackingResults as $result) {
-
-          $trackingResult = (array) $result["Value"]["TrackingResult"];
-
-          $waybillNumber = $trackingResult["WaybillNumber"];
-
-          $trackingEntity = $repo->findOneBy(["waybillNumber" => $waybillNumber]);
-
-          if (!$trackingEntity) {
-
-            return $this->json(["error" => sprintf("Could not found this trackingId %", $waybillNumber)], 404);
-          }
-
-          array_push($updatedTrackings, $trackingEntity);
-
-          $trackingEntity->setData($trackingResult)->setUpdateCode($trackingResult["UpdateCode"]);
-
-          $em->persist($trackingEntity);
-        }
-
-        $em->flush();
-      } else {
-
-        $trackingResult = (array) $trackingResults["Value"]["TrackingResult"];
-
-        $waybillNumber = $trackingResult["WaybillNumber"];
+        $UpdateCode = $tracking->getUpdateCode();
 
         $trackingEntity = $repo->findOneBy(["waybillNumber" => $waybillNumber]);
 
@@ -180,14 +160,16 @@ class AramexController extends AbstractController
           return $this->json(["error" => sprintf("Could not found this trackingId %", $waybillNumber)], 404);
         }
 
-        $trackingEntity->setData($trackingResult)->setUpdateCode($trackingResult["UpdateCode"]);
+        $trackingData = $normalizer->normalize($tracking);
 
         array_push($updatedTrackings, $trackingEntity);
 
-        $em->persist($trackingEntity);
+        $trackingEntity->setData($trackingData)->setUpdateCode($UpdateCode);
 
-        $em->flush();
+        $em->persist($trackingEntity);
       }
+
+      $em->flush();
     } catch (\Exception $e) {
 
       return $this->json(["error" => $e->getMessage()], 400);
