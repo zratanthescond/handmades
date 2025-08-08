@@ -17,7 +17,9 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install pdo pdo_mysql xsl zip mbstring xml tokenizer
 
 # Install Composer
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+RUN curl -sS https://getcomposer.org/installer | php -- --version=1.10.26 && \
+    mv composer.phar /usr/bin/composer
+
 
 WORKDIR /var/www/html
 
