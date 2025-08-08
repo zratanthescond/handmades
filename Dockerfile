@@ -1,5 +1,5 @@
 FROM php:7.4-fpm
-
+RUN echo "memory_limit=512M" > /usr/local/etc/php/conf.d/memory-limit.ini
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     git \
