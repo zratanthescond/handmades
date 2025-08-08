@@ -1,15 +1,28 @@
+FROM php:7.4-fpm
 
-FROM php:8.3-fpm
-
-# Install dependencies
-RUN apt-get update && apt-get install -y     git unzip libicu-dev libxml2-dev libzip-dev zip     && docker-php-ext-install intl pdo pdo_mysql xml zip opcache
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    zip \
+    unzip \
+    libonig-dev \
+    libxml2-dev \
+    libzip-dev \
+    libxslt1-dev \
+    libpq-dev \
+    libjpeg-dev \
+    libpng-dev \
+    libfreetype6-dev \
+    && docker-php-ext-install pdo pdo_mysql xsl zip mbstring xml tokenizer
 
 # Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-WORKDIR /app
-COPY . /app
+WORKDIR /var/www/html
 
-RUN composer install --no-dev --optimize-autoloader
+COPY . .
+
+RUN composer install --no-interaction --optimize-autoloader
 
 CMD ["php-fpm"]
