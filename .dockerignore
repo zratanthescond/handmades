@@ -1,0 +1,8 @@
+node_modules
+vendor/
+var/*
+!var/cache
+!var/log
+.env.local
+docker-compose.yml
+Dockerfile
