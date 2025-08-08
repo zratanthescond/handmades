@@ -1,43 +1,43 @@
-### Stage 1: Build PHP dependencies and assets
-FROM php:8.1-fpm-alpine AS build
+# Stage 1: Build stage
+FROM php:8.1-cli-alpine AS builder
 
+# Install system dependencies
 RUN apk add --no-cache \
-    bash git unzip curl openssl \
-    libzip-dev libpng-dev libjpeg-turbo-dev freetype-dev icu-dev \
-    libxml2-dev oniguruma-dev g++ make autoconf nodejs npm
+    git unzip bash libxml2-dev libxslt-dev oniguruma-dev zlib-dev
 
-RUN docker-php-ext-install pdo pdo_mysql intl zip xml opcache
+# Install PHP extensions
+RUN docker-php-ext-install pdo pdo_mysql xsl
 
+# Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
+# Set work directory
 WORKDIR /app
 
-COPY composer.* ./
-
-RUN composer install --no-dev --prefer-dist --optimize-autoloader
-
+# Copy application files
 COPY . .
 
-RUN npm install && npm run build
+# Install PHP dependencies (production only)
+RUN composer install --no-dev --optimize-autoloader --prefer-dist
 
-### Stage 2: Production image
-FROM php:8.1-fpm-alpine
+# Stage 2: Runtime stage
+FROM php:8.1-cli-alpine
 
-RUN apk add --no-cache \
-    bash curl nginx openssl supervisor \
-    icu libpng libjpeg-turbo freetype libzip oniguruma
+# Install system dependencies
+RUN apk add --no-cache bash libxml2 libxslt zlib
 
+# Install PHP extensions
+RUN docker-php-ext-install pdo pdo_mysql xsl
+
+# Set timezone and working dir
+ENV TZ=UTC
 WORKDIR /app
 
-COPY --from=build /app /app
-COPY --from=build /usr/bin/composer /usr/bin/composer
+# Copy from build stage
+COPY --from=builder /app /app
 
-RUN mkdir -p var/cache var/log && \
-    chown -R www-data:www-data /app
+# Expose default port
+EXPOSE 8000
 
-COPY docker/nginx.conf /etc/nginx/http.d/default.conf
-COPY docker/supervisord.conf /etc/supervisord.conf
-
-EXPOSE 80
-
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
+# Run Symfony web server
+CMD ["php", "-S", "0.0.0.0:8000", "-t", "public"]
