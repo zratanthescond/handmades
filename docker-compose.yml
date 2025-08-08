@@ -14,14 +14,16 @@ services:
   web:
     image: nginx:stable
     container_name: nginx_web
-    expose:
-      - "80"
     volumes:
       - .:/var/www/html
-      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       - app
-
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.symfony.rule=Host(`your-domain.com`)"
+      - "traefik.http.routers.symfony.entrypoints=websecure"
+      - "traefik.http.routers.symfony.tls.certresolver=letsencrypt"
  
 volumes:
   db_data:
