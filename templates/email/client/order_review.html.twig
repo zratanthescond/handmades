@@ -1,0 +1,29 @@
+{% extends 'email/base_email.html.twig' %}
+
+{% block content %}
+
+
+	<row>
+		<columns>
+
+			<h4>Bonjour
+				{{ client.firstName }}
+			</h4>
+
+			<p>Nous avons le plaisir de vous informer que votre commande a été livrée.</p>
+
+            <p>Afin d'améliorer nos services, nous vous invitons à nous accorder 2 minutes pour évaluer les produits que vous avez reçu.</p>
+
+             <spacer size="10"></spacer>
+
+            <center>
+         
+           <button href="{{ url("product_review", {id: order.id}) }}">Donnez nous votre avis</button>
+
+           </center>
+
+		</columns>
+	</row>
+
+
+{% endblock %}
