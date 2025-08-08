@@ -1,43 +1,15 @@
-# Stage 1: Build stage
-FROM php:8.1-cli-alpine AS builder
 
-# Install system dependencies
-RUN apk add --no-cache \
-    git unzip bash libxml2-dev libxslt-dev oniguruma-dev zlib-dev
+FROM php:8.3-fpm
 
-# Install PHP extensions
-RUN docker-php-ext-install pdo pdo_mysql xsl
+# Install dependencies
+RUN apt-get update && apt-get install -y     git unzip libicu-dev libxml2-dev libzip-dev zip     && docker-php-ext-install intl pdo pdo_mysql xml zip opcache
 
 # Install Composer
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Set work directory
 WORKDIR /app
+COPY . /app
 
-# Copy application files
-COPY . .
+RUN composer install --no-dev --optimize-autoloader
 
-# Install PHP dependencies (production only)
-RUN composer install --no-dev --optimize-autoloader --prefer-dist
-
-# Stage 2: Runtime stage
-FROM php:8.1-cli-alpine
-
-# Install system dependencies
-RUN apk add --no-cache bash libxml2 libxslt zlib
-
-# Install PHP extensions
-RUN docker-php-ext-install pdo pdo_mysql xsl
-
-# Set timezone and working dir
-ENV TZ=UTC
-WORKDIR /app
-
-# Copy from build stage
-COPY --from=builder /app /app
-
-# Expose default port
-EXPOSE 8000
-
-# Run Symfony web server
-CMD ["php", "-S", "0.0.0.0:8000", "-t", "public"]
+CMD ["php-fpm"]
