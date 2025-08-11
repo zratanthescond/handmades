@@ -1,5 +1,5 @@
 # Dockerfile optimisé pour Coolify - Symfony 5.4
-FROM php:7.2-apache
+FROM php:8.1-apache
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -37,7 +37,7 @@ WORKDIR /var/www/html
 # Copy composer files first for better caching
 COPY composer.json composer.lock ./
 
-# Install dependencies
+# Install dependencies without dev
 RUN composer install --no-dev --no-scripts --no-autoloader --optimize-autoloader
 
 # Copy application code
@@ -111,4 +111,3 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
 
 # Start Apache in foreground
 CMD ["apache2-foreground"]
-
