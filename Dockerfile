@@ -1,30 +1,75 @@
-FROM php:7.4-fpm
-RUN echo "memory_limit=512M" > /usr/local/etc/php/conf.d/memory-limit.ini
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
+# Stage 1: Build the Composer dependencies
+FROM composer:2 AS composer_builder
+
+# Set the working directory
+WORKDIR /app
+
+# Copy Composer files and install dependencies
+COPY composer.* ./
+RUN composer install --no-dev --no-autoloader --no-scripts --optimize-autoloader
+
+# Stage 2: Build the PHP-FPM environment with the application code
+FROM php:7.4-fpm-alpine AS symfony_app
+
+# Set the working directory
+WORKDIR /var/www/html
+
+# Install system dependencies and PHP extensions for Symfony
+RUN apk add --no-cache \
+    nginx \
     git \
-    curl \
-    zip \
-    unzip \
     libonig-dev \
     libxml2-dev \
     libzip-dev \
-    libxslt1-dev \
     libpq-dev \
-    libjpeg-dev \
-    libpng-dev \
-    libfreetype6-dev \
-    && docker-php-ext-install pdo pdo_mysql xsl zip mbstring xml tokenizer
+    libjpeg-turbo-dev \
+    freetype-dev \
+    libwebp-dev \
+    php7-opcache \
+    php7-mbstring \
+    php7-xml \
+    php7-tokenizer \
+    php7-zip \
+    php7-pdo \
+    php7-pdo_pgsql \
+    php7-curl \
+    php7-json \
+    php7-gd \
+    php7-dom \
+    php7-exif \
+    php7-intl \
+    php7-ctype \
+    php7-session \
+    php7-pecl-apcu \
+    php7-iconv \
+    && docker-php-ext-configure gd --with-jpeg --with-freetype --with-webp \
+    && docker-php-ext-install -j$(nproc) gd pdo pdo_pgsql opcache mbstring xml tokenizer zip
 
-# Install Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --version=1.10.26 && \
-    mv composer.phar /usr/bin/composer
+# Copy the Composer dependencies from the first stage
+COPY --from=composer_builder /app/vendor /var/www/html/vendor
 
+# Copy the application code
+COPY --chown=www-data:www-data . .
 
-WORKDIR /var/www/html
+# Set permissions for Symfony directories and clean up
+RUN set -eux; \
+    mkdir -p var/cache var/log; \
+    chown -R www-data:www-data var public; \
+    rm -rf /var/cache/apk/*
 
-COPY . .
+# Copy the Nginx configuration and startup script
+COPY docker/nginx/default.conf /etc/nginx/http.d/default.conf
+COPY docker/nginx/start.sh /usr/local/bin/start.sh
 
-RUN composer install --no-interaction --optimize-autoloader
+# Set correct file permissions and make the script executable
+RUN chown -R www-data:www-data /var/www/html && \
+    chmod +x /usr/local/bin/start.sh
 
-CMD ["php-fpm"]
+# Switch to the non-root user
+USER www-data
+
+# Expose port 80 for web traffic
+EXPOSE 80
+
+# The startup script runs both Nginx and PHP-FPM
+CMD ["/usr/local/bin/start.sh"]
