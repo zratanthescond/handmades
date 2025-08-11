@@ -1,20 +1,14 @@
-# Stage 1: Build the Composer dependencies
-FROM composer:2 AS composer_builder
-
-WORKDIR /app
-COPY composer.* ./
-RUN composer install --no-dev --no-autoloader --no-scripts --optimize-autoloader
-
-#-----------------------------------------------------------------------------------------------------------------
-
-# Stage 2: Build the Symfony application with PHP-FPM
-FROM php:7.4-fpm-alpine AS symfony_app
+# Start from the base PHP-FPM Alpine image
+FROM php:7.4-fpm-alpine
 
 # Set the working directory
 WORKDIR /var/www/html
 
-# Update package lists and install system dependencies (C libraries) for PHP extensions
+# Update package lists and install system dependencies and Nginx
+# Combining these into a single RUN command is often more reliable
+# This command installs all the necessary C libraries for PHP extensions and Nginx
 RUN apk update && apk add --no-cache \
+    nginx \
     git \
     libonig-dev \
     libxml2-dev \
@@ -25,14 +19,18 @@ RUN apk update && apk add --no-cache \
     libwebp-dev
 
 # Install PHP extensions using the dedicated Docker command
+# These are the extensions for Symfony that are built from the C libraries above
 RUN docker-php-ext-configure gd --with-jpeg --with-freetype --with-webp \
     && docker-php-ext-install -j$(nproc) gd pdo pdo_pgsql opcache mbstring xml tokenizer zip
 
-# Copy the Composer dependencies from the first stage
-COPY --from=composer_builder /app/vendor /var/www/html/vendor
+# Copy Composer from a dedicated image
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Copy the application code
+# Copy application code
 COPY --chown=www-data:www-data . .
+
+# Install Composer dependencies
+RUN composer install --no-interaction --optimize-autoloader --no-dev
 
 # Set permissions for Symfony directories and clean up
 RUN set -eux; \
@@ -40,26 +38,19 @@ RUN set -eux; \
     chown -R www-data:www-data var public; \
     rm -rf /var/cache/apk/*
 
-#-----------------------------------------------------------------------------------------------------------------
+# Copy our Nginx configuration and startup script
+COPY docker/nginx/default.conf /etc/nginx/http.d/default.conf
+COPY docker/nginx/start.sh /usr/local/bin/start.sh
 
-# Stage 3: The final production image with Nginx
-FROM nginx:stable-alpine
+# Set correct file permissions and make the script executable
+RUN chown -R www-data:www-data /var/www/html && \
+    chmod +x /usr/local/bin/start.sh
 
-# Copy the built application from the second stage
-COPY --from=symfony_app --chown=nginx:nginx /var/www/html /var/www/html
-
-# Remove the default Nginx configuration
-RUN rm /etc/nginx/conf.d/default.conf
-
-# Copy our custom Nginx configuration and startup script
-COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
-COPY docker/nginx/start.sh /docker-entrypoint.sh
-
-# Set correct permissions
-RUN chmod +x /docker-entrypoint.sh
+# Switch to non-root user
+USER www-data
 
 # Expose port 80
 EXPOSE 80
 
 # The startup script runs both Nginx and PHP-FPM
-CMD ["/docker-entrypoint.sh"]
+CMD ["/usr/local/bin/start.sh"]
