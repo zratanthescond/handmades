@@ -14,8 +14,8 @@ RUN apt-get update && apt-get install -y \
     unzip \
     && rm -rf /var/lib/apt/lists/*
 
-# Install PHP extensions
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+# Install PHP extensions (GD updated for PHP 8.1)
+RUN docker-php-ext-configure gd --enable-gd \
     && docker-php-ext-install -j$(nproc) \
         gd \
         pdo \
