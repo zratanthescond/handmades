@@ -1,67 +1,71 @@
-# Stage 1: Build the Composer dependencies
-FROM composer:2 AS composer_builder
+# Use a Debian-based PHP 7.4 FPM image
+FROM php:7.4-fpm
 
-# Set the working directory
-WORKDIR /app
-
-# Copy Composer files and install dependencies
-# We only copy the lock file and json file to improve caching
-COPY composer.* ./
-RUN composer install --no-dev --no-autoloader --optimize-autoloader
-
-#-----------------------------------------------------------------------------------------------------------------
-
-# Stage 2: Build the Symfony application with PHP-FPM
-FROM php:7.4-fpm-alpine AS symfony_app
-
-# Set the working directory
+# Set the working directory inside the container
 WORKDIR /var/www/html
 
-# Update package lists and install system dependencies (C libraries) for PHP extensions
-RUN apk update && apk add --no-cache \
+# Install system dependencies and Nginx
+# Using apt-get is more reliable for these packages
+RUN apt-get update && apt-get install -y \
+    nginx \
     git \
+    curl \
     libonig-dev \
     libxml2-dev \
     libzip-dev \
     libpq-dev \
-    libjpeg-turbo-dev \
-    freetype-dev \
-    libwebp-dev \
-    && docker-php-ext-configure gd --with-jpeg --with-freetype --with-webp \
-    && docker-php-ext-install -j$(nproc) gd pdo pdo_pgsql opcache mbstring xml tokenizer zip
+    libjpeg-dev \
+    libpng-dev \
+    libfreetype6-dev \
+    libicu-dev \
+    unzip \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy the Composer dependencies from the first stage
-COPY --from=composer_builder /app/vendor /var/www/html/vendor
+# Install Composer from a dedicated image
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Copy the application code
+# Install PHP extensions
+# We use the correct tool for the job.
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) \
+    gd \
+    pdo \
+    pdo_pgsql \
+    opcache \
+    mbstring \
+    xml \
+    tokenizer \
+    zip \
+    intl
+
+# Copy application code
 COPY --chown=www-data:www-data . .
 
-# Set permissions for Symfony directories and clean up
+# Install Composer dependencies
+RUN composer install --no-interaction --optimize-autoloader --no-dev
+
+# Set permissions for Symfony directories
 RUN set -eux; \
     mkdir -p var/cache var/log; \
-    chown -R www-data:www-data var public; \
-    rm -rf /var/cache/apk/*
+    chown -R www-data:www-data var public;
 
-#-----------------------------------------------------------------------------------------------------------------
+# Copy our custom Nginx configuration
+COPY docker/nginx/default.conf /etc/nginx/sites-available/default
+# Create symlink so Nginx uses the new config
+RUN ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
 
-# Stage 3: The final production image with Nginx
-FROM nginx:stable-alpine
+# Copy the startup script
+COPY docker/nginx/start.sh /usr/local/bin/start.sh
 
-# Copy the built application from the second stage
-COPY --from=symfony_app --chown=nginx:nginx /var/www/html /var/www/html
+# Set correct file permissions and make the script executable
+RUN chmod +x /usr/local/bin/start.sh && \
+    chown -R www-data:www-data /var/www/html
 
-# Remove the default Nginx configuration
-RUN rm /etc/nginx/conf.d/default.conf
-
-# Copy our custom Nginx configuration and startup script
-COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
-COPY docker/nginx/start.sh /docker-entrypoint.sh
-
-# Set correct permissions
-RUN chmod +x /docker-entrypoint.sh
+# Switch to the non-root user for security
+USER www-data
 
 # Expose port 80
 EXPOSE 80
 
 # The startup script runs both Nginx and PHP-FPM
-CMD ["/docker-entrypoint.sh"]
+CMD ["/usr/local/bin/start.sh"]
