@@ -1,79 +1,114 @@
-# Stage 1: Build the Composer dependencies
-FROM composer:2 AS composer_builder
+# Dockerfile optimisé pour Coolify - Symfony 5.4
+FROM php:7.2-apache
 
-# Set the working directory
-WORKDIR /app
-
-# Copy Composer files
-COPY composer.* ./
-
-# Install dependencies in a separate step to isolate errors
-RUN composer install --no-dev --no-autoloader --optimize-autoloader
-
-#-----------------------------------------------------------------------------------------------------------------
-
-# Stage 2: The final production image with PHP-FPM and Nginx
-FROM php:7.4-fpm
-
-# Set the working directory
-WORKDIR /var/www/html
-
-# Install system dependencies and Nginx
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
-    nginx \
     git \
     curl \
-    libonig-dev \
-    libxml2-dev \
     libzip-dev \
-    libpq-dev \
-    libjpeg-dev \
     libpng-dev \
+    libjpeg-dev \
     libfreetype6-dev \
     libicu-dev \
+    libpq-dev \
     unzip \
     && rm -rf /var/lib/apt/lists/*
-
-# Copy Composer from the builder stage
-COPY --from=composer_builder /app/vendor /var/www/html/vendor
 
 # Install PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) \
-    gd \
-    pdo \
-    pdo_pgsql \
-    opcache \
-    mbstring \
-    xml \
-    tokenizer \
-    zip \
-    intl
+        gd \
+        pdo \
+        pdo_pgsql \
+        opcache \
+        mbstring \
+        zip \
+        intl
+
+# Install Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+# Enable Apache modules
+RUN a2enmod rewrite headers
+
+# Set working directory
+WORKDIR /var/www/html
+
+# Copy composer files first for better caching
+COPY composer.json composer.lock ./
+
+# Install dependencies
+RUN composer install --no-dev --no-scripts --no-autoloader --optimize-autoloader
 
 # Copy application code
-COPY --chown=www-data:www-data . .
+COPY . .
 
-# Set permissions for Symfony directories
-RUN set -eux; \
-    mkdir -p var/cache var/log; \
-    chown -R www-data:www-data var public;
+# Complete composer installation
+RUN composer dump-autoload --optimize --no-dev
 
-# Copy custom Nginx configuration
-COPY docker/nginx/default.conf /etc/nginx/sites-available/default
-RUN ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
+# Configure Apache for Symfony
+RUN echo '<VirtualHost *:80>\n\
+    ServerName localhost\n\
+    DocumentRoot /var/www/html/public\n\
+    \n\
+    <Directory /var/www/html/public>\n\
+        AllowOverride All\n\
+        Require all granted\n\
+        DirectoryIndex index.php\n\
+        \n\
+        <IfModule mod_rewrite.c>\n\
+            RewriteEngine On\n\
+            RewriteCond %{HTTP:Authorization} .\n\
+            RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]\n\
+            RewriteCond %{REQUEST_FILENAME} !-f\n\
+            RewriteRule ^(.*)$ index.php [QSA,L]\n\
+        </IfModule>\n\
+    </Directory>\n\
+    \n\
+    # Security headers\n\
+    Header always set X-Content-Type-Options nosniff\n\
+    Header always set X-Frame-Options DENY\n\
+    Header always set X-XSS-Protection "1; mode=block"\n\
+    \n\
+    ErrorLog ${APACHE_LOG_DIR}/error.log\n\
+    CustomLog ${APACHE_LOG_DIR}/access.log combined\n\
+</VirtualHost>' > /etc/apache2/sites-available/000-default.conf
 
-# Copy the startup script
-COPY docker/nginx/start.sh /usr/local/bin/start.sh
+# Configure PHP for production
+RUN echo 'expose_php = Off\n\
+max_execution_time = 30\n\
+memory_limit = 256M\n\
+error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT\n\
+display_errors = Off\n\
+log_errors = On\n\
+upload_max_filesize = 10M\n\
+post_max_size = 10M\n\
+session.cookie_httponly = 1\n\
+session.use_strict_mode = 1\n\
+date.timezone = Europe/Paris\n\
+opcache.enable = 1\n\
+opcache.memory_consumption = 128\n\
+opcache.interned_strings_buffer = 8\n\
+opcache.max_accelerated_files = 4000\n\
+opcache.revalidate_freq = 2\n\
+opcache.validate_timestamps = 0' > /usr/local/etc/php/conf.d/symfony.ini
 
-# Set file permissions
-RUN chmod +x /usr/local/bin/start.sh && \
-    chown -R www-data:www-data /var/www/html
+# Set proper permissions
+RUN mkdir -p var/cache var/log public/uploads \
+    && chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html \
+    && chmod -R 775 var public/uploads
 
-# Switch to non-root user
-USER www-data
+# Create health check endpoint
+RUN echo '<?php header("Content-Type: text/plain"); echo "healthy\n"; ?>' > /var/www/html/public/health.php
 
-# Expose port 80
+# Expose port 80 (Coolify default)
 EXPOSE 80
 
-# Run the startup script
-CMD ["/usr/local/bin/start.sh"]
+# Health check for Coolify
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost/health.php || exit 1
+
+# Start Apache in foreground
+CMD ["apache2-foreground"]
+
