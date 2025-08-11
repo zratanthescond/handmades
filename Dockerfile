@@ -1,9 +1,13 @@
 # Stage 1: Build the Composer dependencies
 FROM composer:2 AS composer_builder
 
+# Set the working directory
 WORKDIR /app
+
+# Copy Composer files and install dependencies
+# We only copy the lock file and json file to improve caching
 COPY composer.* ./
-RUN composer install --no-dev --no-autoloader --no-scripts --optimize-autoloader
+RUN composer install --no-dev --no-autoloader --optimize-autoloader
 
 #-----------------------------------------------------------------------------------------------------------------
 
@@ -49,9 +53,15 @@ COPY --from=symfony_app --chown=nginx:nginx /var/www/html /var/www/html
 # Remove the default Nginx configuration
 RUN rm /etc/nginx/conf.d/default.conf
 
-# Copy our custom Nginx configuration
+# Copy our custom Nginx configuration and startup script
 COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
+COPY docker/nginx/start.sh /docker-entrypoint.sh
 
-# This is the key change: we embed the startup command directly.
-# This runs both PHP-FPM and Nginx in the foreground.
-CMD ["/bin/sh", "-c", "php-fpm7 -F & nginx -g 'daemon off;'"]
+# Set correct permissions
+RUN chmod +x /docker-entrypoint.sh
+
+# Expose port 80
+EXPOSE 80
+
+# The startup script runs both Nginx and PHP-FPM
+CMD ["/docker-entrypoint.sh"]
