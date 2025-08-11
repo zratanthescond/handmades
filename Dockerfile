@@ -1,10 +1,7 @@
 # Stage 1: Build the Composer dependencies
 FROM composer:2 AS composer_builder
 
-# Set the working directory
 WORKDIR /app
-
-# Copy Composer files and install dependencies
 COPY composer.* ./
 RUN composer install --no-dev --no-autoloader --no-scripts --optimize-autoloader
 
@@ -16,8 +13,8 @@ FROM php:7.4-fpm-alpine AS symfony_app
 # Set the working directory
 WORKDIR /var/www/html
 
-# Install system dependencies (C libraries) for PHP extensions
-RUN apk add --no-cache \
+# Update package lists and install system dependencies (C libraries) for PHP extensions
+RUN apk update && apk add --no-cache \
     git \
     libonig-dev \
     libxml2-dev \
@@ -25,8 +22,10 @@ RUN apk add --no-cache \
     libpq-dev \
     libjpeg-turbo-dev \
     freetype-dev \
-    libwebp-dev \
-    && docker-php-ext-configure gd --with-jpeg --with-freetype --with-webp \
+    libwebp-dev
+
+# Install PHP extensions using the dedicated Docker command
+RUN docker-php-ext-configure gd --with-jpeg --with-freetype --with-webp \
     && docker-php-ext-install -j$(nproc) gd pdo pdo_pgsql opcache mbstring xml tokenizer zip
 
 # Copy the Composer dependencies from the first stage
