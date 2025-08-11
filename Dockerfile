@@ -1,4 +1,3 @@
-# Dockerfile optimisé pour Coolify - Symfony 5.4
 FROM php:8.1-apache
 
 # Install system dependencies
@@ -7,16 +6,15 @@ RUN apt-get update && apt-get install -y \
     curl \
     libzip-dev \
     libpng-dev \
-    libjpeg-dev \
+    libjpeg62-turbo-dev \
     libfreetype6-dev \
     libicu-dev \
     libpq-dev \
     unzip \
     && rm -rf /var/lib/apt/lists/*
 
-# Install PHP extensions (GD updated for PHP 8.1)
-RUN docker-php-ext-configure gd --enable-gd \
-    && docker-php-ext-install -j$(nproc) \
+# Install PHP extensions
+RUN docker-php-ext-install -j$(nproc) \
         gd \
         pdo \
         pdo_pgsql \
@@ -31,22 +29,16 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 # Enable Apache modules
 RUN a2enmod rewrite headers
 
-# Set working directory
 WORKDIR /var/www/html
 
-# Copy composer files first for better caching
 COPY composer.json composer.lock ./
 
-# Install dependencies without dev
 RUN composer install --no-dev --no-scripts --no-autoloader --optimize-autoloader
 
-# Copy application code
 COPY . .
 
-# Complete composer installation
 RUN composer dump-autoload --optimize --no-dev
 
-# Configure Apache for Symfony
 RUN echo '<VirtualHost *:80>\n\
     ServerName localhost\n\
     DocumentRoot /var/www/html/public\n\
@@ -65,7 +57,6 @@ RUN echo '<VirtualHost *:80>\n\
         </IfModule>\n\
     </Directory>\n\
     \n\
-    # Security headers\n\
     Header always set X-Content-Type-Options nosniff\n\
     Header always set X-Frame-Options DENY\n\
     Header always set X-XSS-Protection "1; mode=block"\n\
@@ -74,7 +65,6 @@ RUN echo '<VirtualHost *:80>\n\
     CustomLog ${APACHE_LOG_DIR}/access.log combined\n\
 </VirtualHost>' > /etc/apache2/sites-available/000-default.conf
 
-# Configure PHP for production
 RUN echo 'expose_php = Off\n\
 max_execution_time = 30\n\
 memory_limit = 256M\n\
@@ -93,21 +83,16 @@ opcache.max_accelerated_files = 4000\n\
 opcache.revalidate_freq = 2\n\
 opcache.validate_timestamps = 0' > /usr/local/etc/php/conf.d/symfony.ini
 
-# Set proper permissions
 RUN mkdir -p var/cache var/log public/uploads \
     && chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html \
     && chmod -R 775 var public/uploads
 
-# Create health check endpoint
 RUN echo '<?php header("Content-Type: text/plain"); echo "healthy\n"; ?>' > /var/www/html/public/health.php
 
-# Expose port 80 (Coolify default)
 EXPOSE 80
 
-# Health check for Coolify
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD curl -f http://localhost/health.php || exit 1
 
-# Start Apache in foreground
 CMD ["apache2-foreground"]
