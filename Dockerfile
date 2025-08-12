@@ -12,17 +12,20 @@ RUN apt-get update && apt-get install -y \
     libicu-dev \
     libpq-dev \
     libonig-dev \
+    libxslt-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Install PHP extensions
-RUN docker-php-ext-install -j$(nproc) \
+# Configure and install PHP extensions
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) \
         gd \
         pdo \
         pdo_pgsql \
         opcache \
         mbstring \
         zip \
-        intl
+        intl \
+        xsl
 
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -64,7 +67,6 @@ RUN echo '<VirtualHost *:80>\n\
         </IfModule>\n\
     </Directory>\n\
     \n\
-    # Security headers\n\
     Header always set X-Content-Type-Options nosniff\n\
     Header always set X-Frame-Options DENY\n\
     Header always set X-XSS-Protection "1; mode=block"\n\
@@ -101,12 +103,9 @@ RUN mkdir -p var/cache var/log public/uploads \
 # Create health check endpoint
 RUN echo '<?php header("Content-Type: text/plain"); echo "healthy\n"; ?>' > /var/www/html/public/health.php
 
-# Expose port 80 (Coolify default)
 EXPOSE 80
 
-# Health check for Coolify
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD curl -f http://localhost/health.php || exit 1
 
-# Start Apache in foreground
 CMD ["apache2-foreground"]
