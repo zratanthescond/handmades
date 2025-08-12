@@ -1,7 +1,8 @@
 FROM php:7.4-apache
 
-# Install system dependencies and PHP build deps
+# Install system dependencies and PHP build deps including ca-certificates
 RUN apt-get update && apt-get install -y \
+    ca-certificates \
     git \
     curl \
     unzip \
@@ -13,6 +14,7 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     libonig-dev \
     libxslt-dev \
+    && update-ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 # Configure and install PHP extensions
