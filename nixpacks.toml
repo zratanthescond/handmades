@@ -26,7 +26,7 @@ cmds = [
 ]
 
 [phases.build]
-cmds = ["yarn build"]
+cmds = ["export NODE_OPTIONS=--openssl-legacy-provider &&yarn build"]
 
 [start]
 cmd = "php -S 0.0.0.0:3000 -t public"
