@@ -9,7 +9,6 @@ nixPkgs = [
     "php83Extensions.zip",
     "php83Extensions.gd",
     "php83Extensions.xsl",
-     "php83Packages.xml",
     "nodejs"
 ]
 
