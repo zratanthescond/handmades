@@ -21,7 +21,7 @@ cmds = [
      "php -d extension=xsl.so",
     "npm install -g yarn",
     # Install PHP deps
-    "composer install --no-dev --optimize-autoloader",
+    "composer install --no-dev --optimize-autoloader --ignore-platform-req=ext-xsl",
     # Install JS deps
     "yarn install --frozen-lockfile"
 ]
