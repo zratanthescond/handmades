@@ -1,8 +1,11 @@
 [phases.setup]
-nixPkgs = ["nodejs", "php"]
+nixEnv = "./default.nix"
 
 [phases.install]
-cmds = ["composer install --no-dev", "yarn install --frozen-lockfile"]
+cmds = [
+    "composer install --no-dev",
+    "yarn install --frozen-lockfile"
+]
 
 [phases.build]
 cmds = ["yarn build"]

@@ -14,9 +14,9 @@ let
 in
 pkgs.mkShell {
   buildInputs = [
-    pkgs.nodejs
-    yarnNoLicense
     pkgs.php
     composerNoLicense
+    pkgs.nodejs
+    yarnNoLicense
   ];
 }
