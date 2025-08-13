@@ -19,7 +19,7 @@ cmds = [
     # Install Yarn manually
     "npm install -g yarn",
     # Install PHP deps
-    "php -d memory_limit=-1 /bin/composer install --optimize-autoloader --ignore-platform-req=ext-xsl",
+    "php -d memory_limit=512M /bin/composer install --optimize-autoloader --ignore-platform-req=ext-xsl",
     # Install JS deps
     "yarn install --frozen-lockfile"
 ]
