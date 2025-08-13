@@ -9,7 +9,8 @@ nixPkgs = [
     "php83Extensions.zip",
     "php83Extensions.gd",
     "php83Extensions.xsl",
-    "nodejs"
+    "nodejs",
+    "yarn",
 ]
 
 [phases.install]
