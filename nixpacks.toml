@@ -1,16 +1,19 @@
 [phases.setup]
-nixEnv = "./environment.nix"
+nixPkgs = ["php", "phpExtensions.curl", "phpExtensions.mbstring", "phpExtensions.intl", "phpExtensions.pdo_mysql", "phpExtensions.xml", "phpExtensions.zip", "phpExtensions.gd", "nodejs"]
 
 [phases.install]
 cmds = [
+    # Install Composer manually
+    "curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer",
+    # Install Yarn manually
+    "npm install -g yarn",
+    # Now install dependencies
     "composer install --no-dev --optimize-autoloader",
     "yarn install --frozen-lockfile"
 ]
 
 [phases.build]
-cmds = [
-    "yarn build"
-]
+cmds = ["yarn build"]
 
 [start]
 cmd = "php -S 0.0.0.0:3000 -t public"
