@@ -3,11 +3,8 @@ nixPkgs = ["php", "phpExtensions.curl", "phpExtensions.mbstring", "phpExtensions
 
 [phases.install]
 cmds = [
-    # Install Composer manually
-    "curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer",
-    # Install Yarn manually
+    "curl -sS https://getcomposer.org/installer | php -- --install-dir=/bin --filename=composer",
     "npm install -g yarn",
-    # Now install dependencies
     "composer install --no-dev --optimize-autoloader",
     "yarn install --frozen-lockfile"
 ]
