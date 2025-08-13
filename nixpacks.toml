@@ -17,6 +17,8 @@ cmds = [
     # Install Composer manually
     "curl -sS https://getcomposer.org/installer | php -- --install-dir=/bin --filename=composer",
     # Install Yarn manually
+     "php -m | grep xsl || echo 'xsl missing, trying to enable it'",
+     "php -d extension=xsl.so",
     "npm install -g yarn",
     # Install PHP deps
     "composer install --no-dev --optimize-autoloader",
