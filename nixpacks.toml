@@ -32,18 +32,4 @@ cmds = [
 ]
 
 [start]
-# On container start:
-# 1. Wait for DB to be ready
-# 2. Run Symfony cache clear
-# 3. Run database migrations
-# 4. Start PHP server
-cmd = """
-echo 'Waiting for database...'
-until php -r 'try { new PDO(getenv("DATABASE_URL")); exit(0); } catch (Exception $e) { exit(1); }'; do
-    sleep 2
-done
-php /bin/composer run-script post-install-cmd
-php bin/console cache:clear --no-warmup
-php bin/console doctrine:migrations:migrate --no-interaction
-php -S 0.0.0.0:3000 -t public
-"""
+cmd = "sh -c 'echo \"Waiting for database...\" && until php -r \"try { new PDO(getenv(\\\"DATABASE_URL\\\")); exit(0); } catch (Exception \$e) { exit(1); }\"; do sleep 2; done && php /bin/composer run-script post-install-cmd && php bin/console cache:clear --no-warmup && php bin/console doctrine:migrations:migrate --no-interaction && php -S 0.0.0.0:3000 -t public'"
