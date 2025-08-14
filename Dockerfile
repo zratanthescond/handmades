@@ -1,113 +1,145 @@
-FROM php:8.3-apache
+# Multi-stage build for Symfony 5.3 application
+FROM node:18-alpine AS node_builder
 
-# Install system dependencies and PHP build deps including ca-certificates
-RUN apt-get update && apt-get install -y \
-    ca-certificates \
+WORKDIR /app
+COPY package*.json yarn.lock ./
+RUN yarn install --frozen-lockfile
+COPY . .
+RUN yarn build
+
+FROM php:8.1-fpm-alpine AS php_base
+
+# Install system dependencies
+RUN apk add --no-cache \
     git \
     curl \
-    unzip \
-    libzip-dev \
     libpng-dev \
-    libjpeg62-turbo-dev \
-    libfreetype6-dev \
-    libicu-dev \
-    libpq-dev \
-    libonig-dev \
-    libxslt-dev \
-    && update-ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
+    libxml2-dev \
+    libzip-dev \
+    oniguruma-dev \
+    icu-dev \
+    freetype-dev \
+    libjpeg-turbo-dev \
+    libwebp-dev \
+    libxpm-dev \
+    nginx \
+    supervisor
 
-# Configure and install PHP extensions
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) \
-        gd \
-        pdo \
-        pdo_pgsql \
-        opcache \
-        mbstring \
-        zip \
-        intl \
-        xsl
+# Install PHP extensions
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp --with-xpm \
+    && docker-php-ext-install \
+    pdo_mysql \
+    mysqli \
+    zip \
+    exif \
+    pcntl \
+    gd \
+    intl \
+    opcache \
+    bcmath
 
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Enable Apache modules
-RUN a2enmod rewrite headers
+# Configure PHP for production
+RUN echo "opcache.enable=1" >> /usr/local/etc/php/conf.d/opcache.ini \
+    && echo "opcache.memory_consumption=256" >> /usr/local/etc/php/conf.d/opcache.ini \
+    && echo "opcache.max_accelerated_files=20000" >> /usr/local/etc/php/conf.d/opcache.ini \
+    && echo "opcache.validate_timestamps=0" >> /usr/local/etc/php/conf.d/opcache.ini
 
-# Set working directory
+FROM php_base AS app
+
 WORKDIR /var/www/html
 
 # Copy composer files first for better caching
 COPY composer.json composer.lock ./
-
-# Install dependencies without dev
-RUN composer install --no-dev --no-scripts --no-autoloader --optimize-autoloader
+RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interaction
 
 # Copy application code
 COPY . .
 
-# Complete composer installation
-RUN composer dump-autoload --optimize --no-dev
-
-# Configure Apache for Symfony
-RUN echo '<VirtualHost *:80>\n\
-    ServerName localhost\n\
-    DocumentRoot /var/www/html/public\n\
-    \n\
-    <Directory /var/www/html/public>\n\
-        AllowOverride All\n\
-        Require all granted\n\
-        DirectoryIndex index.php\n\
-        \n\
-        <IfModule mod_rewrite.c>\n\
-            RewriteEngine On\n\
-            RewriteCond %{HTTP:Authorization} .\n\
-            RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]\n\
-            RewriteCond %{REQUEST_FILENAME} !-f\n\
-            RewriteRule ^(.*)$ index.php [QSA,L]\n\
-        </IfModule>\n\
-    </Directory>\n\
-    \n\
-    Header always set X-Content-Type-Options nosniff\n\
-    Header always set X-Frame-Options DENY\n\
-    Header always set X-XSS-Protection "1; mode=block"\n\
-    \n\
-    ErrorLog ${APACHE_LOG_DIR}/error.log\n\
-    CustomLog ${APACHE_LOG_DIR}/access.log combined\n\
-</VirtualHost>' > /etc/apache2/sites-available/000-default.conf
-
-# Configure PHP for production
-RUN echo 'expose_php = Off\n\
-max_execution_time = 30\n\
-memory_limit = 256M\n\
-error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT\n\
-display_errors = Off\n\
-log_errors = On\n\
-upload_max_filesize = 10M\n\
-post_max_size = 10M\n\
-session.cookie_httponly = 1\n\
-session.use_strict_mode = 1\n\
-date.timezone = Europe/Paris\n\
-opcache.enable = 1\n\
-opcache.memory_consumption = 128\n\
-opcache.interned_strings_buffer = 8\n\
-opcache.max_accelerated_files = 4000\n\
-opcache.revalidate_freq = 2\n\
-opcache.validate_timestamps = 0' > /usr/local/etc/php/conf.d/symfony.ini
+# Copy built assets from node builder
+COPY --from=node_builder /app/public/build ./public/build
 
 # Set proper permissions
-RUN mkdir -p var/cache var/log public/uploads \
-    && chown -R www-data:www-data /var/www/html \
+RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html \
-    && chmod -R 775 var public/uploads
+    && chmod -R 775 /var/www/html/var
 
-# Create health check endpoint
-RUN echo '<?php header("Content-Type: text/plain"); echo "healthy\n"; ?>' > /var/www/html/public/health.php
+# Run Composer scripts after copying all files
+RUN composer run-script post-install-cmd --no-interaction
+
+# Configure Nginx
+COPY <<EOF /etc/nginx/nginx.conf
+user www-data;
+worker_processes auto;
+pid /run/nginx.pid;
+
+events {
+    worker_connections 1024;
+}
+
+http {
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+    
+    sendfile on;
+    tcp_nopush on;
+    tcp_nodelay on;
+    keepalive_timeout 65;
+    types_hash_max_size 2048;
+    
+    server {
+        listen 80;
+        server_name _;
+        root /var/www/html/public;
+        index index.php;
+        
+        location / {
+            try_files \$uri /index.php\$is_args\$args;
+        }
+        
+        location ~ ^/index\.php(/|$) {
+            fastcgi_pass 127.0.0.1:9000;
+            fastcgi_split_path_info ^(.+\.php)(/.*)$;
+            include fastcgi_params;
+            fastcgi_param SCRIPT_FILENAME \$realpath_root\$fastcgi_script_name;
+            fastcgi_param DOCUMENT_ROOT \$realpath_root;
+            internal;
+        }
+        
+        location ~ \.php$ {
+            return 404;
+        }
+    }
+}
+EOF
+
+# Configure Supervisor
+COPY <<EOF /etc/supervisor/conf.d/supervisord.conf
+[supervisord]
+nodaemon=true
+user=root
+
+[program:php-fpm]
+command=php-fpm
+autostart=true
+autorestart=true
+stderr_logfile=/var/log/php-fpm.err.log
+stdout_logfile=/var/log/php-fpm.out.log
+
+[program:nginx]
+command=nginx -g "daemon off;"
+autostart=true
+autorestart=true
+stderr_logfile=/var/log/nginx.err.log
+stdout_logfile=/var/log/nginx.out.log
+EOF
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost/ || exit 1
 
 EXPOSE 80
 
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost/health.php || exit 1
-
-CMD ["apache2-foreground"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
