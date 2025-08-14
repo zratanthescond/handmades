@@ -17,7 +17,7 @@ nixPkgs = [
 cmds = [
     "curl -sS https://getcomposer.org/installer | php -- --install-dir=/bin --filename=composer",
     "npm install -g yarn",
-    "export COMPOSER_MEMORY_LIMIT=512M && php /bin/composer install --optimize-autoloader --ignore-platform-req=ext-xsl",
+    "export COMPOSER_MEMORY_LIMIT=512M && php /bin/composer install --optimize-autoloader --ignore-platform-req=ext-xsl --no-scripts",
     "yarn install --frozen-lockfile"
 ]
 
