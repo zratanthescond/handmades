@@ -73,8 +73,8 @@ RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interactio
 COPY . .
 COPY --from=node_builder /app/public/build ./public/build
 
-# Set proper permissions
-RUN chown -R www-data:www-data /var/www/html \
+RUN mkdir -p /var/www/html/var \
+    && chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html \
     && chmod -R 777 /var/www/html/var
 
@@ -159,3 +159,6 @@ RUN mkdir -p /var/log && touch /var/log/php-fpm.err.log /var/log/php-fpm.out.log
 EXPOSE 80
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 CMD curl --fail http://localhost/health   || exit 1
+LABEL maintainer="Your Name <gk0wK@example.com>"
