@@ -26,7 +26,8 @@ RUN apk add --no-cache \
     libxpm-dev \
     nginx \
     supervisor \
-    bash
+    bash \
+    wget
 
 # Install PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp --with-xpm \
@@ -46,8 +47,11 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp --with-x
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Configure PHP-FPM
-RUN echo "pm.max_children = 20" >> /usr/local/etc/php-fpm.d/www.conf \
+RUN echo "listen = /var/run/php-fpm.sock" >> /usr/local/etc/php-fpm.d/www.conf \
+    && echo "listen.owner = www-data" >> /usr/local/etc/php-fpm.d/www.conf \
+    && echo "listen.group = www-data" >> /usr/local/etc/php-fpm.d/www.conf \
+    && echo "listen.mode = 0660" >> /usr/local/etc/php-fpm.d/www.conf \
+    && echo "pm.max_children = 20" >> /usr/local/etc/php-fpm.d/www.conf \
     && echo "pm.start_servers = 3" >> /usr/local/etc/php-fpm.d/www.conf \
     && echo "pm.min_spare_servers = 2" >> /usr/local/etc/php-fpm.d/www.conf \
     && echo "pm.max_spare_servers = 4" >> /usr/local/etc/php-fpm.d/www.conf \
@@ -73,19 +77,19 @@ RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interactio
 COPY . .
 COPY --from=node_builder /app/public/build ./public/build
 
-RUN mkdir -p /var/www/html/var \
-    && chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html \
-    && chmod -R 777 /var/www/html/var
+RUN mkdir -p /var/www/html/var/cache /var/www/html/var/log /var/www/html/var/sessions
+RUN chown -R www-data:www-data /var/www/html
+RUN chmod -R 755 /var/www/html
+RUN chmod -R 777 /var/www/html/var
 
 # Run composer scripts after copying all files
 RUN composer run-script post-install-cmd --no-interaction || true
 
-# Configure Nginx
 COPY <<EOF /etc/nginx/nginx.conf
 user www-data;
 worker_processes auto;
 pid /run/nginx.pid;
+error_log /var/log/nginx/error.log warn;
 
 events {
     worker_connections 1024;
@@ -95,6 +99,7 @@ http {
     include /etc/nginx/mime.types;
     default_type application/octet-stream;
     
+    access_log /var/log/nginx/access.log;
     sendfile on;
     tcp_nopush on;
     tcp_nodelay on;
@@ -112,7 +117,7 @@ http {
         }
         
         location ~ ^/index\.php(/|$) {
-            fastcgi_pass 127.0.0.1:9000;
+            fastcgi_pass unix:/var/run/php-fpm.sock;
             fastcgi_split_path_info ^(.+\.php)(/.*)$;
             include fastcgi_params;
             fastcgi_param SCRIPT_FILENAME \$realpath_root\$fastcgi_script_name;
@@ -128,22 +133,30 @@ http {
             expires 1y;
             add_header Cache-Control "public, immutable";
         }
+        
+        location /health {
+            access_log off;
+            return 200 "healthy\n";
+            add_header Content-Type text/plain;
+        }
     }
 }
 EOF
 
-# Configure Supervisor
 COPY <<EOF /etc/supervisor/conf.d/supervisord.conf
 [supervisord]
 nodaemon=true
 user=root
+logfile=/var/log/supervisord.log
+pidfile=/var/run/supervisord.pid
 
 [program:php-fpm]
-command=php-fpm
+command=php-fpm --nodaemonize
 autostart=true
 autorestart=true
 stderr_logfile=/var/log/php-fpm.err.log
 stdout_logfile=/var/log/php-fpm.out.log
+priority=1
 
 [program:nginx]
 command=nginx -g "daemon off;"
@@ -151,14 +164,17 @@ autostart=true
 autorestart=true
 stderr_logfile=/var/log/nginx.err.log
 stdout_logfile=/var/log/nginx.out.log
+priority=2
+depends_on=php-fpm
 EOF
 
-# Create log directories
-RUN mkdir -p /var/log && touch /var/log/php-fpm.err.log /var/log/php-fpm.out.log /var/log/nginx.err.log /var/log/nginx.out.log
+RUN mkdir -p /var/log/nginx /var/log/supervisor /var/run \
+    && touch /var/log/php-fpm.err.log /var/log/php-fpm.out.log /var/log/nginx.err.log /var/log/nginx.out.log /var/log/supervisord.log \
+    && chown -R www-data:www-data /var/log/nginx /var/log/php-fpm.* /var/run
 
 EXPOSE 80
 
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost/health || exit 1
 
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 CMD curl --fail http://localhost/health   || exit 1
-LABEL maintainer="Your Name <gk0wK@example.com>"
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
