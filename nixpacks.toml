@@ -10,26 +10,31 @@ nixPkgs = [
     "php83Extensions.gd",
     "php83Extensions.xsl",
     "nodejs",
-    "yarn"
+    "yarn",
 ]
 
 [phases.install]
 cmds = [
-    # Install Composer manually
     "curl -sS https://getcomposer.org/installer | php -- --install-dir=/bin --filename=composer",
-    # Install Yarn manually
     "npm install -g yarn",
-    # Install PHP deps but skip Symfony auto-scripts (avoids DB connection during build)
-    "export COMPOSER_MEMORY_LIMIT=512M && php /bin/composer install --no-scripts --optimize-autoloader --ignore-platform-req=ext-xsl",
-    # Install JS deps
+    "export COMPOSER_MEMORY_LIMIT=512M && php /bin/composer install --optimize-autoloader --ignore-platform-req=ext-xsl",
     "yarn install --frozen-lockfile"
 ]
 
 [phases.build]
 cmds = [
-    # Build frontend assets
     "export NODE_OPTIONS=--openssl-legacy-provider && yarn build"
 ]
 
 [start]
-cmd = "sh -c 'echo \"Waiting for database...\" && until php -r \"try { new PDO(getenv(\\\"DATABASE_URL\\\")); exit(0); } catch (Exception \$e) { exit(1); }\"; do sleep 2; done && php /bin/composer run-script post-install-cmd && php bin/console cache:clear --no-warmup && php bin/console doctrine:migrations:migrate --no-interaction && php -S 0.0.0.0:3000 -t public'"
+cmd = '''sh -c '
+echo "Waiting for database..."
+until php -r "try { new PDO(getenv(\"DATABASE_URL\")); exit(0); } catch (Exception \$e) { exit(1); }"; do
+    sleep 2
+done
+php /bin/composer run-script post-install-cmd
+php bin/console cache:clear --no-warmup
+php bin/console cache:warmup
+php bin/console doctrine:migrations:migrate --no-interaction
+php -S 0.0.0.0:3000 -t public
+' '''
