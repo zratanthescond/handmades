@@ -5,7 +5,7 @@ WORKDIR /app
 COPY package*.json yarn.lock ./
 RUN yarn install --frozen-lockfile
 COPY . .
-RUN node --openssl-legacy-provider $(which yarn) build
+RUN yarn build
 
 FROM php:8.1-fpm-alpine AS php_base
 
@@ -156,3 +156,7 @@ RUN mkdir -p /var/log && touch /var/log/php-fpm.err.log /var/log/php-fpm.out.log
 EXPOSE 80
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost/ || exit 1
+LABEL maintainer="Your Name <email@domain>"
