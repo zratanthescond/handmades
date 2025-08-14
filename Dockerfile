@@ -7,7 +7,7 @@ RUN yarn install --frozen-lockfile
 COPY . .
 RUN yarn build
 
-FROM php:8.1-fpm-alpine AS php_base
+FROM php:8.3-fpm-alpine AS php_base
 
 # Install system dependencies
 RUN apk add --no-cache \
@@ -16,6 +16,7 @@ RUN apk add --no-cache \
     curl-dev \
     libpng-dev \
     libxml2-dev \
+    libxslt-dev \
     libzip-dev \
     oniguruma-dev \
     icu-dev \
@@ -38,6 +39,7 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp --with-x
     bcmath \
     gd \
     xml \
+    xsl \
     mbstring \
     curl
 
