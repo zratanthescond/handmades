@@ -13,6 +13,7 @@ FROM php:8.1-fpm-alpine AS php_base
 RUN apk add --no-cache \
     git \
     curl \
+    curl-dev \
     libpng-dev \
     libxml2-dev \
     libzip-dev \
@@ -156,7 +157,3 @@ RUN mkdir -p /var/log && touch /var/log/php-fpm.err.log /var/log/php-fpm.out.log
 EXPOSE 80
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
-
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost/ || exit 1
-LABEL maintainer="Your Name <email@domain>"
