@@ -5,7 +5,7 @@ WORKDIR /app
 COPY package*.json yarn.lock ./
 RUN yarn install --frozen-lockfile
 COPY . .
-RUN yarn build --openssl-legacy-provider
+RUN node --openssl-legacy-provider $(which yarn) build
 
 FROM php:8.1-fpm-alpine AS php_base
 
