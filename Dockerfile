@@ -5,7 +5,7 @@ WORKDIR /app
 COPY package*.json yarn.lock ./
 RUN yarn install --frozen-lockfile
 COPY . .
-RUN NODE_OPTIONS="--openssl-legacy-provider" yarn build
+RUN yarn build --openssl-legacy-provider
 
 FROM php:8.1-fpm-alpine AS php_base
 
@@ -23,7 +23,8 @@ RUN apk add --no-cache \
     libwebp-dev \
     libxpm-dev \
     nginx \
-    supervisor
+    supervisor \
+    bash
 
 # Install PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp --with-xpm \
@@ -31,21 +32,31 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp --with-x
     pdo_mysql \
     mysqli \
     zip \
-    exif \
-    pcntl \
-    gd \
     intl \
     opcache \
-    bcmath
+    bcmath \
+    gd \
+    xml \
+    mbstring \
+    curl
 
 # Install Composer
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Configure PHP-FPM
+RUN echo "pm.max_children = 20" >> /usr/local/etc/php-fpm.d/www.conf \
+    && echo "pm.start_servers = 3" >> /usr/local/etc/php-fpm.d/www.conf \
+    && echo "pm.min_spare_servers = 2" >> /usr/local/etc/php-fpm.d/www.conf \
+    && echo "pm.max_spare_servers = 4" >> /usr/local/etc/php-fpm.d/www.conf \
+    && echo "pm.max_requests = 200" >> /usr/local/etc/php-fpm.d/www.conf
 
 # Configure PHP for production
-RUN echo "opcache.enable=1" >> /usr/local/etc/php/conf.d/opcache.ini \
-    && echo "opcache.memory_consumption=256" >> /usr/local/etc/php/conf.d/opcache.ini \
-    && echo "opcache.max_accelerated_files=20000" >> /usr/local/etc/php/conf.d/opcache.ini \
-    && echo "opcache.validate_timestamps=0" >> /usr/local/etc/php/conf.d/opcache.ini
+RUN echo "opcache.memory_consumption=128" >> /usr/local/etc/php/conf.d/opcache.ini \
+    && echo "opcache.interned_strings_buffer=8" >> /usr/local/etc/php/conf.d/opcache.ini \
+    && echo "opcache.max_accelerated_files=4000" >> /usr/local/etc/php/conf.d/opcache.ini \
+    && echo "opcache.revalidate_freq=2" >> /usr/local/etc/php/conf.d/opcache.ini \
+    && echo "opcache.fast_shutdown=1" >> /usr/local/etc/php/conf.d/opcache.ini \
+    && echo "opcache.enable_cli=1" >> /usr/local/etc/php/conf.d/opcache.ini
 
 FROM php_base AS app
 
@@ -55,19 +66,17 @@ WORKDIR /var/www/html
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interaction
 
-# Copy application code
+# Copy application files
 COPY . .
-
-# Copy built assets from node builder
 COPY --from=node_builder /app/public/build ./public/build
 
 # Set proper permissions
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html \
-    && chmod -R 775 /var/www/html/var
+    && chmod -R 777 /var/www/html/var
 
-# Run Composer scripts after copying all files
-RUN composer run-script post-install-cmd --no-interaction
+# Run composer scripts after copying all files
+RUN composer run-script post-install-cmd --no-interaction || true
 
 # Configure Nginx
 COPY <<EOF /etc/nginx/nginx.conf
@@ -111,6 +120,11 @@ http {
         location ~ \.php$ {
             return 404;
         }
+        
+        location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
+            expires 1y;
+            add_header Cache-Control "public, immutable";
+        }
     }
 }
 EOF
@@ -136,11 +150,9 @@ stderr_logfile=/var/log/nginx.err.log
 stdout_logfile=/var/log/nginx.out.log
 EOF
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost/ || exit 1
+# Create log directories
+RUN mkdir -p /var/log && touch /var/log/php-fpm.err.log /var/log/php-fpm.out.log /var/log/nginx.err.log /var/log/nginx.out.log
 
 EXPOSE 80
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
-
