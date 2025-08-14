@@ -1,11 +1,11 @@
 # Multi-stage build for Symfony 5.3 application
-FROM node:18-alpine AS node_builder
+FROM node:16-alpine AS node_builder
 
 WORKDIR /app
 COPY package*.json yarn.lock ./
 RUN yarn install --frozen-lockfile
 COPY . .
-RUN yarn build
+RUN NODE_OPTIONS="--openssl-legacy-provider" yarn build
 
 FROM php:8.1-fpm-alpine AS php_base
 
@@ -143,3 +143,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
 EXPOSE 80
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+
