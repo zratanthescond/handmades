@@ -47,6 +47,10 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp --with-x
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+RUN sed -i 's/listen = 127.0.0.1:9000/listen = 127.0.0.1:9000/' /usr/local/etc/php-fpm.d/www.conf || \
+    sed -i 's/listen = \/run\/php\/php.*-fpm.sock/listen = 127.0.0.1:9000/' /usr/local/etc/php-fpm.d/www.conf || \
+    echo "listen = 127.0.0.1:9000" >> /usr/local/etc/php-fpm.d/www.conf
+
 RUN echo "pm.max_children = 20" >> /usr/local/etc/php-fpm.d/www.conf \
     && echo "pm.start_servers = 3" >> /usr/local/etc/php-fpm.d/www.conf \
     && echo "pm.min_spare_servers = 2" >> /usr/local/etc/php-fpm.d/www.conf \
