@@ -16,20 +16,26 @@ ENV APCU_VERSION=5.1.22
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
 # Installation des dépendances système et des extensions PHP
-RUN apk add --no-cache \
-    bash \
-    curl \
-    git \
-    nginx \
-    supervisor \
+# On crée un groupe virtuel ".build-deps" pour les dépendances de compilation
+RUN apk add --no-cache --virtual .build-deps \
+    $PHPIZE_DEPS \
+    autoconf \
+    curl-dev \
+    libxml2-dev \
     icu-dev \
     libzip-dev \
-    libxml2-dev \
     libpng-dev \
     libjpeg-turbo-dev \
     freetype-dev \
     libwebp-dev \
     oniguruma-dev \
+    && apk add --no-cache \
+    bash \
+    curl \
+    git \
+    nginx \
+    supervisor \
+    # Installation des extensions PHP
     && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
     && docker-php-ext-install -j$(nproc) \
     bcmath \
@@ -40,10 +46,12 @@ RUN apk add --no-cache \
     pdo_mysql \
     zip \
     xml \
+    # Compilation et installation de APCu
     && pecl install apcu-${APCU_VERSION} \
     && docker-php-ext-enable apcu \
-    && apk del --no-network .build-deps \
-    && rm -rf /var/cache/apk/*
+    # Nettoyage : on supprime les dépendances de build qui ne sont plus nécessaires
+    && apk del .build-deps \
+    && rm -rf /var/cache/apk/* /tmp/*
 
 # Installation de Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
