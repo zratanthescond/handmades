@@ -47,7 +47,7 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp --with-x
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-RUN echo "listen = /var/run/php-fpm.sock" >> /usr/local/etc/php-fpm.d/www.conf \
+RUN sed -i 's/listen = 127.0.0.1:9000/listen = \/var\/run\/php-fpm.sock/' /usr/local/etc/php-fpm.d/www.conf \
     && echo "listen.owner = www-data" >> /usr/local/etc/php-fpm.d/www.conf \
     && echo "listen.group = www-data" >> /usr/local/etc/php-fpm.d/www.conf \
     && echo "listen.mode = 0660" >> /usr/local/etc/php-fpm.d/www.conf \
@@ -170,7 +170,8 @@ EOF
 
 RUN mkdir -p /var/log/nginx /var/log/supervisor /var/run \
     && touch /var/log/php-fpm.err.log /var/log/php-fpm.out.log /var/log/nginx.err.log /var/log/nginx.out.log /var/log/supervisord.log \
-    && chown -R www-data:www-data /var/log/nginx /var/log/php-fpm.* /var/run
+    && chown -R www-data:www-data /var/log/nginx /var/log/php-fpm.* /var/run \
+    && chmod 755 /var/run
 
 EXPOSE 80
 
