@@ -1,95 +1,113 @@
-# Multi-stage build for Symfony 5.3 application
-FROM node:16-alpine AS node_builder
-
+# Étape 1: Construire les assets frontend avec Node.js
+FROM node:18-alpine AS node_builder
 WORKDIR /app
 COPY package*.json yarn.lock ./
 RUN yarn install --frozen-lockfile
 COPY . .
 RUN yarn build
 
+# Étape 2: Préparer l'environnement PHP de base
 FROM php:8.3-fpm-alpine AS php_base
 
-# Install system dependencies
+# Variables d'environnement pour une configuration non interactive
+ENV APCU_VERSION=5.1.22
+ENV COMPOSER_ALLOW_SUPERUSER=1
+
+# Installation des dépendances système et des extensions PHP
 RUN apk add --no-cache \
-    git \
+    bash \
     curl \
-    curl-dev \
-    libpng-dev \
-    libxml2-dev \
-    libxslt-dev \
-    libzip-dev \
-    oniguruma-dev \
-    icu-dev \
-    freetype-dev \
-    libjpeg-turbo-dev \
-    libwebp-dev \
-    libxpm-dev \
+    git \
     nginx \
     supervisor \
-    bash \
-    wget
-
-# Install PHP extensions
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp --with-xpm \
-    && docker-php-ext-install \
-    pdo_mysql \
-    mysqli \
-    zip \
-    intl \
-    opcache \
+    icu-dev \
+    libzip-dev \
+    libxml2-dev \
+    libpng-dev \
+    libjpeg-turbo-dev \
+    freetype-dev \
+    libwebp-dev \
+    oniguruma-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
+    && docker-php-ext-install -j$(nproc) \
     bcmath \
     gd \
-    xml \
-    xsl \
+    intl \
     mbstring \
-    curl
+    opcache \
+    pdo_mysql \
+    zip \
+    xml \
+    && pecl install apcu-${APCU_VERSION} \
+    && docker-php-ext-enable apcu \
+    && apk del --no-network .build-deps \
+    && rm -rf /var/cache/apk/*
 
-# Install Composer
+# Installation de Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-RUN sed -i 's/listen = 127.0.0.1:9000/listen = 127.0.0.1:9000/' /usr/local/etc/php-fpm.d/www.conf || \
-    sed -i 's/listen = \/run\/php\/php.*-fpm.sock/listen = 127.0.0.1:9000/' /usr/local/etc/php-fpm.d/www.conf || \
-    echo "listen = 127.0.0.1:9000" >> /usr/local/etc/php-fpm.d/www.conf
+# Configuration de PHP-FPM pour utiliser un socket et écouter correctement
+COPY <<EOF /usr/local/etc/php-fpm.d/zz-docker.conf
+[global]
+daemonize = no
 
-RUN echo "pm.max_children = 20" >> /usr/local/etc/php-fpm.d/www.conf \
-    && echo "pm.start_servers = 3" >> /usr/local/etc/php-fpm.d/www.conf \
-    && echo "pm.min_spare_servers = 2" >> /usr/local/etc/php-fpm.d/www.conf \
-    && echo "pm.max_spare_servers = 4" >> /usr/local/etc/php-fpm.d/www.conf \
-    && echo "pm.max_requests = 200" >> /usr/local/etc/php-fpm.d/www.conf
+[www]
+listen = /var/run/php-fpm.sock
+listen.owner = www-data
+listen.group = www-data
+listen.mode = 0660
 
-# Configure PHP for production
-RUN echo "opcache.memory_consumption=128" >> /usr/local/etc/php/conf.d/opcache.ini \
-    && echo "opcache.interned_strings_buffer=8" >> /usr/local/etc/php/conf.d/opcache.ini \
-    && echo "opcache.max_accelerated_files=4000" >> /usr/local/etc/php/conf.d/opcache.ini \
-    && echo "opcache.revalidate_freq=2" >> /usr/local/etc/php/conf.d/opcache.ini \
-    && echo "opcache.fast_shutdown=1" >> /usr/local/etc/php/conf.d/opcache.ini \
-    && echo "opcache.enable_cli=1" >> /usr/local/etc/php/conf.d/opcache.ini
+pm = dynamic
+pm.max_children = 15
+pm.start_servers = 2
+pm.min_spare_servers = 1
+pm.max_spare_servers = 3
+EOF
 
-FROM php_base AS app
+# Configuration de PHP pour la production
+COPY <<EOF /usr/local/etc/php/conf.d/99-symfony.ini
+date.timezone = UTC
+session.auto_start = Off
+opcache.enable = 1
+opcache.interned_strings_buffer = 16
+opcache.max_accelerated_files = 10000
+opcache.memory_consumption = 256
+opcache.save_comments = 1
+opcache.revalidate_freq = 0
+opcache.fast_shutdown = 1
+EOF
 
 WORKDIR /var/www/html
 
-# Copy composer files first for better caching
-COPY composer.json composer.lock ./
-RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interaction
+# Étape 3: Construire l'application Symfony
+FROM php_base AS app_builder
+WORKDIR /var/www/html
 
-# Copy application files
+# Installer les dépendances Composer en optimisant le cache
+COPY composer.json composer.lock ./
+RUN composer install --prefer-dist --no-dev --no-scripts --no-progress --no-interaction
+
+# Copier le reste de l'application
 COPY . .
+
+# Exécuter les scripts Composer après avoir copié les fichiers
+RUN composer run-script post-install-cmd --no-dev
+
+# Étape 4: Créer l'image finale de production
+FROM php_base AS app_final
+WORKDIR /var/www/html
+
+# Copier les fichiers de l'application et les assets depuis les étapes précédentes
+COPY --from=app_builder /var/www/html .
 COPY --from=node_builder /app/public/build ./public/build
 
-RUN mkdir -p /var/www/html/var/cache /var/www/html/var/log /var/www/html/var/sessions
-RUN chown -R www-data:www-data /var/www/html
-RUN chmod -R 755 /var/www/html
-RUN chmod -R 777 /var/www/html/var
-
-# Run composer scripts after copying all files
-RUN composer run-script post-install-cmd --no-interaction || true
-
+# Configuration de Nginx
 COPY <<EOF /etc/nginx/nginx.conf
 user www-data;
 worker_processes auto;
 pid /run/nginx.pid;
-error_log /var/log/nginx/error.log warn;
+error_log /dev/stderr warn;
+include /etc/nginx/modules-enabled/*.conf;
 
 events {
     worker_connections 1024;
@@ -98,82 +116,86 @@ events {
 http {
     include /etc/nginx/mime.types;
     default_type application/octet-stream;
-    
-    access_log /var/log/nginx/access.log;
+    access_log /dev/stdout;
     sendfile on;
-    tcp_nopush on;
-    tcp_nodelay on;
     keepalive_timeout 65;
-    types_hash_max_size 2048;
-    
+
     server {
-        listen 80;
+        listen 80 default_server;
         server_name _;
         root /var/www/html/public;
         index index.php;
-        
+
         location / {
             try_files \$uri /index.php\$is_args\$args;
         }
-        
-        location ~ ^/index\.php(/|$) {
-            fastcgi_pass 127.0.0.1:9000;
-            fastcgi_split_path_info ^(.+\.php)(/.*)$;
+
+        location ~ ^/index\.php(/|$ ) {
+            fastcgi_pass unix:/var/run/php-fpm.sock;
+            fastcgi_split_path_info ^(.+\.php)(/.*)\$;
             include fastcgi_params;
             fastcgi_param SCRIPT_FILENAME \$realpath_root\$fastcgi_script_name;
             fastcgi_param DOCUMENT_ROOT \$realpath_root;
             internal;
         }
-        
+
         location ~ \.php$ {
             return 404;
         }
-        
+
         location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
             expires 1y;
             add_header Cache-Control "public, immutable";
         }
-        
+
+        # Endpoint pour le health check
         location /health {
             access_log off;
-            return 200 "healthy\n";
+            return 200 "healthy";
             add_header Content-Type text/plain;
         }
     }
 }
 EOF
 
+# Configuration de Supervisor
 COPY <<EOF /etc/supervisor/conf.d/supervisord.conf
 [supervisord]
 nodaemon=true
 user=root
-logfile=/var/log/supervisord.log
-pidfile=/var/run/supervisord.pid
 
 [program:php-fpm]
-command=php-fpm --nodaemonize
+command=/usr/local/sbin/php-fpm
 autostart=true
 autorestart=true
-stderr_logfile=/var/log/php-fpm.err.log
-stdout_logfile=/var/log/php-fpm.out.log
 priority=1
+stdout_logfile=/dev/stdout
+stdout_logfile_maxbytes=0
+stderr_logfile=/dev/stderr
+stderr_logfile_maxbytes=0
 
 [program:nginx]
-command=nginx -g "daemon off;"
+command=/usr/sbin/nginx -g "daemon off;"
 autostart=true
 autorestart=true
-stderr_logfile=/var/log/nginx.err.log
-stdout_logfile=/var/log/nginx.out.log
 priority=2
-depends_on=php-fpm
+stdout_logfile=/dev/stdout
+stdout_logfile_maxbytes=0
+stderr_logfile=/dev/stderr
+stderr_logfile_maxbytes=0
 EOF
 
-RUN mkdir -p /var/log/nginx /var/log/supervisor \
-    && touch /var/log/php-fpm.err.log /var/log/php-fpm.out.log /var/log/nginx.err.log /var/log/nginx.out.log /var/log/supervisord.log
+# Définir les permissions correctes pour l'exécution
+RUN mkdir -p var/cache var/log && \
+    chown -R www-data:www-data /var/www/html && \
+    chmod -R 775 /var/www/html/var
 
+# Exposer le port 80
 EXPOSE 80
 
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost/health || exit 0
+# Healthcheck pour vérifier que Nginx est bien démarré et répond
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+  CMD curl -f http://localhost/health || exit 0
 
+# Commande de démarrage du conteneur
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
