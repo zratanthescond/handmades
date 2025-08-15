@@ -1,14 +1,14 @@
 [phases.setup]
 nixPkgs = [
-    "php83",
-    "php83Extensions.curl",
-    "php83Extensions.mbstring",
-    "php83Extensions.intl",
-    "php83Extensions.pdo_mysql",
-    "php83Extensions.xml",
-    "php83Extensions.zip",
-    "php83Extensions.gd",
-    "php83Extensions.xsl",
+    "php74",
+    "php74Extensions.curl",
+    "php74Extensions.mbstring",
+    "php74Extensions.intl",
+    "php74Extensions.pdo_mysql",
+    "php74Extensions.xml",
+    "php74Extensions.zip",
+    "php74Extensions.gd",
+    "php74Extensions.xsl",
     "nodejs",
     "yarn",
 ]
