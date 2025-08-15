@@ -4,6 +4,8 @@ WORKDIR /app
 COPY package*.json yarn.lock ./
 RUN yarn install --frozen-lockfile
 COPY . .
+# Ajout de NODE_OPTIONS pour résoudre le problème OpenSSL avec les anciennes versions de Webpack/Encore
+ENV NODE_OPTIONS=--openssl-legacy-provider
 RUN yarn build
 
 # Étape 2: Préparer l'environnement PHP de base
@@ -195,7 +197,7 @@ EXPOSE 80
 
 # Healthcheck pour vérifier que Nginx est bien démarré et répond
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
-  CMD curl -f http://localhost/health || exit 0
+  CMD curl -f http://localhost/health || exit 1
 
 # Commande de démarrage du conteneur
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
