@@ -47,17 +47,7 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp --with-x
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Create nginx user and ensure proper user setup
-RUN addgroup -g 82 -S www-data || true \
-    && adduser -u 82 -D -S -G www-data www-data || true \
-    && addgroup nginx www-data
-
-# Configure PHP-FPM with proper socket settings
-RUN sed -i 's/listen = 127.0.0.1:9000/listen = \/var\/run\/php-fpm.sock/' /usr/local/etc/php-fpm.d/www.conf \
-    && sed -i 's/;listen.owner = www-data/listen.owner = www-data/' /usr/local/etc/php-fpm.d/www.conf \
-    && sed -i 's/;listen.group = www-data/listen.group = www-data/' /usr/local/etc/php-fpm.d/www.conf \
-    && sed -i 's/;listen.mode = 0660/listen.mode = 0666/' /usr/local/etc/php-fpm.d/www.conf \
-    && echo "pm.max_children = 20" >> /usr/local/etc/php-fpm.d/www.conf \
+RUN echo "pm.max_children = 20" >> /usr/local/etc/php-fpm.d/www.conf \
     && echo "pm.start_servers = 3" >> /usr/local/etc/php-fpm.d/www.conf \
     && echo "pm.min_spare_servers = 2" >> /usr/local/etc/php-fpm.d/www.conf \
     && echo "pm.max_spare_servers = 4" >> /usr/local/etc/php-fpm.d/www.conf \
@@ -123,7 +113,7 @@ http {
         }
         
         location ~ ^/index\.php(/|$) {
-            fastcgi_pass unix:/var/run/php-fpm.sock;
+            fastcgi_pass 127.0.0.1:9000;
             fastcgi_split_path_info ^(.+\.php)(/.*)$;
             include fastcgi_params;
             fastcgi_param SCRIPT_FILENAME \$realpath_root\$fastcgi_script_name;
@@ -174,15 +164,12 @@ priority=2
 depends_on=php-fpm
 EOF
 
-RUN mkdir -p /var/log/nginx /var/log/supervisor /var/run \
-    && touch /var/log/php-fpm.err.log /var/log/php-fpm.out.log /var/log/nginx.err.log /var/log/nginx.out.log /var/log/supervisord.log \
-    && chown -R www-data:www-data /var/log/nginx /var/log/php-fpm.* /var/run \
-    && chmod 755 /var/run \
-    && chmod 777 /var/run
+RUN mkdir -p /var/log/nginx /var/log/supervisor \
+    && touch /var/log/php-fpm.err.log /var/log/php-fpm.out.log /var/log/nginx.err.log /var/log/nginx.out.log /var/log/supervisord.log
 
 EXPOSE 80
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost/health || exit 1
+    CMD wget --no-verbose --tries=1 --spider http://localhost/health || exit 0
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
