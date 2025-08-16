@@ -1,27 +1,35 @@
 [phases.setup]
-nixPkgs = []
-
-[phases.build]
 cmds = [
-  # Install PHP 7.4 from old nixpkgs
+  # Install PHP 7.4 + common extensions from old nixpkgs
   "nix-env -iA php74 php74Extensions.curl php74Extensions.mbstring php74Extensions.intl php74Extensions.pdo_mysql php74Extensions.xml php74Extensions.zip php74Extensions.gd php74Extensions.xsl -f https://github.com/NixOS/nixpkgs/archive/4d2b5b7c5f78b9e1b8c7b57d4ff76bb3c3b1d47b.tar.gz",
-  
+
   # Install Node.js 16 + Yarn
   "nix-env -iA nodejs-16_x -f https://github.com/NixOS/nixpkgs/archive/nixos-21.11.tar.gz",
   "npm install -g yarn",
 
-  # Install Composer
-  "nix-env -iA composer -f <nixpkgs>",
+  # Install Composer globally
+  "curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer",
 
   # Remove LICENSE to avoid collisions
-  "rm -f $(nix-env -q --out-path yarn | cut -d' ' -f2)/LICENSE || true",
-  "rm -f $(nix-env -q --out-path composer | cut -d' ' -f2)/LICENSE || true",
+  "rm -f $(nix-env -q --out-path yarn | cut -d' ' -f2)/LICENSE || true"
+]
 
-  # Install project dependencies
+[phases.build]
+cmds = [
+  # Install PHP dependencies
   "export COMPOSER_MEMORY_LIMIT=512M && composer install --optimize-autoloader --no-dev --ignore-platform-req=ext-xsl",
+  
+  # Install Node dependencies and build
   "yarn install --frozen-lockfile",
   "yarn build"
 ]
 
 [start]
-cmd = "sh -c 'php-fpm -D && nginx -g \"daemon off;\"'"
+cmd = "sh -c '\
+  mkdir -p /var/log/nginx /var/cache/nginx && \
+  php bin/console cache:clear --no-warmup && \
+  php bin/console cache:warmup && \
+  php bin/console doctrine:migrations:migrate --no-interaction && \
+  php-fpm -D && \
+  nginx -g \"daemon off;\" \
+'"
