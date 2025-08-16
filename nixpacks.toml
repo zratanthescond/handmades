@@ -1,52 +1,21 @@
 [phases.setup]
-nixpkgs = "https://github.com/NixOS/nixpkgs/archive/339d0121114d642b9340915d3151cf09e6c1e13b.tar.gz"
-
-[phases.setup.nix]
-pkgs = [
-    "php",
-    "phpExtensions.curl",
-    "phpExtensions.mbstring",
-    "phpExtensions.intl",
-    "phpExtensions.pdo_mysql",
-    "phpExtensions.xml",
-    "phpExtensions.zip",
-    "phpExtensions.gd",
-    "phpExtensions.xsl",
-    "nodejs",
-    "yarn",
-    "composer"
-]
-
-[phases.setup.nix.meta.passthru]
-packageOverrides = '''
-  self: super: {
-    yarn = super.yarn.overrideAttrs (old: {
-      postInstall = (old.postInstall or "") + ''
-        if [ -f $out/LICENSE ]; then
-          mv $out/LICENSE $out/LICENSE.yarn
-        fi
-      '';
-    });
-    composer = super.composer.overrideAttrs (old: {
-      postInstall = (old.postInstall or "") + ''
-        if [ -f $out/LICENSE ]; then
-          mv $out/LICENSE $out/LICENSE.composer
-        fi
-      '';
-    });
-  }
-'''
-
-[phases.install]
-cmds = [
-    "export COMPOSER_MEMORY_LIMIT=512M && composer install --optimize-autoloader --ignore-platform-req=ext-xsl --no-scripts",
-    "yarn install --frozen-lockfile"
+nixPkgs = [
+  "composer"
 ]
 
 [phases.build]
 cmds = [
-    "export NODE_OPTIONS=--openssl-legacy-provider && yarn build"
+  # Install PHP 7.4 from archived nixpkgs
+  "nix-env -iA php74 -f https://github.com/NixOS/nixpkgs/archive/4d2b5b7c5f78b9e1b8c7b57d4ff76bb3c3b1d47b.tar.gz",
+  
+  # Install Node.js 16 + Yarn
+  "nix-env -iA nodejs-16_x -f https://github.com/NixOS/nixpkgs/archive/nixos-21.11.tar.gz",
+  "npm install -g yarn",
+  
+  # Fix LICENSE conflict between Yarn and Composer
+  "rm -f $(nix-env -q --out-path yarn | cut -d' ' -f2)/LICENSE || true",
+  "rm -f $(nix-env -q --out-path composer | cut -d' ' -f2)/LICENSE || true"
 ]
 
 [start]
-cmd = "sh -c 'echo \"Starting application without health check...\" && composer run-script post-install-cmd && php bin/console cache:clear --no-warmup && php bin/console cache:warmup && php bin/console doctrine:migrations:migrate --no-interaction && echo \"Starting PHP server...\" && php -S 0.0.0.0:3000 -t public'"
+cmd = "php -v && composer install && yarn install && symfony serve --no-tls --port $PORT"
