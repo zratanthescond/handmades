@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: symfony_app
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+   
+
+  web:
+    image: nginx:stable
+    container_name: nginx_web
+    volumes:
+      - .:/var/www/html
+      - ./docker/nginx/:/etc/nginx/conf.d/:ro
+    depends_on:
+      - app
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.symfony.rule=Host(`api.homemades.space`)"
+      - "traefik.http.routers.symfony.entrypoints=websecure"
+      - "traefik.http.routers.symfony.tls.certresolver=letsencrypt"
+ 
+volumes:
+  db_data:

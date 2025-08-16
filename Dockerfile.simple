@@ -1,0 +1,63 @@
+# Dockerfile simplifié pour Symfony 5.4
+FROM php:8.1-apache
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    libzip-dev \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libicu-dev \
+    libpq-dev \
+    unzip \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install PHP extensions
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) \
+        gd \
+        pdo \
+        pdo_pgsql \
+        opcache \
+        mbstring \
+        zip \
+        intl
+
+# Install Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+# Configure Apache
+RUN a2enmod rewrite
+COPY docker/apache/vhost.conf /etc/apache2/sites-available/000-default.conf
+
+# Set working directory
+WORKDIR /var/www/html
+
+# Copy application code
+COPY . .
+
+# Install dependencies
+RUN composer install --no-dev --optimize-autoloader
+
+# Set proper permissions
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html \
+    && mkdir -p var/cache var/log public/uploads \
+    && chown -R www-data:www-data var public \
+    && chmod -R 775 var public
+
+# Configure PHP
+COPY docker/php/php.ini /usr/local/etc/php/conf.d/app.ini
+
+# Expose port
+EXPOSE 80
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost/health || exit 1
+
+# Start Apache
+CMD ["apache2-foreground"]
+
