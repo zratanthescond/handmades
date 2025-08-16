@@ -1,5 +1,8 @@
 [phases.setup]
-nixPkgs = [
+nixpkgs = "https://github.com/NixOS/nixpkgs/archive/nixpkgs-unstable.tar.gz"
+
+[phases.setup.nix]
+pkgs = [
     "php74",
     "php74Extensions.curl",
     "php74Extensions.mbstring",
