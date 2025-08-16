@@ -3,27 +3,39 @@ nixpkgs = "https://github.com/NixOS/nixpkgs/archive/339d0121114d642b9340915d3151
 
 [phases.setup.nix]
 pkgs = [
-    "php74",
-    "php74Extensions.curl",
-    "php74Extensions.mbstring",
-    "php74Extensions.intl",
-    "php74Extensions.pdo_mysql",
-    "php74Extensions.xml",
-    "php74Extensions.zip",
-    "php74Extensions.gd",
-    "php74Extensions.xsl",
+    "php",
+    "phpExtensions.curl",
+    "phpExtensions.mbstring",
+    "phpExtensions.intl",
+    "phpExtensions.pdo_mysql",
+    "phpExtensions.xml",
+    "phpExtensions.zip",
+    "phpExtensions.gd",
+    "phpExtensions.xsl",
     "nodejs",
     "yarn",
+    "composer"
 ]
 
 [phases.setup.nix.meta.passthru]
-packageOverrides = "self: super: { yarn = super.yarn.overrideAttrs (old: { postInstall = ''rm \"$out/LICENSE\"''; }); composer = super.composer.overrideAttrs (old: { postInstall = ''rm \"$out/LICENSE\"''; }); }"
+packageOverrides = '''
+  self: super: {
+    yarn = super.yarn.overrideAttrs (old: {
+      postInstall = (old.postInstall or "") + ''
+        mv $out/LICENSE $out/LICENSE.yarn || true
+      '';
+    });
+    composer = super.composer.overrideAttrs (old: {
+      postInstall = (old.postInstall or "") + ''
+        mv $out/LICENSE $out/LICENSE.composer || true
+      '';
+    });
+  }
+'''
 
 [phases.install]
 cmds = [
-    "curl -sS https://getcomposer.org/installer | php -- --install-dir=/bin --filename=composer",
-    "npm install -g yarn",
-    "export COMPOSER_MEMORY_LIMIT=512M && php /bin/composer install --optimize-autoloader --ignore-platform-req=ext-xsl --no-scripts",
+    "export COMPOSER_MEMORY_LIMIT=512M && composer install --optimize-autoloader --ignore-platform-req=ext-xsl --no-scripts",
     "yarn install --frozen-lockfile"
 ]
 
@@ -33,4 +45,4 @@ cmds = [
 ]
 
 [start]
-cmd = "sh -c 'echo \"Starting application without health check...\" && php /bin/composer run-script post-install-cmd && php bin/console cache:clear --no-warmup && php bin/console cache:warmup && php bin/console doctrine:migrations:migrate --no-interaction && echo \"Starting PHP server...\" && php -S 0.0.0.0:3000 -t public'"
+cmd = "sh -c 'echo \"Starting application without health check...\" && composer run-script post-install-cmd && php bin/console cache:clear --no-warmup && php bin/console cache:warmup && php bin/console doctrine:migrations:migrate --no-interaction && echo \"Starting PHP server...\" && php -S 0.0.0.0:3000 -t public'"
