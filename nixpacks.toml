@@ -25,11 +25,9 @@ cmds = [
 ]
 
 [start]
-cmd = "sh -c '\
-  mkdir -p /var/log/nginx /var/cache/nginx && \
-  php bin/console cache:clear --no-warmup && \
-  php bin/console cache:warmup && \
-  php bin/console doctrine:migrations:migrate --no-interaction && \
-  php-fpm -D && \
-  nginx -g \"daemon off;\" \
-'"
+cmds = [
+  "mkdir -p /var/log/nginx /var/cache/nginx",
+  "php bin/console cache:clear --no-warmup",
+  "php-fpm -D",
+  "nginx -g 'daemon off;'"
+]
