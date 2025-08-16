@@ -24,7 +24,7 @@ class PriceExtension extends AbstractExtension
 
         $price = $product->getPrice();
 
-        if($discounct) {
+        if ($discounct && !$discounct->getIsExpired()) {
 
             $percentage = $discounct->getPourcentage();
 

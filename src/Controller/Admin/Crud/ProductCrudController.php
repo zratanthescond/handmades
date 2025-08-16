@@ -4,6 +4,7 @@ namespace App\Controller\Admin\Crud;
 
 use App\Admin\Filter\EmptyCollectionFilter;
 use App\Entity\Product;
+use App\Entity\Colors;
 use App\Form\ProductDiscountType;
 use App\Form\ProductImageType;
 use App\Form\ProductInfoType;
@@ -25,6 +26,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\NullFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 
 class ProductCrudController extends AbstractCrudController
 {
@@ -92,8 +94,9 @@ class ProductCrudController extends AbstractCrudController
 
             ImageField::new("thumbnail", "Image")->setBasePath("/upload/img")->onlyOnIndex(),
             TextField::new("title", "Nom")->setColumns(6),
+            TextField::new("provider", "Fournisseur")->setColumns(6),
             TextField::new("ref", "Référence")->setColumns(4)->setFormTypeOptions(["disabled" => true]),
-            TextareaField::new("description")->onlyOnForms()->setColumns(12),
+            TextEditorField::new("description")->onlyOnForms()->setColumns(12),
             MoneyField::new("price", "Prix")->setCurrency("TND")->setStoredAsCents(false)->setColumns(4)->setRequired(true),
             IntegerField::new("qty", "Quantité")->setColumns(4)->formatValue(function ($v, $e) {
                 if ($v === 0) {
@@ -106,6 +109,7 @@ class ProductCrudController extends AbstractCrudController
             AssociationField::new("category", "Catégorie")->setColumns(3)->setRequired(true),
             AssociationField::new("brand", "Marque")->setColumns(3)->onlyOnForms(),
             AssociationField::new("type")->setColumns(2)->onlyOnForms(),
+            AssociationField::new("color", "famille des couleurs")->setColumns(6)->onlyOnForms(),
             // CountryField::new("originCountry", "Pays d'origine")->setColumns(3)->onlyOnForms(),
 
             FormField::addPanel("Infos"),

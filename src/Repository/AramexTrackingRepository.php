@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\AramexTracking;
+use App\Service\Aramex\AramexTrackingUpdateCodeResolver;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -17,6 +18,20 @@ class AramexTrackingRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, AramexTracking::class);
+    }
+
+    /**
+     * @return AramexTracking[] Returns an array of AramexTracking objects
+     */
+    public function findUndeliveredTrackings($maxResult = 10)
+    {
+
+        return $this->createQueryBuilder('t')
+            ->andWhere("t.UpdateCode <> :finalStatus")
+            ->setParameter("finalStatus",  AramexTrackingUpdateCodeResolver::DELIVERED_STATUS)
+            ->setmaxResults($maxResult)
+            ->getquery()
+            ->getresult();
     }
 
     // /**

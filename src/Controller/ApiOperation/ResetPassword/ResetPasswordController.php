@@ -33,7 +33,10 @@ class ResetPasswordController extends AbstractController
         }
 
         $user = $resetPasswordRequest->getUser();
-
+        // echo  '*******';
+        //  print_r($resetPasswordRequest->getUser());
+        //echo  '*******';
+        //  echo "hiiiiiii";
         $newPassword = $encoder->encodePassword($user, $plainPassword);
 
         $user->setPassword($newPassword);

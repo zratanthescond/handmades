@@ -34,6 +34,7 @@ use App\Filter\Product\ProductDiscountFilter;
  * "title": "partial", 
  * "type.slug": "exact",
  * "brand.country": "exact",
+ * "color.name": "exact",
  * "users"
  * }
  * )
@@ -45,7 +46,7 @@ use App\Filter\Product\ProductDiscountFilter;
  * 
  * @ApiFilter(
  * DateFilter::class,
- * properties={"discount.expireAt"}
+ * properties={"discount.expireAt","discount.beginAt"}
  * )
  * 
  * @ApiFilter(
@@ -190,7 +191,7 @@ class Product
      */
     private $type;
 
-     /**
+    /**
      * @ORM\ManyToMany(targetEntity=User::class, mappedBy="wishList")
      * @Groups({"product:read"})
      */
@@ -212,17 +213,54 @@ class Product
      */
     private $reviews;
 
+    /**
+     *  @ORM\ManyToOne(targetEntity=Colors::class, inversedBy="products")
+     * @Groups({"product:read", "brand:read", "home:read"})
+     */
+    private $color;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Product::class, inversedBy="family")
+     */
+    private $product;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Product::class, mappedBy="product")
+     */
+    private $family;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $provider;
+    /**
+     * @Groups({"product:read"})
+     */
+    private $relatedProducts;
     public function __construct()
     {
-       $this->createdAt = new DateTimeImmutable();
-       $this->images = new ArrayCollection();
-       $this->productOrders = new ArrayCollection();
-       $this->infos = new ArrayCollection();
-       $this->stockSubscriptions = new ArrayCollection();
-       $this->users = new ArrayCollection();
-       $this->reviews = new ArrayCollection();
+        $this->createdAt = new DateTimeImmutable();
+        $this->images = new ArrayCollection();
+        $this->productOrders = new ArrayCollection();
+        $this->infos = new ArrayCollection();
+        $this->stockSubscriptions = new ArrayCollection();
+        $this->users = new ArrayCollection();
+        $this->reviews = new ArrayCollection();
+        $this->family = new ArrayCollection();
+        $this->relatedProducts = new ArrayCollection();
+    }
+    public function getRelatedProducts(): ?Collection
+    {
+        return $this->relatedProducts;
     }
 
+    public function setRelatedProducts(?Collection $relatedProducts): self
+    {
+        //dd($relatedProducts);
+        $this->relatedProducts = $relatedProducts;
+
+        return $this;
+    }
     public function __toString()
     {
         return $this->title;
@@ -350,9 +388,9 @@ class Product
 
     public function getThumbnail()
     {
-        if($this->images->isEmpty() === false) {
+        if ($this->images->isEmpty() === false) {
 
-             return $this->images->first()->getName();
+            return $this->images->first()->getName();
         }
 
         return "preview400.png";
@@ -433,10 +471,10 @@ class Product
 
     /**
      * Get the value of shortDescription
-     */ 
+     */
     public function getShortDescription()
     {
-        return substr($this->description, 0, 50). "...";
+        return substr($this->description, 0, 50) . "...";
     }
 
     public function getRef(): ?string
@@ -505,7 +543,7 @@ class Product
         return $this;
     }
 
- 
+
     public function getRewardPoints()
     {
         return $this->rewardPoints;
@@ -562,7 +600,7 @@ class Product
 
     /**
      * Get the value of users
-     */ 
+     */
     public function getUsers()
     {
         return $this->users;
@@ -618,6 +656,72 @@ class Product
                 $review->setProduct(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getColor(): ?Colors
+    {
+        return $this->color;
+    }
+
+    public function setColor(?Colors $color): self
+    {
+        $this->color = $color;
+
+        return $this;
+    }
+
+    public function getProduct(): ?self
+    {
+        return $this->product;
+    }
+
+    public function setProduct(?self $product): self
+    {
+        $this->product = $product;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|self[]
+     */
+    public function getFamily(): Collection
+    {
+        return $this->family;
+    }
+
+    public function addFamily(self $family): self
+    {
+        if (!$this->family->contains($family)) {
+            $this->family[] = $family;
+            $family->setProduct($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFamily(self $family): self
+    {
+        if ($this->family->removeElement($family)) {
+            // set the owning side to null (unless already changed)
+            if ($family->getProduct() === $this) {
+                $family->setProduct(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getProvider(): ?string
+    {
+        return $this->provider;
+    }
+
+    public function setProvider(?string $provider): self
+    {
+        $this->provider = $provider;
 
         return $this;
     }

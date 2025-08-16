@@ -74,7 +74,7 @@ class AramexPickUpCrudController extends AbstractCrudController
     {
 
         $pickUp = $context->getEntity()->getInstance();
-
+        //dd($context->getEntity());
         $shippements = $pickUp->getShippements();
 
 
@@ -100,67 +100,26 @@ class AramexPickUpCrudController extends AbstractCrudController
 
             try {
 
-                $shippements = $aramexPickUp->getShippements();
-
-                $trackingsIds = array_map(fn (AramexShipement $e) => $e->getTrackingId(),  $shippements->toArray());
-
                 $pickUpRequest = $this->aramexApi->createPickUp($aramexPickUp->getReadyTime(), $aramexPickUp->getLastPickupTime());
 
                 $aramexPickUp->setPickUpId($pickUpRequest->getId())
                     ->setGuid($pickUpRequest->getGuid());
 
                 $this->em->persist($aramexPickUp);
+                $this->em->flush();
+                $this->addFlash("success", sprintf("Pick up %s crée avec succés", $pickUpRequest->getId()));
+                // dd($aramexPickUp->getId());
+                $url = $this->adminUrlGenerator
+                    ->setController(self::class)
+                    ->setAction(Action::DETAIL)
+                    ->setEntityId($aramexPickUp->getId())
+                    // ->setEntityId(20)
+                    ->generateUrl();
 
-                $updatedTrackings = [];
 
-                try {
 
-                    $trackingResults = $this->aramexTrackingApi->trackMultiple($trackingsIds);
 
-                    $HasMultipleResults = AramexHelper::isMultiDimensional($trackingResults);
-
-                    if ($HasMultipleResults) {
-
-                        foreach ($trackingResults as $result) {
-
-                            $trackingResult = (array) $result["Value"]["TrackingResult"];
-
-                            $trackingEntity = $this->trackingRepo->findOneBy(["waybillNumber" => $trackingResult["WaybillNumber"]]);
-
-                            array_push($updatedTrackings, $trackingEntity);
-
-                            $trackingEntity->setData($trackingResult)->setUpdateCode($trackingResult["UpdateCode"]);
-
-                            $this->em->persist($trackingEntity);
-                        }
-                    } else {
-
-                        $trackingResult = (array) $trackingResults["Value"]["TrackingResult"];
-
-                        $trackingEntity = $this->trackingRepo->findOneBy(["waybillNumber" => $trackingResult["WaybillNumber"]]);
-
-                        $trackingEntity->setData($trackingResult)->setUpdateCode($trackingResult["UpdateCode"]);
-
-                        array_push($updatedTrackings, $trackingEntity);
-
-                        $this->em->persist($trackingEntity);
-                    }
-
-                    $this->addFlash("success", sprintf("Pick up %s crée avec succés", $pickUpRequest->getId()));
-
-                    $this->em->flush();
-
-                    $url = $this->adminUrlGenerator
-                        ->setController(self::class)
-                        ->setAction(Action::DETAIL)
-                        ->setEntityId($aramexPickUp->getId())
-                        ->generateUrl();
-
-                    return $this->redirect($url);
-                } catch (Exception $e) {
-
-                    $this->addFlash("danger", $e->getMessage());
-                }
+                return $this->redirect($url);
             } catch (\Exception $e) {
 
                 $this->addFlash("danger", $e->getMessage());

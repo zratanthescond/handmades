@@ -64,6 +64,11 @@ class ProductDiscount
      */
     private $product;
 
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $beginAt;
+
 
     public function __construct()
     {
@@ -163,5 +168,17 @@ class ProductDiscount
           $this->isExpired = $isExpired;
 
           return $this;
+     }
+
+     public function getBeginAt(): ?\DateTimeInterface
+     {
+         return $this->beginAt;
+     }
+
+     public function setBeginAt(?\DateTimeInterface $beginAt): self
+     {
+         $this->beginAt = $beginAt;
+
+         return $this;
      }
 }

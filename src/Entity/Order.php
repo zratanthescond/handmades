@@ -162,6 +162,11 @@ class Order
      */
     private $promoterEarnings;
 
+    /**
+     * @ORM\OneToMany(targetEntity=OrderSpecialDiscount::class, mappedBy="cOrder", orphanRemoval=true, cascade={"persist", "remove"})
+     */
+    private $specialDiscounts;
+
 
     public function __construct()
     {
@@ -170,6 +175,7 @@ class Order
         $this->products = new ArrayCollection();
         $this->productReviews = new ArrayCollection();
         $this->promoterEarnings = new ArrayCollection();
+        $this->specialDiscounts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -448,6 +454,36 @@ class Order
             // set the owning side to null (unless already changed)
             if ($promoterEarning->getCOrder() === $this) {
                 $promoterEarning->setCOrder(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|OrderSpecialDiscount[]
+     */
+    public function getSpecialDiscounts(): Collection
+    {
+        return $this->specialDiscounts;
+    }
+
+    public function addSpecialDiscount(OrderSpecialDiscount $specialDiscount): self
+    {
+        if (!$this->specialDiscounts->contains($specialDiscount)) {
+            $this->specialDiscounts[] = $specialDiscount;
+            $specialDiscount->setCOrder($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSpecialDiscount(OrderSpecialDiscount $specialDiscount): self
+    {
+        if ($this->specialDiscounts->removeElement($specialDiscount)) {
+            // set the owning side to null (unless already changed)
+            if ($specialDiscount->getCOrder() === $this) {
+                $specialDiscount->setCOrder(null);
             }
         }
 

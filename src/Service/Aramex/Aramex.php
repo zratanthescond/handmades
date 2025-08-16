@@ -14,17 +14,17 @@ class Aramex
 
     // url dev https://ws.dev.aramex.net/ShippingAPI.V2/Shipping/Service_1_0.svc?wsdl
 
-    public const WSDL = "https://ws.aramex.net/ShippingAPI.V2/Shipping/Service_1_0.svc?wsdl";
+    public const SHIPPEMENT_WSDL = "https://ws.aramex.net/ShippingAPI.V2/Shipping/Service_1_0.svc?wsdl";
 
     public function client(): \SoapClient
     {
-        return new \SoapClient(self::WSDL, [
+        return new \SoapClient(self::SHIPPEMENT_WSDL, [
             'exceptions' => 1,
             'trace' => 1
         ]);
     }
 
- 
+
     public function CreateShipments(UserAddress $userAddress, Order $order): AramexShippement
     {
         $soapClient = $this->client();
@@ -35,7 +35,7 @@ class Aramex
 
         $cashOnDelivery = $order->getPayementTransaction() === null;
 
-        
+
 
         $params = array(
             'Shipments' => array(
@@ -55,7 +55,7 @@ class Aramex
                         ),
                         'Contact'        => array( // none de env
                             'Department'            => '',
-                            'PersonName'            =>  AramexConfig::COMPAGNY_NAME. " , "  . AramexConfig::COMPAGNY_ADDRESS, //nome vendeur
+                            'PersonName'            =>  AramexConfig::COMPAGNY_NAME . " , "  . AramexConfig::COMPAGNY_ADDRESS, //nome vendeur
                             'Title'                    => '',
                             'CompanyName'            => AramexConfig::COMPAGNY_NAME . " , "  . AramexConfig::COMPAGNY_ADDRESS, //nome vendeur
                             'PhoneNumber1'            => AramexConfig::COMPAGNY_PHONE, // numer tel vendeur
@@ -160,7 +160,7 @@ class Aramex
                         'ProductType'            => 'ONP', // VALEUR = "ONP" pick aramex ( creat pickup  api call ), "FIX" drop buro aramex
                         'PaymentType'            => 'P',
                         'PaymentOptions'         => '',
-                        'Services'                => $cashOnDelivery?'CODS':'', //"CODS" PAMENT A LIVRE ,"RTRN" ECHANGE ,"RTRN,CODS" echange + payment a livraisent ; (vide)livraisent normal sans payment san echange 
+                        'Services'                => $cashOnDelivery ? 'CODS' : '', //"CODS" PAMENT A LIVRE ,"RTRN" ECHANGE ,"RTRN,CODS" echange + payment a livraisent ; (vide)livraisent normal sans payment san echange 
                         'NumberOfPieces'        => 1, // number de embalage general a expdi 
                         'DescriptionOfGoods'     => 'Docs',
                         'GoodsOriginCountry'     => 'TN',
@@ -197,15 +197,7 @@ class Aramex
                 ),
             ),
 
-            'ClientInfo'              => array(
-                'AccountCountryCode'    => 'TN', //TN LIVE
-                'AccountEntity'             => AramexConfig::ACCOUNT_ENTITY, //TUN LIVE
-                'AccountNumber'             => AramexConfig::ACCOUNT_NUMBER,
-                'AccountPin'             => AramexConfig::ACCOUNT_PIN,
-                'UserName'                 => AramexConfig::USERNAME,
-                'Password'                 => AramexConfig::PASSWORD,
-                'Version'                 => AramexConfig::VERSION,
-            ),
+            'ClientInfo'              => AramexConfig::getClientInfos(),
 
             'Transaction'             => array(
                 'Reference1'            => '001',
@@ -239,13 +231,13 @@ class Aramex
 
             if ($data["HasErrors"] === true) {
 
-               $errorMessage = AramexErrorHandler::getErrorMessage($data);
+                $errorMessage = AramexErrorHandler::getErrorMessage($data);
 
                 throw new AramexException($errorMessage);
             }
 
+
             return new AramexShippement($data["Shipments"]);
-       
         } catch (\SoapFault $fault) {
 
             dd('Error : ' . $fault->faultstring);

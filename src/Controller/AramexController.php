@@ -2,15 +2,17 @@
 
 namespace App\Controller;
 
-use App\Entity\AramexPickUp;
+
 use App\Entity\AramexShipement;
 use App\Entity\AramexTracking as EntityAramexTracking;
 use App\Entity\UserAddress;
+use App\Event\OrderIsDeliveredEvent;
 use App\Repository\AramexPickUpRepository;
 use App\Repository\AramexTrackingRepository;
 use App\Repository\OrderRepository;
 use App\Service\Aramex\Aramex;
 use App\Service\Aramex\AramexTracking;
+use App\Service\Aramex\AramexTrackingUpdateCodeResolver;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,8 +24,9 @@ use Dompdf\Options as PdfOptions;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Symfony\Component\Serializer\SerializerInterface;
 use Twig\Environment as Twig;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+
 
 class AramexController extends AbstractController
 {
@@ -38,7 +41,6 @@ class AramexController extends AbstractController
     Aramex $aramex,
     AramexTracking $aramexTrackingApi,
     HttpClientInterface $httpClient,
-    NormalizerInterface $normalizer,
     EntityManagerInterface $em
   ): Response {
 
@@ -67,6 +69,8 @@ class AramexController extends AbstractController
         return $this->json(["error" => sprintf("No default address is set from %s addresses", count($addresses))], 422);
       }
 
+
+
       try {
         $shipement = $aramex->CreateShipments($address[0], $order);
 
@@ -92,13 +96,11 @@ class AramexController extends AbstractController
 
           $aramexTracking = new EntityAramexTracking();
 
-          $trackingResult = $aramexTrackingApi->trackOne($trackingId);
+          $trackingResult = $aramexTrackingApi::init($trackingId);
 
-          $trackingData = $normalizer->normalize($trackingResult);
-
-          $aramexTracking->setData($trackingData)
-            ->setUpdateCode($trackingResult->getUpdateCode())
-            ->setWaybillNumber($trackingResult->getWaybillNumber());
+          $aramexTracking->setData($trackingResult)
+            ->setUpdateCode($trackingResult["UpdateCode"])
+            ->setWaybillNumber($trackingResult["WaybillNumber"]);
 
           $aramexShipement->setTracking($aramexTracking);
 
@@ -107,12 +109,12 @@ class AramexController extends AbstractController
           $em->flush();
         } catch (\Exception $err) {
 
-          return $this->json(["error" => $err->getMessage()], 400);
+          return $this->json(["error" => $err->getMessage()], 422);
         }
 
         return $this->json(["trackingId" => $shipement->getTrackingId()]);
       } catch (\Exception $e) {
-        return $this->json(["error" => $e->getMessage()], 400);
+        return $this->json(["error" => $e->getMessage()], 422);
       }
     }
 
@@ -129,7 +131,8 @@ class AramexController extends AbstractController
     AramexTracking $aramexTrackingApi,
     AramexTrackingRepository $repo,
     EntityManagerInterface $em,
-    NormalizerInterface $normalizer
+    NormalizerInterface $normalizer,
+    EventDispatcherInterface $dispatcher
   ): Response {
 
     $data = $request->toArray();
@@ -145,7 +148,7 @@ class AramexController extends AbstractController
 
     try {
 
-      $trackingResults = $aramexTrackingApi->trackMultiple($trackingIds);
+      $trackingResults = $aramexTrackingApi->track($trackingIds);
 
       foreach ($trackingResults as $tracking) {
 
@@ -158,6 +161,15 @@ class AramexController extends AbstractController
         if (!$trackingEntity) {
 
           return $this->json(["error" => sprintf("Could not found this trackingId %", $waybillNumber)], 404);
+        }
+
+        if ($UpdateCode === AramexTrackingUpdateCodeResolver::DELIVERED_STATUS) {
+
+          $order = $trackingEntity->getShippement()->getClientOrder();
+
+          $event = new OrderIsDeliveredEvent($order);
+
+          $dispatcher->dispatch($event, OrderIsDeliveredEvent::EVENT_NAME);
         }
 
         $trackingData = $normalizer->normalize($tracking);

@@ -131,6 +131,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     private $blogComments;
 
+    /**
+     * @ORM\OneToMany(targetEntity=OrderSpecialDiscount::class, mappedBy="creator", orphanRemoval=true)
+     */
+    private $orderSpecialDiscounts;
+
     public function __construct()
     {
         $this->createdAt = new DateTimeImmutable();
@@ -140,6 +145,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->wishList = new ArrayCollection();
         $this->rewardPointsHistories = new ArrayCollection();
         $this->blogComments = new ArrayCollection();
+        $this->orderSpecialDiscounts = new ArrayCollection();
     }
 
     public function __toString()
@@ -505,6 +511,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
              // set the owning side to null (unless already changed)
              if ($blogComment->getUser() === $this) {
                  $blogComment->setUser(null);
+             }
+         }
+
+         return $this;
+     }
+
+     /**
+      * @return Collection|OrderSpecialDiscount[]
+      */
+     public function getOrderSpecialDiscounts(): Collection
+     {
+         return $this->orderSpecialDiscounts;
+     }
+
+     public function addOrderSpecialDiscount(OrderSpecialDiscount $orderSpecialDiscount): self
+     {
+         if (!$this->orderSpecialDiscounts->contains($orderSpecialDiscount)) {
+             $this->orderSpecialDiscounts[] = $orderSpecialDiscount;
+             $orderSpecialDiscount->setCreator($this);
+         }
+
+         return $this;
+     }
+
+     public function removeOrderSpecialDiscount(OrderSpecialDiscount $orderSpecialDiscount): self
+     {
+         if ($this->orderSpecialDiscounts->removeElement($orderSpecialDiscount)) {
+             // set the owning side to null (unless already changed)
+             if ($orderSpecialDiscount->getCreator() === $this) {
+                 $orderSpecialDiscount->setCreator(null);
              }
          }
 

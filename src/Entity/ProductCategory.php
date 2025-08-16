@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Symfony\Component\Serializer\Annotation\Groups;
 use App\Controller\ApiOperation\ProductCategory\NavigationController;
-
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ApiResource(
@@ -44,7 +44,7 @@ class ProductCategory
 
     /**
      * @ORM\Column(type="text", nullable=true)
-     * @Groups({"category:read"})
+     * @Groups({"product:read", "category:read", "brand:read", "home:read"})
      */
     private $description;
 
@@ -71,10 +71,31 @@ class ProductCategory
     
     /**
      * this is used only for to add subitems within API
-     * @Groups({"category:read"})
+     * @Groups({"product:read", "category:read", "brand:read", "home:read"})
      */
 
     public $subItems = [];
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     * @Gedmo\Slug(fields={"title"})
+     * @Groups({"category:read"})
+     * 
+     */
+    private $slug;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     * @Groups({"category:read"})
+     * 
+     */
+    private $meta_description;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     * @Groups({"category:read"})
+     */
+    private $page_title;
 
     public function __toString()
     {
@@ -190,6 +211,42 @@ class ProductCategory
                 $productCategory->setParent(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(?string $slug): self
+    {
+        $this->slug = $slug;
+
+        return $this;
+    }
+
+    public function getMetaDescription(): ?string
+    {
+        return $this->meta_description;
+    }
+
+    public function setMetaDescription(?string $meta_description): self
+    {
+        $this->meta_description = $meta_description;
+
+        return $this;
+    }
+
+    public function getPageTitle(): ?string
+    {
+        return $this->page_title;
+    }
+
+    public function setPageTitle(?string $page_title): self
+    {
+        $this->page_title = $page_title;
 
         return $this;
     }

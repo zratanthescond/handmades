@@ -5,6 +5,8 @@ namespace App\Controller\Admin;
 use App\Controller\Admin\Crud\AdminCrudController;
 use App\Controller\Admin\Crud\OutOfStockProductCrudController;
 use App\Controller\Admin\Crud\ProductCrudController;
+use App\Controller\Admin\Crud\ColorsCrudController;
+use App\Controller\Admin\DropShippingController;
 use App\Core\Security\Permission\UserRoles;
 use App\Entity\AramexPickUp;
 use App\Entity\AramexShipement;
@@ -32,6 +34,7 @@ use App\Entity\Promoter;
 use App\Entity\PromoterWithdrawalRequest;
 use App\Entity\SiteInfo;
 use App\Entity\User;
+use App\Entity\Colors;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
@@ -50,16 +53,16 @@ class DashboardController extends AbstractDashboardController
     {
         $this->adminUrlGenerator = $adminUrlGenerator;
     }
-   
+
     /**
      * @Route("/admin", name="admin")
      */
     public function index(): Response
     {
         $url = $this->adminUrlGenerator
-        ->setController(ProductCrudController::class)
-        ->setAction(Action::INDEX)
-        ->generateUrl();
+            ->setController(ProductCrudController::class)
+            ->setAction(Action::INDEX)
+            ->generateUrl();
 
         return $this->redirect($url);
     }
@@ -80,15 +83,17 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linktoDashboard('Dashboard', 'fa fa-home')->setPermission(UserRoles::SUPER_ADMIN);
         yield MenuItem::linkToCrud('Pages', 'fa fa-files-o', Page::class);
         yield MenuItem::linkToCrud('Homepage', 'fas fa-bookmark', Home::class)
-        ->setPermission(UserRoles::SUPER_ADMIN)
-        ->setEntityId(1)
-        ->setAction(Action::EDIT);
-
+            ->setPermission(UserRoles::SUPER_ADMIN)
+            ->setEntityId(1)
+            ->setAction(Action::EDIT);
+        yield MenuItem::linkToRoute('DropShipping', 'fas fa-list', 'test');
+        yield MenuItem::linkToRoute('Statistiques', 'fas fa-chart-bar', 'stats');
         yield MenuItem::section("Boutique");
         yield MenuItem::linkToCrud('Produits', 'fas fa-list', Product::class);
         yield MenuItem::linkToCrud('Types', 'fas fa-paperclip', ProductType::class);
         yield MenuItem::linkToCrud('Catégories', 'fa fa-folder-open', ProductCategory::class);
         yield MenuItem::linkToCrud('Marques', 'fas fa-cube', Brand::class);
+        yield MenuItem::linkToCrud('Couleurs', 'fas fa-paint-roller', Colors::class)->setController(ColorsCrudController::class);
 
 
         yield MenuItem::section("Stock Epuisé");
@@ -97,14 +102,14 @@ class DashboardController extends AbstractDashboardController
 
         yield MenuItem::linkToCrud('Produits', 'fa fa-sort-amount-asc', Product::class)->setController(OutOfStockProductCrudController::class);
 
-        
+
         yield MenuItem::section("Clients")->setPermission(UserRoles::SUPER_ADMIN);
 
         yield MenuItem::linkToCrud('Clients', 'fas fa-user', User::class)->setPermission(UserRoles::SUPER_ADMIN);
 
         yield MenuItem::linkToCrud('Parrainages', 'fas fa-users', Parrainage::class)->setPermission(UserRoles::SUPER_ADMIN);
-       
-       
+
+
         yield MenuItem::section("Commandes")->setPermission(UserRoles::SUPER_ADMIN);
 
         yield MenuItem::linkToCrud('Commandes', 'fas fa-shopping-cart', Order::class)->setPermission(UserRoles::SUPER_ADMIN);
@@ -117,19 +122,19 @@ class DashboardController extends AbstractDashboardController
 
         yield MenuItem::linkToCrud('Pick Up', 'fas fa-cart-arrow-down', AramexPickUp::class);
 
-        
+
         yield MenuItem::section("Promotion")->setPermission(UserRoles::SUPER_ADMIN);
 
         yield MenuItem::linkToCrud('Promotion produits', 'fas fa-magic', ProductDiscount::class)->setPermission(UserRoles::SUPER_ADMIN);
 
         yield MenuItem::linkToCrud('Code promo', 'fas fa-database', DiscountCode::class)->setPermission(UserRoles::SUPER_ADMIN);
-          
+
         yield MenuItem::section("Influenceurs")->setPermission(UserRoles::SUPER_ADMIN);
 
         yield MenuItem::linkToCrud('Influenceurs', 'fas fa-user', Promoter::class)->setPermission(UserRoles::SUPER_ADMIN);
 
         yield MenuItem::linkToCrud('Retraits', 'fas fa-user', PromoterWithdrawalRequest::class)->setPermission(UserRoles::SUPER_ADMIN);
-       
+
         yield MenuItem::section("Blog");
 
         yield MenuItem::linkToCrud('Articles', 'fas fa-rss', Blog::class);
@@ -151,19 +156,19 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::section("Paramétres")->setPermission(UserRoles::SUPER_ADMIN);
 
         yield MenuItem::linkToCrud('Infos', 'fas fa-info', SiteInfo::class)
-        ->setPermission(UserRoles::SUPER_ADMIN)
-        ->setEntityId(1)
-        ->setAction(Action::EDIT);
+            ->setPermission(UserRoles::SUPER_ADMIN)
+            ->setEntityId(1)
+            ->setAction(Action::EDIT);
 
 
         yield MenuItem::linkToCrud('PopUp', 'fas fa-image', PopUp::class)
-        ->setPermission(UserRoles::SUPER_ADMIN)
-        ->setEntityId(1)
-        ->setAction(Action::EDIT);
+            ->setPermission(UserRoles::SUPER_ADMIN)
+            ->setEntityId(1)
+            ->setAction(Action::EDIT);
 
-       // yield MenuItem::linkToCrud('Livraison', 'fas fa-truck', DeliveryType::class)->setPermission(UserRoles::SUPER_ADMIN);
+        // yield MenuItem::linkToCrud('Livraison', 'fas fa-truck', DeliveryType::class)->setPermission(UserRoles::SUPER_ADMIN);
 
-       // yield MenuItem::linkToRoute("Menu", "fa fa-sort-amount-asc", "menu_builder")->setPermission(UserRoles::SUPER_ADMIN);
+        // yield MenuItem::linkToRoute("Menu", "fa fa-sort-amount-asc", "menu_builder")->setPermission(UserRoles::SUPER_ADMIN);
 
         /// this is for handle user with amdin role
 

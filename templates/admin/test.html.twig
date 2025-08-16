@@ -1,0 +1,37 @@
+{# templates/admin/drop_shipping.html.twig #}
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}
+    Upload Excel for Product Update
+{% endblock %}
+
+{% block page_content %}
+    <div class="mb-4">
+        {{ form_start(form) }}
+            {{ form_row(form.brochure) }}
+        {{ form_end(form) }}
+    </div>
+
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label }} alert-dismissible fade show d-flex align-items-center" role="alert">
+                {% if label == 'success' %}
+                    <i class="bi bi-check-circle-fill me-2 text-success"></i>
+                    <strong class="me-1">Success:</strong>
+                {% elseif label == 'danger' %}
+                    <i class="bi bi-exclamation-triangle-fill me-2 text-danger"></i>
+                    <strong class="me-1">Error:</strong>
+                {% elseif label == 'warning' %}
+                    <i class="bi bi-exclamation-circle-fill me-2 text-warning"></i>
+                    <strong class="me-1">Warning:</strong>
+                {% elseif label == 'info' %}
+                    <i class="bi bi-info-circle-fill me-2 text-info"></i>
+                    <strong class="me-1">Info:</strong>
+                {% endif %}
+
+                <span>{{ message|raw }}</span>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+{% endblock %}

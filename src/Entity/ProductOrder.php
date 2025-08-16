@@ -38,6 +38,11 @@ class ProductOrder
      */
     private $cOrder;
 
+    public function __toString(): string
+    {
+        return $this->getProduct();  // or some string field in your Vegetal Entity 
+    }
+
     public function getId(): ?int
     {
         return $this->id;

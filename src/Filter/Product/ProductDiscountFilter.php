@@ -26,6 +26,7 @@ final class ProductDiscountFilter extends AbstractContextAwareFilter
         $queryBuilder
             ->innerJoin(sprintf("%s.discount", $alias), "d")
             ->andWhere("d.expireAt is NULL OR d.expireAt > CURRENT_DATE()")
+            ->andWhere("d.beginAt is NULL OR d.beginAt < CURRENT_DATE()")
             ->orderBy("d.expireAt", "DESC");
     }
 

@@ -52,6 +52,8 @@ class AramexTrackingUpdateCodeResolver
 
     public const DELIVERED_STATUS = "SH005";
 
+    public const INITIAL_STATUS = "SH014";
+
     public static function getStatus(string $status): string
     {
 

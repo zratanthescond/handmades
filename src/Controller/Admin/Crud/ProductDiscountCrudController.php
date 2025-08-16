@@ -38,6 +38,7 @@ class ProductDiscountCrudController extends AbstractCrudController
         return [
         
             PercentField::new("pourcentage")->setStoredAsFractional(false),
+            DateField::new("beginAt"),
             DateField::new("expireAt"),
             AssociationField::new("product")
 

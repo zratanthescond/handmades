@@ -15,13 +15,12 @@ class AramexTracking extends Aramex
     }
 
 
-
-    public const WSDL = "http://ws.aramex.net/ShippingAPI.V2/Tracking/Service_1_0.svc?wsdl";
+    public const TRACKING_WSDL = "http://ws.aramex.net/ShippingAPI.V2/Tracking/Service_1_0.svc?wsdl";
 
 
     public function client(): \SoapClient
     {
-        return new \SoapClient(self::WSDL, [
+        return new \SoapClient(self::TRACKING_WSDL, [
             'exceptions' => 1,
             'trace' => 1
         ]);
@@ -29,6 +28,7 @@ class AramexTracking extends Aramex
 
     /**
      * @return AramexTrackingEntity[]
+     * @deprecated use @method track instead
      */
 
     public function trackMultiple(array $trackingIds): array
@@ -103,12 +103,44 @@ class AramexTracking extends Aramex
         }
     }
 
+    /**
+     * @return AramexTrackingEntity[]
+     */
+
+    public function track(array $trackingIds)
+    {
+        return $this->trackMultiple($trackingIds);
+    }
+
 
     public function trackOne(string $trackingId): AramexTrackingEntity
     {
-
-        $result = $this->trackMultiple([$trackingId]);
+        $result = $this->track([$trackingId]);
 
         return $result[0];
+    }
+
+    /**
+     * Since  we can not get a full tracking result immediately after the shippement creation
+     * We init a tracking to follow next
+     */
+
+    public static function init(string $trackingId): array
+    {
+
+        $data = [
+            "Comments" => "",
+            "UpdateCode" => AramexTrackingUpdateCodeResolver::INITIAL_STATUS,
+            "WeightUnit" => "KG",
+            "GrossWeight" => "0.5",
+            "ProblemCode" => "",
+            "WaybillNumber" => $trackingId,
+            "UpdateDateTime" => null,
+            "UpdateLocation" => "Tunis, Tunisia",
+            "ChargeableWeight" => "0.5",
+            "UpdateDescription" => "Record created."
+        ];
+
+        return $data;
     }
 }

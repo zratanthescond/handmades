@@ -31,15 +31,8 @@
 
 <span>{{ order.total | format_currency('TND', {fraction_digit: 3}) }}</span> 
 
-{% if not order.invoice %}
-
 <a href="/order/invoice/{{ order.id }}" class="btn btn-primary" download>Facture</a>
 
-{% else %}
-
-<a href="/upload/invoice/{{ order.invoice }}" class="btn btn-primary" download>Facture</a>
-
-{% endif %}
 
 </li> 
 
@@ -175,32 +168,6 @@
 {% endif %}
 
 
-
-{% endif %}
-
-</li>
-
-</ul>
-</div>
-
-<div class="col-md-6 mt-4">
-
-<h5>Réduction</h5>
-
-<ul class="list-group">
-
-<li class="list-group-item"><span class="bold fw-bold">Points de fidélité :</span> {{ order.rewardPointsToConsume}} Points</li>
-
-<li class="list-group-item"><span class="bold fw-bold">Code promo:</span>
-
-{% if order.discountCode %}
-
-<span> {{ order.discountCode.code }} // -{{ order.discountCode.percentage }}% </span>
-
-{% else %}
-
-<span>Aucun</span>
-
 {% endif %}
 
 </li>
@@ -241,5 +208,105 @@
 
 
 </table>
+
+<div class="row">
+<div class="col-md-6 mb-4 mt-4">
+
+<h5>Réduction</h5>
+
+<ul class="list-group">
+
+<li class="list-group-item"><span class="bold fw-bold">Points de fidélité :</span> {{ order.rewardPointsToConsume}} Points</li>
+
+<li class="list-group-item"><span class="bold fw-bold">Code promo:</span>
+
+{% if order.discountCode %}
+
+<span> {{ order.discountCode.code }} // -{{ order.discountCode.percentage }}% </span>
+
+{% else %}
+
+<span>Aucun</span>
+
+{% endif %}
+
+</li>
+
+</ul>
+
+
+</div>
+
+<div class="col-md-12 mt-4 mb-4">
+
+
+
+<div class="d-flex justify-content-between align-items-center mb-3 mt-4">
+
+<div class="d-flex align-items-center">
+<h5>Réductions appliquées</h5>
+{% if specialDiscountsValue > 0 %}
+<span class="ms-2 badge badge-success">{{ specialDiscountsValue | format_currency('TND', {fraction_digit: 3}) }}</span>
+{% endif %}
+</div>
+
+<div><!-- Button trigger modal -->
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+Appliquer une réduction spéciale
+</button></div>
+
+
+</div>
+
+
+<ul class="list-group list-group-flush mb-5">
+
+{% for specialDiscount in specialDiscounts %}
+
+<li class="list-group-item">
+
+<div class="row">
+
+<div class="col-md-4">Date : {{ specialDiscount.value | date("d/m/Y")}}</div>
+
+<div class="col-md-4">Appliqué par : {{ specialDiscount.creator   }}</div>
+
+<div class="col-md-4">Valeur : {{ specialDiscount.value | format_currency('TND', {fraction_digit: 3}) }}</div>
+
+
+</div>
+
+</li>
+
+{% else %}
+
+<li class="list-group-item text-center text-danger">Aucune réduction appliquée</li>
+
+{% endfor %}
+
+</ul>
+
+</div>
+
+</div>
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Appliquer une réduction spéciale</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+
+{{ form_start(specialDiscountForm) }} {{ form_end(specialDiscountForm) }}
+      </div>
+      
+    </div>
+  </div>
+</div>
 
 {% endblock %}

@@ -183,6 +183,22 @@
 
 					{% endif %}
 
+
+					{% if specialDiscountsValue > 0  %}
+
+						<tr>
+
+							<td colspan="1"></td>
+
+							<td class="danger"><strong>Réduction spéciale</strong></td>
+
+							<td class="danger">-
+								<strong>{{ specialDiscountsValue | format_currency('TND', {fraction_digit: 3}) }}</strong></td>
+
+						</tr>
+
+					{% endif %}
+
 					<tr>
 
 						<td colspan="1"></td>

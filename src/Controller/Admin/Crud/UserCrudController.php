@@ -4,6 +4,7 @@ namespace App\Controller\Admin\Crud;
 
 use App\Core\Security\Permission\UserRoles;
 use App\Entity\User;
+use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -13,9 +14,20 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\EmailField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Symfony\Component\HttpFoundation\Response;
 
 class UserCrudController extends AbstractCrudController
 {
+
+    private $adminUrlGenerator;
+
+    public function __construct(AdminUrlGenerator $adminUrlGenerator)
+    {
+        $this->adminUrlGenerator = $adminUrlGenerator;
+    }
 
     public static function getEntityFqcn(): string
     {
@@ -25,23 +37,89 @@ class UserCrudController extends AbstractCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return $crud->setEntityLabelInPlural("Clients")
-        ->setEntityLabelInSingular("Client")
-        ->setDefaultSort(["createdAt" => "DESC"]);
+            ->setEntityLabelInSingular("Client")
+            ->setDefaultSort(["createdAt" => "DESC"]);
     }
 
     public function configureActions(Actions $actions): Actions
     {
-        return $actions->disable(Action::DELETE, Action::NEW)->add(Crud::PAGE_INDEX, Action::DETAIL);
+        $exportCVS = Action::new('export CVS', 'export CVS', 'fa fa-file-invoice')
+            ->linkToCrudAction('renderInvoice')->setCssClass('btn btn-primary action-foo')->createAsGlobalAction();
+        return $actions->disable(Action::DELETE, Action::NEW)
+            ->add(Crud::PAGE_INDEX, Action::DETAIL)->add(Crud::PAGE_INDEX, $exportCVS);
     }
 
+
+    public function renderInvoice(EntityManagerInterface $em)
+    {
+        $parrainage = $em->getRepository("App\Entity\User")->findBy(array(), array('createdAt' => 'DESC'));
+        // dd($parrainage);
+        // $data = $parrainage->iterate();
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Parrainage exports');
+        $columnsMap = [];
+        $lineIndex = 2;
+        foreach ($parrainage as $line) {
+            //   dd($line);
+
+            $data['ID'] = (int) $line->getId();
+            $data["Date d'inscription"] = $line->getCreatedAt();
+            $data['Email'] = $line->getEmail();
+            $data['Nom et Prénom'] = $line->getFullName();
+            $data['Numéro du téléphone'] = $line->getPhoneNumber();
+            $data['Date de naissance'] = $line->getBirthDay();
+            $data['Points de fidélité'] = $line->getRewardPoints();
+
+            // dd($data);
+            foreach ($data as $columnName => $columnValue) {
+                if (is_int($columnIndex = array_search($columnName, $columnsMap))) {
+                    //   dd($columnName);
+                    $columnIndex++;
+                } else {
+
+                    $columnsMap[] = $columnName;
+                    $columnIndex = count($columnsMap);
+                }
+                // echo "<br>";
+                // print_r($columnValue);
+                // echo "<br>";
+                $sheet->getCellByColumnAndRow($columnIndex, $lineIndex)->setValue($columnValue);
+            }
+            $lineIndex++;
+        }
+        foreach ($columnsMap as $columnMapId => $columnTitle) {
+            $sheet->getCellByColumnAndRow($columnMapId + 1, 1)->setValue($columnTitle);
+        }
+        $writer = new Xlsx($spreadsheet);
+        ob_start();
+        $writer->save('php://output');
+        $excelOutput = ob_get_clean();
+
+        return new Response(
+            $excelOutput,
+            200,
+            [
+                'content-type'        =>  'text/x-csv; charset=windows-1251',
+                'Content-Disposition' => 'attachment; filename="price.xlsx"'
+            ]
+        );
+    }
     public function detail(AdminContext $context)
     {
 
         $client = $context->getEntity()->getInstance();
 
+        $addNewAdressUrl = $this->adminUrlGenerator->setAll([
+            "crudAction" => Action::NEW,
+            "entityId" => null,
+            "userId" => $client->getId(),
+            "crudControllerFqcn" => UserAddressCrudController::class
+        ])->generateUrl();
 
         return $this->render("dashboard/client/details.html.twig", [
-            "client" => $client
+            "client" => $client,
+            "addNewAdressUrl" => $addNewAdressUrl
         ]);
     }
 

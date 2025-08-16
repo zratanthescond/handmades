@@ -60,13 +60,22 @@ class OrderInvoiceController extends AbstractController
             $discount -= 7;
         }
 
+        $specialDiscounts = $order->getSpecialDiscounts()->toArray();
+
+        $specialDiscountsValue = 0;
+
+        foreach ($specialDiscounts as $v) {
+            $specialDiscountsValue += $v->getValue();
+        }
+
         $html = $twig->render(
             "dashboard/order/invoice.html.twig",
 
             [
                 "order" => $order,
                 "defaultAddress" => $defaultAddress,
-                "discount" => $discount
+                "discount" => $discount,
+                "specialDiscountsValue" => $specialDiscountsValue
 
             ]
         );
@@ -98,7 +107,7 @@ class OrderInvoiceController extends AbstractController
         $order->setInvoice($fileName);
 
         $em->persist($order);
-        
+
         $em->flush();;
 
         $filesystem = new Filesystem();

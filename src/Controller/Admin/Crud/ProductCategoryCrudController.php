@@ -45,6 +45,8 @@ class ProductCategoryCrudController extends AbstractCrudController
 
             TextField::new("title", "nom"),
             TextareaField::new("description"),
+            TextareaField::new("meta_description","meta description"),
+            TextField::new("page_title","titre de catégorie"),
             CollectionField::new("products", "Produits")
                 ->formatValue(fn ($v, ProductCategory $pc) => $pc->getProducts()->count())->onlyOnIndex(),
             AssociationField::new("parent")

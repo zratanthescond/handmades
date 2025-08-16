@@ -29,7 +29,7 @@ class TokenCreatorController extends AbstractController
 
         $user = $repo->findOneBy(["email" => $userEmail]);
 
-        if(!$user) {
+        if (!$user) {
 
             return new JsonResponse(["error" => "Aucun compte associé avec cette adresse email"], 404);
         }
@@ -38,14 +38,17 @@ class TokenCreatorController extends AbstractController
 
         $oldUserResetPassword = $user->getResetPassword();
 
-        if($oldUserResetPassword) {
+        if ($oldUserResetPassword) {
 
-            return new JsonResponse([
-            "error" => "Vous avez déja demandé un changement de mot de passe, veuillez vérifier votre adresse email ". $user->getEmail()]
-            , 400);
+            return new JsonResponse(
+                [
+                    "error" => "Vous avez déja demandé un changement de mot de passe, veuillez vérifier votre adresse email " . $user->getEmail()
+                ],
+                400
+            );
         }
- 
-        $token = base64_encode(uniqid().$user->getEmail());
+
+        $token = base64_encode(uniqid() . $user->getEmail());
 
         $expiresAt = (new \DateTimeImmutable())->add(new \DateInterval('P1D'));
 
