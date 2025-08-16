@@ -17,20 +17,7 @@ pkgs = [
 ]
 
 [phases.setup.nix.meta.passthru]
-packageOverrides = """
-self: super: {
-    yarn = super.yarn.overrideAttrs (old: {
-        postInstall = ''
-            rm "$out/LICENSE"
-        '';
-    });
-    composer = super.composer.overrideAttrs (old: {
-        postInstall = ''
-            rm "$out/LICENSE"
-        '';
-    });
-}
-"""
+packageOverrides = "self: super: { yarn = super.yarn.overrideAttrs (old: { postInstall = ''rm \"$out/LICENSE\"''; }); composer = super.composer.overrideAttrs (old: { postInstall = ''rm \"$out/LICENSE\"''; }); }"
 
 [phases.install]
 cmds = [
