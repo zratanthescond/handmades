@@ -22,12 +22,16 @@ packageOverrides = '''
   self: super: {
     yarn = super.yarn.overrideAttrs (old: {
       postInstall = (old.postInstall or "") + ''
-        mv $out/LICENSE $out/LICENSE.yarn || true
+        if [ -f $out/LICENSE ]; then
+          mv $out/LICENSE $out/LICENSE.yarn
+        fi
       '';
     });
     composer = super.composer.overrideAttrs (old: {
       postInstall = (old.postInstall or "") + ''
-        mv $out/LICENSE $out/LICENSE.composer || true
+        if [ -f $out/LICENSE ]; then
+          mv $out/LICENSE $out/LICENSE.composer
+        fi
       '';
     });
   }
