@@ -1,5 +1,5 @@
 [phases.setup]
-nixpkgs = "https://github.com/NixOS/nixpkgs/archive/nixpkgs-unstable.tar.gz"
+nixpkgs = "https://github.com/NixOS/nixpkgs/archive/339d0121114d642b9340915d3151cf09e6c1e13b.tar.gz"
 
 [phases.setup.nix]
 pkgs = [
@@ -15,6 +15,22 @@ pkgs = [
     "nodejs",
     "yarn",
 ]
+
+[phases.setup.nix.meta.passthru]
+packageOverrides = """
+self: super: {
+    yarn = super.yarn.overrideAttrs (old: {
+        postInstall = ''
+            rm "$out/LICENSE"
+        '';
+    });
+    composer = super.composer.overrideAttrs (old: {
+        postInstall = ''
+            rm "$out/LICENSE"
+        '';
+    });
+}
+"""
 
 [phases.install]
 cmds = [
